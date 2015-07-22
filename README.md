@@ -1,2 +1,2 @@
-# sssj
+# SSSJ
 Streaming Similarity Self Join
