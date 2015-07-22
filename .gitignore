@@ -1,6 +1,10 @@
 *.class
 *.log
 
+# Eclipse specifi
+.project
+.classpath
+
 # sbt specific
 .cache
 .history
