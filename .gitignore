@@ -1,9 +1,10 @@
 *.class
 *.log
 
-# Eclipse specifi
+# Eclipse specific
 .project
 .classpath
+bin/
 
 # sbt specific
 .cache
