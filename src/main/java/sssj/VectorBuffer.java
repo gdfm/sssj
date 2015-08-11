@@ -47,6 +47,10 @@ public class VectorBuffer {
     this.epoch++;
     while (!queue.isEmpty() && queue.peek().timestamp() < windowStart())
       queue.remove();
+    // update the max vector
+    this.max.clear();
+    for (Vector v : queue)
+      Vector.maxByDimension(max, v);
     return this;
   }
 
@@ -82,5 +86,9 @@ public class VectorBuffer {
         return input.timestamp() >= windowMid();
       }
     });
+  }
+
+  public boolean isEmpty() {
+    return this.size() == 0;
   }
 }

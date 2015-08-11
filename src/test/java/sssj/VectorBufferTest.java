@@ -47,4 +47,28 @@ public class VectorBufferTest {
     assertEquals(3, Iterators.size(buffer.firstHalf()));
     assertEquals(0, Iterators.size(buffer.secondHalf()));
   }
+
+  @Test
+  public void testMax() {
+    VectorBuffer buffer = new VectorBuffer(1);
+    Vector v0 = new Vector(0);
+    Vector v1 = new Vector(1);
+    Vector v2 = new Vector(2);
+    v0.put(1, 1.0);
+    v1.put(1, 0.5);
+    v2.put(1, 0.3);
+    assertTrue(buffer.add(v0));
+    assertEquals(1.0, buffer.getMax().get(1), Double.MIN_VALUE);
+    assertTrue(buffer.add(v1));
+    assertEquals(1.0, buffer.getMax().get(1), Double.MIN_VALUE);
+    buffer.slide();
+    assertEquals(0.5, buffer.getMax().get(1), Double.MIN_VALUE);
+    assertTrue(buffer.add(v2));
+    assertEquals(0.5, buffer.getMax().get(1), Double.MIN_VALUE);
+    buffer.slide();
+    assertEquals(0.3, buffer.getMax().get(1), Double.MIN_VALUE);
+    buffer.slide();
+    assertEquals(0, buffer.getMax().get(1), Double.MIN_VALUE);
+    assertEquals(0, buffer.size());
+  }
 }

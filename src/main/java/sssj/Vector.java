@@ -29,7 +29,7 @@ public class Vector extends Int2DoubleAVLTreeMap {
     this.putAll(other);
   }
 
-  public long getTimestamp() {
+  public long timestamp() {
     return timestamp;
   }
 

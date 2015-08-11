@@ -11,7 +11,7 @@ import com.github.gdfm.shobaidogu.IOUtils;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Maps;
 
-public class Main {
+public class SSSJ {
 
   public static void main(String[] args) throws Exception {
     System.out.println("RUN!");
@@ -25,7 +25,7 @@ public class Main {
     long currentTimestamp = -1, previousTimestamp = -1;
     for (Vector v : stream) {
       previousTimestamp = currentTimestamp;
-      currentTimestamp = v.getTimestamp();
+      currentTimestamp = v.timestamp();
 
       Long2DoubleMap matches = index.queryWith(v);
       Map<Long, Double> results = Maps.filterValues(matches, new Predicate<Double>() { // TODO should not be needed
@@ -34,7 +34,7 @@ public class Main {
           return input.compareTo(threshold) >= 0;
         }
       });
-      System.out.println(v.getTimestamp() + ": " + results);
+      System.out.println(v.timestamp() + ": " + results);
 
       Vector r = index.addVector(v);
       residual.add(r);

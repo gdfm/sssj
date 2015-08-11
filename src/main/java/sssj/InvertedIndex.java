@@ -48,7 +48,7 @@ public class InvertedIndex {
       double weight = e.getDoubleValue();
       if (!idx.containsKey(dimension))
         idx.put(dimension, new PostingList());
-      idx.get(dimension).add(v.getTimestamp(), weight);
+      idx.get(dimension).add(v.timestamp(), weight);
     }
     return Vector.EMPTY_VECTOR;
   }
