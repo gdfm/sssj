@@ -1,40 +1,31 @@
 package sssj;
 
-import it.unimi.dsi.fastutil.longs.Long2DoubleMap;
-
 import java.io.BufferedReader;
 import java.util.Map;
 
 import sssj.io.StreamReader;
 
 import com.github.gdfm.shobaidogu.IOUtils;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Maps;
 
 public class SSSJ {
 
   public static void main(String[] args) throws Exception {
     System.out.println("RUN!");
     String filename = args[0];
-    final double threshold = 0.03;
+    final double theta = 0.03;
     BufferedReader reader = IOUtils.getBufferedReader(filename);
     StreamReader stream = new StreamReader(reader);
-    InvertedIndex index = new InvertedIndex(threshold);
-    ResidualIndex residual = new ResidualIndex();
-    
+    InvertedIndex index = new InvertedIndex(theta);
+    ResidualList residual = new ResidualList();
+
     long currentTimestamp = -1, previousTimestamp = -1;
     for (Vector v : stream) {
       previousTimestamp = currentTimestamp;
       currentTimestamp = v.timestamp();
 
-      Long2DoubleMap matches = index.queryWith(v);
-      Map<Long, Double> results = Maps.filterValues(matches, new Predicate<Double>() { // TODO should not be needed
-        @Override
-        public boolean apply(Double input) {
-          return input.compareTo(threshold) >= 0;
-        }
-      });
-      System.out.println(v.timestamp() + ": " + results);
+      Map<Long, Double> results = index.queryWith(v);
+      if (!results.isEmpty())
+        System.out.println(v.timestamp() + ": " + results);
 
       Vector r = index.addVector(v);
       residual.add(r);
