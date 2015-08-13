@@ -17,14 +17,7 @@ public class L2APIndex implements Index {
     this.index = new InvertedIndex(theta);
   }
 
-  public static class BatchResult extends ForwardingTable<Long, Long, Double> {
-    private final HashBasedTable<Long, Long, Double> delegate = HashBasedTable.create();
 
-    @Override
-    protected Table<Long, Long, Double> delegate() {
-      return delegate;
-    }
-  }
 
   @Override
   public Map<Long, Double> queryWith(Vector v) {

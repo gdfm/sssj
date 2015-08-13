@@ -11,10 +11,10 @@ import com.github.gdfm.shobaidogu.LineIterable;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
 
-public class StreamReader implements Iterable<Vector> {
+public class VectorStreamReader implements Iterable<Vector> {
   private LineIterable it;
 
-  public StreamReader(BufferedReader reader) throws FileNotFoundException, IOException {
+  public VectorStreamReader(BufferedReader reader) throws FileNotFoundException, IOException {
     it = new LineIterable(reader);
   }
 

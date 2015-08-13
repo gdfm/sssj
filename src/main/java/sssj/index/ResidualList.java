@@ -1,17 +1,13 @@
 package sssj.index;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 
-import com.google.common.base.Predicates;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-
 import sssj.Vector;
+
+import com.google.common.base.Predicates;
+import com.google.common.collect.Iterables;
 
 public class ResidualList implements Iterable<Vector> {
   private Queue<Vector> queue = new LinkedList<>();
@@ -31,7 +27,7 @@ public class ResidualList implements Iterable<Vector> {
   }
 
   public Vector get(long candidateID) {
-    Vector result = Iterables.find(queue, Predicates.equalTo(new Vector(candidateID)), null);
+    Vector result = Iterables.find(queue, Predicates.equalTo(new Vector(candidateID)), null); //TODO make residual finding more efficient
     return result;
   }
 }
