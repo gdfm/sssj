@@ -1,15 +1,16 @@
 package sssj;
 
 import it.unimi.dsi.fastutil.ints.Int2DoubleAVLTreeMap;
+import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 
 /**
  * A sparse vector in a multidimensional Euclidean space. The vector is identified by a unique timestamp.
  */
-public class Vector extends Int2DoubleAVLTreeMap {
+//public class Vector extends Int2DoubleAVLTreeMap {
+public class Vector extends Int2DoubleLinkedOpenHashMap { // entries are returned in the same order they are added
   public static final Vector EMPTY_VECTOR = new Vector(Long.MIN_VALUE);
-
-  private long timestamp;
+  protected long timestamp;
 
   public Vector() {
     this(0);
@@ -31,6 +32,10 @@ public class Vector extends Int2DoubleAVLTreeMap {
 
   public long timestamp() {
     return timestamp;
+  }
+
+  public void setTimestamp(long timestamp) {
+    this.timestamp = timestamp;
   }
 
   @Override
@@ -93,33 +98,36 @@ public class Vector extends Int2DoubleAVLTreeMap {
    *          multiply from max down to this dimension, not included
    * @return the dot product of the vectors as a double
    */
-//  public static double dotProduct(VectorComponent[] vca1, VectorComponent[] vca2, long minDim) {
-//    // I assume the arrays are already correctly sorted
-//    // Arrays.sort(vca1);
-//    // Arrays.sort(vca2);
-//    // empty vectors
-//    if (vca1.length == 0 || vca2.length == 0)
-//      return 0;
-//    int i = 0, j = 0;
-//    double res = 0;
-//    while (i < vca1.length && j < vca2.length && vca1[i].getID() > minDim && vca2[j].getID() > minDim) {
-//      if (vca1[i].getID() > vca2[j].getID()) {
-//        i++;
-//      } else if (vca1[i].getID() < vca2[j].getID()) {
-//        j++;
-//      } else if (vca1[i].getID() == vca2[j].getID()) {
-//        res += vca1[i].getWeight() * vca2[j].getWeight();
-//        i++;
-//        j++;
-//      }
-//    }
-//    return res;
-//  }
+  //  public static double dotProduct(VectorComponent[] vca1, VectorComponent[] vca2, long minDim) {
+  //    // I assume the arrays are already correctly sorted
+  //    // Arrays.sort(vca1);
+  //    // Arrays.sort(vca2);
+  //    // empty vectors
+  //    if (vca1.length == 0 || vca2.length == 0)
+  //      return 0;
+  //    int i = 0, j = 0;
+  //    double res = 0;
+  //    while (i < vca1.length && j < vca2.length && vca1[i].getID() > minDim && vca2[j].getID() > minDim) {
+  //      if (vca1[i].getID() > vca2[j].getID()) {
+  //        i++;
+  //      } else if (vca1[i].getID() < vca2[j].getID()) {
+  //        j++;
+  //      } else if (vca1[i].getID() == vca2[j].getID()) {
+  //        res += vca1[i].getWeight() * vca2[j].getWeight();
+  //        i++;
+  //        j++;
+  //      }
+  //    }
+  //    return res;
+  //  }
 
   /**
-   * Updates the vector maxVector to the max of itself and the vector query. 
-   * @param maxVector the old max vector
-   * @param query the new vector
+   * Updates the vector maxVector to the max of itself and the vector query.
+   * 
+   * @param maxVector
+   *          the old max vector
+   * @param query
+   *          the new vector
    * @return the subset of the new vector that was larger than maxVector (for reindexing)
    */
   public static Vector maxByDimension(Vector maxVector, Vector query) {
@@ -129,6 +137,14 @@ public class Vector extends Int2DoubleAVLTreeMap {
         maxVector.put(e.getIntKey(), e.getDoubleValue());
         result.put(e.getIntKey(), e.getDoubleValue());
       }
+    }
+    return result;
+  }
+
+  public static double similarity(Vector target, Vector query) {
+    double result = 0;
+    for (Int2DoubleMap.Entry e : query.int2DoubleEntrySet()) {
+      result += e.getDoubleValue() * target.get(e.getIntKey()); //TODO add time decay
     }
     return result;
   }

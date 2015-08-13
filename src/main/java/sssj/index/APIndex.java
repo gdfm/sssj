@@ -1,4 +1,4 @@
-package sssj;
+package sssj.index;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap.Entry;
@@ -11,64 +11,80 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Maps;
+import sssj.Vector;
 
-public class AllPairsIndex implements Index {
+public class APIndex implements Index {
   private Int2ReferenceMap<PostingList> idx = new Int2ReferenceOpenHashMap<>();
-  private final double threshold;
-  private final Vector maxVector = new Vector();
+  private ResidualList resList = new ResidualList();
+  private final double theta;
+  private final Vector maxVector;
   private int size = 0;
 
-  public AllPairsIndex(double threshold) {
-    this.threshold = threshold;
+  public APIndex(double threshold, Vector maxVector) {
+    this.theta = threshold;
+    this.maxVector = maxVector;
   }
 
   @Override
   public Map<Long, Double> queryWith(Vector v) {
-    Long2DoubleMap accumulator = new Long2DoubleOpenHashMap(size);
+    Long2DoubleOpenHashMap matches = new Long2DoubleOpenHashMap();
+    Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap(size);
+    // int minSize = theta / rw_x; //TODO possibly size filtering (need to sort dataset by max row value rw_x)
+    double remscore = Vector.similarity(maxVector, v);
     for (Entry e : v.int2DoubleEntrySet()) {
       int dimension = e.getIntKey();
       if (!idx.containsKey(dimension))
         idx.put(dimension, new PostingList());
       PostingList list = idx.get(dimension);
-      double queryWeight = e.getDoubleValue();
+      //TODO possibly size filtering: remove entries from the posting list with |y| < minsize (need to save size in the posting list)
+      double queryWeight = e.getDoubleValue(); // x_j
       for (PostingEntry pe : list) {
-        long targetID = pe.getLongKey();
-        double targetWeight = pe.getDoubleValue();
-        double currentSimilarity = accumulator.get(targetID);
-        double additionalSimilarity = queryWeight * targetWeight;
-        accumulator.put(targetID, currentSimilarity + additionalSimilarity);
+        long targetID = pe.getLongKey(); // y
+        if (accumulator.containsKey(targetID) || Double.compare(remscore, theta) >= 0) {
+          double targetWeight = pe.getDoubleValue(); // y_j
+          //double currentSimilarity = accumulator.get(targetID);
+          double additionalSimilarity = queryWeight * targetWeight; // x_j * y_j 
+          // TODO add e^(-lambda*delta_t)
+          accumulator.addTo(targetID, additionalSimilarity); // A[y] += x_j * y_j 
+          //accumulator.put(targetID, currentSimilarity + additionalSimilarity);
+        }
+        remscore -= queryWeight * maxVector.get(dimension);
       }
     }
     //    return accumulator;
 
-    Map<Long, Double> results = Maps.filterValues(accumulator, new Predicate<Double>() { // TODO should not be needed
-          @Override
-          public boolean apply(Double input) {
-            return input.compareTo(threshold) >= 0;
-          }
-        });
-    return results;
+    for (Long2DoubleMap.Entry e : accumulator.long2DoubleEntrySet()) {
+      //TODO possibly use size filtering (sz_3)
+      long candidateID = e.getLongKey();
+      Vector candidateResidual = resList.get(candidateID);
+      assert (candidateResidual != null);
+      double score = e.getDoubleValue() + Vector.similarity(candidateResidual, v); // A[y] + dot(y',x)
+      if (Double.compare(score, theta) >= 0)
+        matches.put(candidateID, score);
+    }
+    return matches;
   }
 
   @Override
   public Vector addVector(Vector v) {
     size++;
-    Vector toReindex = Vector.maxByDimension(maxVector, v);
-    //TODO re-index vectors in posting lists corresponding to dimensions in toReindex
+    double pscore = 0;
+    Vector residual = new Vector(v.timestamp());
     for (Entry e : v.int2DoubleEntrySet()) {
       int dimension = e.getIntKey();
       double weight = e.getDoubleValue();
-      if (!idx.containsKey(dimension))
-        idx.put(dimension, new PostingList());
-      idx.get(dimension).add(v.timestamp(), weight);
+      pscore += weight * maxVector.get(dimension);
+      if (Double.compare(pscore, theta) >= 0) {
+        if (!idx.containsKey(dimension))
+          idx.put(dimension, new PostingList());
+        idx.get(dimension).add(v.timestamp(), weight);
+        // v.remove(dimension);
+      } else {
+        residual.put(dimension, weight);
+      }
     }
-    return Vector.EMPTY_VECTOR;
-  }
-
-  public int getSize() {
-    return size();
+    resList.add(residual);
+    return residual;
   }
 
   public int size() {
@@ -88,7 +104,7 @@ public class AllPairsIndex implements Index {
     public Iterator<PostingEntry> iterator() {
       return new Iterator<PostingEntry>() {
         private int i = 0;
-        private PostingEntry entry = new PostingEntry();
+        private final PostingEntry entry = new PostingEntry();
 
         @Override
         public boolean hasNext() {

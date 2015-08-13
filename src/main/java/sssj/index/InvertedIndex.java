@@ -1,4 +1,4 @@
-package sssj;
+package sssj.index;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap.Entry;
@@ -11,17 +11,18 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
+import sssj.Vector;
+
 import com.google.common.base.Predicate;
 import com.google.common.collect.Maps;
 
 public class InvertedIndex implements Index {
   private Int2ReferenceMap<PostingList> idx = new Int2ReferenceOpenHashMap<>();
-  private final double threshold;
-  private final Vector maxVector = new Vector();
+  private final double theta;
   private int size = 0;
 
-  public InvertedIndex(double threshold) {
-    this.threshold = threshold;
+  public InvertedIndex(double theta) {
+    this.theta = theta;
   }
 
   @Override
@@ -43,20 +44,18 @@ public class InvertedIndex implements Index {
     }
     //    return accumulator;
 
-    Map<Long, Double> results = Maps.filterValues(accumulator, new Predicate<Double>() { // TODO should not be needed
-          @Override
-          public boolean apply(Double input) {
-            return input.compareTo(threshold) >= 0;
-          }
-        });
+    Map<Long, Double> results = Maps.filterValues(accumulator, new Predicate<Double>() {
+      @Override
+      public boolean apply(Double input) {
+        return input.compareTo(theta) >= 0;
+      }
+    });
     return results;
   }
 
   @Override
   public Vector addVector(Vector v) {
     size++;
-    Vector toReindex = Vector.maxByDimension(maxVector, v);
-    //TODO re-index vectors in posting lists corresponding to dimensions in toReindex
     for (Entry e : v.int2DoubleEntrySet()) {
       int dimension = e.getIntKey();
       double weight = e.getDoubleValue();

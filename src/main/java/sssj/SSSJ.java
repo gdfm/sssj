@@ -3,6 +3,8 @@ package sssj;
 import java.io.BufferedReader;
 import java.util.Map;
 
+import sssj.index.InvertedIndex;
+import sssj.index.ResidualList;
 import sssj.io.StreamReader;
 
 import com.github.gdfm.shobaidogu.IOUtils;
@@ -18,6 +20,7 @@ public class SSSJ {
     InvertedIndex index = new InvertedIndex(theta);
     ResidualList residual = new ResidualList();
 
+    //TODO first update MAX, then query, then index
     long currentTimestamp = -1, previousTimestamp = -1;
     for (Vector v : stream) {
       previousTimestamp = currentTimestamp;

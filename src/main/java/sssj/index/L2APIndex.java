@@ -1,6 +1,8 @@
-package sssj;
+package sssj.index;
 
 import java.util.Map;
+
+import sssj.Vector;
 
 import com.google.common.collect.ForwardingTable;
 import com.google.common.collect.HashBasedTable;

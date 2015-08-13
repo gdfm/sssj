@@ -18,9 +18,10 @@ public class APIndexTest {
     v.put(0, 0.1);
     v.put(1, 1.0);
     Vector residual = index.addVector(v);
-    assertEquals(1, v.size());
-    assertTrue(v.containsKey(0));
-    assertEquals(0.1, v.get(0), Double.MIN_NORMAL);
-    assertEquals(v, residual); // index.addVector() returns the same vector
+    assertEquals(1, index.size());
+    assertEquals(1, residual.size());
+    assertTrue(residual.containsKey(0));
+    assertEquals(0.1, residual.get(0), Double.MIN_NORMAL);
+    //assertEquals(v, residual); // index.addVector() returns the same vector (implementation detail)
   }
 }

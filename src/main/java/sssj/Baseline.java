@@ -5,14 +5,16 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import sssj.L2APIndex.BatchResult;
+import sssj.index.Index;
+import sssj.index.InvertedIndex;
+import sssj.index.L2APIndex.BatchResult;
 import sssj.io.StreamReader;
 
 import com.github.gdfm.shobaidogu.IOUtils;
 
 /**
  * Baseline micro-batch method. Keeps a buffer of vectors of length 2*tau. When the buffer is full, index and query the
- * first half of the vectors with the batch L2AP, and query the index built so far with the second half of the buffer.
+ * first half of the vectors with a batch index (Inverted, AP, L2AP), and query the index built so far with the second half of the buffer.
  * Discard the first half of the buffer, retain the second half as the new first half, and repeat the process.
  */
 public class Baseline {
@@ -36,24 +38,28 @@ public class Baseline {
       boolean inWindow = buffer.add(v);
       while (!inWindow) {
         if (buffer.size() > 0) {
-          flushResults(buffer, theta);
+          computeResults(buffer, theta);
         }
         inWindow = buffer.add(v);
       }
     }
     while (!buffer.isEmpty())
       // last 2 window slides
-      flushResults(buffer, theta);
+      computeResults(buffer, theta);
   }
 
-  private static void flushResults(VectorBuffer buffer, double theta) {
-    //    System.out.println(Iterators.size(buffer.firstHalf()) + " + " + Iterators.size(buffer.secondHalf()) + " = " + buffer.size());
-    // build index on first half of the buffer
-    L2APIndex index = new L2APIndex(theta);
-    BatchResult res1 = buildL2APIndex(index, buffer);
-    // query the index with the second half of the buffer
-    BatchResult res2 = queryL2APIndex(index, buffer);
+  private static void computeResults(VectorBuffer buffer, double theta) {
+    // select and initialize index
+    Index index = new InvertedIndex(theta);
+    //    Index index = new L2APIndex(theta);
+    //    Index index = new APIndex(theta, buffer.getMax());
+    
+    // build and query the index on first half of the buffer
+    BatchResult res1 = query(index, buffer.firstHalf(), true);
+    // query the index with the second half of the buffer without indexing it
+    BatchResult res2 = query(index, buffer.secondHalf(), false);
     buffer.slide();
+
     // print results
     for (Entry<Long, Map<Long, Double>> row : res1.rowMap().entrySet()) {
       System.out.println(row.getKey() + ": " + row.getValue());
@@ -63,28 +69,16 @@ public class Baseline {
     }
   }
 
-  private static BatchResult buildL2APIndex(L2APIndex index, VectorBuffer buffer) {
+  private static BatchResult query(Index index, Iterator<Vector> iterator, boolean buildIndex) {
     BatchResult result = new BatchResult();
-    for (Iterator<Vector> it = buffer.firstHalf(); it.hasNext();) {
-      Vector v = it.next();
+    while (iterator.hasNext()) {
+      Vector v = iterator.next();
       Map<Long, Double> matches = index.queryWith(v);
       for (Entry<Long, Double> e : matches.entrySet()) {
         result.put(v.timestamp(), e.getKey(), e.getValue());
       }
-      // Vector maxVector = buffer.getMax();
-      index.addVector(v); // index the vector
-    }
-    return result;
-  }
-
-  private static BatchResult queryL2APIndex(L2APIndex index, VectorBuffer buffer) {
-    BatchResult result = new BatchResult();
-    for (Iterator<Vector> it = buffer.secondHalf(); it.hasNext();) {
-      Vector v = it.next();
-      Map<Long, Double> matches = index.queryWith(v);
-      for (Entry<Long, Double> e : matches.entrySet()) {
-        result.put(v.timestamp(), e.getKey(), e.getValue());
-      }
+      if (buildIndex)
+        index.addVector(v); // index the vector
     }
     return result;
   }

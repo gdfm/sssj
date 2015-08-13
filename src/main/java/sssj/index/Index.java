@@ -1,6 +1,8 @@
-package sssj;
+package sssj.index;
 
 import java.util.Map;
+
+import sssj.Vector;
 
 public interface Index {
 
