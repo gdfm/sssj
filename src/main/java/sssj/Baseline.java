@@ -25,6 +25,7 @@ public class Baseline {
 
   public static void main(String[] args) throws Exception {
     System.out.println("Baseline!");
+    
     String filename = args[0];
     BufferedReader reader = IOUtils.getBufferedReader(filename);
     VectorStreamReader stream = new VectorStreamReader(reader);
@@ -32,24 +33,26 @@ public class Baseline {
     final double theta = 0.03;
     final double lambda = 1;
     final IndexType idxType = IndexType.INVERTED;
+    
     compute(stream, theta, lambda, idxType);
   }
 
-  protected static void compute(Iterable<Vector> stream, double theta, double lambda, IndexType idxType) {
+  public static void compute(Iterable<Vector> stream, double theta, double lambda, IndexType idxType) {
     final double tau = Utils.computeTau(theta, lambda);
     VectorBuffer window = new VectorBuffer(tau);
 
     for (Vector v : stream) {
       boolean inWindow = window.add(v);
       while (!inWindow) {
-        if (window.size() > 0) {
+        if (window.size() > 0)
           computeResults(window, theta, idxType);
-        }
+        else
+          window.slide();
         inWindow = window.add(v);
       }
     }
+    // last 2 window slides
     while (!window.isEmpty())
-      // last 2 window slides
       computeResults(window, theta, idxType);
   }
 
