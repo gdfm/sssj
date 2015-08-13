@@ -10,7 +10,7 @@ public class VectorTest {
   public void testNotContains() {
     Vector v = new Vector();
     double d = v.get(0);
-    assertTrue(d == 0.0);
+    assertEquals(0, d, Double.MIN_NORMAL);
   }
 
 }

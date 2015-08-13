@@ -26,11 +26,11 @@ public class VectorBufferTest {
   @Test
   public void testWindow() {
     VectorBuffer buffer = new VectorBuffer(1.5);
-    assertEquals(0, buffer.windowStart(), Double.MIN_VALUE);
-    assertEquals(3, buffer.windowEnd(), Double.MIN_VALUE);
+    assertEquals(0, buffer.windowStart(), Double.MIN_NORMAL);
+    assertEquals(3, buffer.windowEnd(), Double.MIN_NORMAL);
     buffer.slide().slide();
-    assertEquals(3, buffer.windowStart(), Double.MIN_VALUE);
-    assertEquals(6, buffer.windowEnd(), Double.MIN_VALUE);
+    assertEquals(3, buffer.windowStart(), Double.MIN_NORMAL);
+    assertEquals(6, buffer.windowEnd(), Double.MIN_NORMAL);
   }
 
   @Test
@@ -58,17 +58,17 @@ public class VectorBufferTest {
     v1.put(1, 0.5);
     v2.put(1, 0.3);
     assertTrue(buffer.add(v0));
-    assertEquals(1.0, buffer.getMax().get(1), Double.MIN_VALUE);
+    assertEquals(1.0, buffer.getMax().get(1), Double.MIN_NORMAL);
     assertTrue(buffer.add(v1));
-    assertEquals(1.0, buffer.getMax().get(1), Double.MIN_VALUE);
+    assertEquals(1.0, buffer.getMax().get(1), Double.MIN_NORMAL);
     buffer.slide();
-    assertEquals(0.5, buffer.getMax().get(1), Double.MIN_VALUE);
+    assertEquals(0.5, buffer.getMax().get(1), Double.MIN_NORMAL);
     assertTrue(buffer.add(v2));
-    assertEquals(0.5, buffer.getMax().get(1), Double.MIN_VALUE);
+    assertEquals(0.5, buffer.getMax().get(1), Double.MIN_NORMAL);
     buffer.slide();
-    assertEquals(0.3, buffer.getMax().get(1), Double.MIN_VALUE);
+    assertEquals(0.3, buffer.getMax().get(1), Double.MIN_NORMAL);
     buffer.slide();
-    assertEquals(0, buffer.getMax().get(1), Double.MIN_VALUE);
+    assertEquals(0, buffer.getMax().get(1), Double.MIN_NORMAL);
     assertEquals(0, buffer.size());
   }
 }
