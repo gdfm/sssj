@@ -6,6 +6,7 @@ import java.io.IOException;
 import org.junit.Test;
 
 import sssj.Vector;
+import sssj.io.ParserFactory.Format;
 import sssj.io.VectorStreamReader;
 
 import com.github.gdfm.shobaidogu.IOUtils;
@@ -16,7 +17,7 @@ public class StreamReaderTest {
   @Test
   public void test() throws IOException {
     BufferedReader reader = IOUtils.getBufferedReader(EXAMPLE_FILENAME);
-    VectorStreamReader stream = new VectorStreamReader(reader);
+    VectorStreamReader stream = new VectorStreamReader(reader, Format.SSSJ);
     for (Vector v : stream)
       System.out.println(v);
   }

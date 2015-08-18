@@ -5,6 +5,7 @@ import java.util.Map;
 
 import sssj.index.InvertedIndex;
 import sssj.index.ResidualList;
+import sssj.io.ParserFactory.Format;
 import sssj.io.VectorStreamReader;
 
 import com.github.gdfm.shobaidogu.IOUtils;
@@ -16,7 +17,7 @@ public class SSSJ {
     String filename = args[0];
     final double theta = 0.03;
     BufferedReader reader = IOUtils.getBufferedReader(filename);
-    VectorStreamReader stream = new VectorStreamReader(reader);
+    VectorStreamReader stream = new VectorStreamReader(reader, Format.SSSJ);
     InvertedIndex index = new InvertedIndex(theta);
     ResidualList residual = new ResidualList();
 
