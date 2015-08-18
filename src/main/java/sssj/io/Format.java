@@ -1,7 +1,6 @@
 package sssj.io;
 
 import sssj.Vector;
-import sssj.time.Timeline;
 
 import com.google.common.base.Function;
 
@@ -25,7 +24,7 @@ public enum Format {
     }
   },
 
-  VW {
+  SVMLIB {
     @Override
     public Function<String, Vector> getRecordParser() {
       return new Function<String, Vector>() {

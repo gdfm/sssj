@@ -29,10 +29,10 @@ public class MiniBatch {
     String filename = args[0];
     BufferedReader reader = IOUtils.getBufferedReader(filename);
     //    VectorStreamReader stream = new VectorStreamReader(reader, Format.SSSJ);
-    VectorStreamReader stream = new VectorStreamReader(reader, Format.VW, new Sequential());
+    VectorStreamReader stream = new VectorStreamReader(reader, Format.SVMLIB, new Sequential());
 
-    final double theta = 0.3;
-    final double lambda = 0.1;
+    final double theta = 0.5;
+    final double lambda = 0.000000001;
     // final IndexType idxType = IndexType.INVERTED;
     // final IndexType idxType = IndexType.ALL_PAIRS;
     final IndexType idxType = IndexType.L2AP;
