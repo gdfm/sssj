@@ -24,4 +24,9 @@ public interface Index {
    */
   public abstract Vector addVector(Vector v);
 
+  /**
+   * Returns the size of the index in number of vectors.
+   * @return the number of vectors indexed
+   */
+  public abstract int size();
 }

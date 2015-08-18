@@ -30,7 +30,7 @@ public class VectorBuffer {
    */
   public boolean add(Vector v) {
     Preconditions.checkArgument(v.timestamp() >= windowStart());
-    Vector.maxByDimension(max, v); // update the max vector
+    Vector.updateMaxByDimension(max, v); // update the max vector
     if (v.timestamp() < windowEnd()) { // v is within the time window of 2*tau
       queue.add(v);
       return true;
@@ -50,7 +50,7 @@ public class VectorBuffer {
     // update the max vector
     this.max.clear();
     for (Vector v : queue)
-      Vector.maxByDimension(max, v);
+      Vector.updateMaxByDimension(max, v);
     return this;
   }
 

@@ -24,16 +24,16 @@ import com.github.gdfm.shobaidogu.IOUtils;
 public class Baseline {
 
   public static void main(String[] args) throws Exception {
-    System.out.println("Baseline!");
-    
     String filename = args[0];
     BufferedReader reader = IOUtils.getBufferedReader(filename);
     VectorStreamReader stream = new VectorStreamReader(reader);
 
     final double theta = 0.03;
     final double lambda = 1;
-    final IndexType idxType = IndexType.INVERTED;
-    
+//        final IndexType idxType = IndexType.INVERTED;
+    final IndexType idxType = IndexType.L2AP;
+
+    System.out.println(String.format("Baseline [%s, t=%f]", idxType.toString(), theta));
     compute(stream, theta, lambda, idxType);
   }
 
@@ -67,12 +67,14 @@ public class Baseline {
       index = new APIndex(theta, window.getMax());
       break;
     case L2AP:
-      index = new L2APIndex(theta);
+      index = new L2APIndex(theta, window.getMax());
       break;
+    default:
+      throw new RuntimeException("Unsupported index type");
     }
     assert (index != null);
 
-    // build and query the index on first half of the buffer
+    // query and build the index on first half of the buffer
     BatchResult res1 = query(index, window.firstHalf(), true);
     // query the index with the second half of the buffer without indexing it
     BatchResult res2 = query(index, window.secondHalf(), false);

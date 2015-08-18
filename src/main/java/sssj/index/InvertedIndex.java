@@ -66,20 +66,17 @@ public class InvertedIndex implements Index {
     return Vector.EMPTY_VECTOR;
   }
 
-  public int getSize() {
-    return size();
-  }
-
+  @Override
   public int size() {
     return size;
   }
 
   public static class PostingList implements Iterable<PostingEntry> {
-    private LongArrayList vids = new LongArrayList();
+    private LongArrayList ids = new LongArrayList();
     private DoubleArrayList weights = new DoubleArrayList();
 
     public void add(long vectorID, double weight) {
-      vids.add(vectorID);
+      ids.add(vectorID);
       weights.add(weight);
     }
 
@@ -91,12 +88,12 @@ public class InvertedIndex implements Index {
 
         @Override
         public boolean hasNext() {
-          return i < vids.size();
+          return i < ids.size();
         }
 
         @Override
         public PostingEntry next() {
-          entry.setKey(vids.getLong(i));
+          entry.setKey(ids.getLong(i));
           entry.setValue(weights.getDouble(i));
           i++;
           return entry;
@@ -104,7 +101,7 @@ public class InvertedIndex implements Index {
 
         @Override
         public void remove() {
-          vids.removeLong(i);
+          ids.removeLong(i);
           weights.removeDouble(i);
         }
       };

@@ -29,7 +29,7 @@ public class VectorStreamReader implements Iterable<Vector> {
           double val = Double.parseDouble(tokens[i + 1]);
           result.put(key, val);
         }
-        return result;
+        return Vector.l2normalize(result);
       }
     });
   }
