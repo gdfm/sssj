@@ -28,8 +28,8 @@ public class MiniBatch {
   public static void main(String[] args) throws Exception {
     String filename = args[0];
     BufferedReader reader = IOUtils.getBufferedReader(filename);
-//    VectorStreamReader stream = new VectorStreamReader(reader, Format.SSSJ);
-        VectorStreamReader stream = new VectorStreamReader(reader, Format.VW, new Sequential());
+    //    VectorStreamReader stream = new VectorStreamReader(reader, Format.SSSJ);
+    VectorStreamReader stream = new VectorStreamReader(reader, Format.VW, new Sequential());
 
     final double theta = 0.3;
     final double lambda = 0.1;

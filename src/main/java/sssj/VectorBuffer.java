@@ -91,4 +91,10 @@ public class VectorBuffer {
   public boolean isEmpty() {
     return this.size() == 0;
   }
+
+  @Override
+  public String toString() {
+    return "[epoch=" + epoch + ", queue=" + queue + "]";
+  }
+
 }

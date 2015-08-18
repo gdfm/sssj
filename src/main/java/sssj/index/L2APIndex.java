@@ -122,6 +122,16 @@ public class L2APIndex implements Index {
 
   }
 
+  @Override
+  public int size() {
+    return size;
+  }
+
+  @Override
+  public String toString() {
+    return "L2APIndex [idx=" + idx + ", resList=" + resList + ", ps=" + ps + "]";
+  }
+
   public static class L2APPostingList implements Iterable<L2APPostingEntry> {
     private LongArrayList ids = new LongArrayList();
     private DoubleArrayList weights = new DoubleArrayList();
@@ -131,6 +141,11 @@ public class L2APIndex implements Index {
       ids.add(vectorID);
       weights.add(weight);
       magnitudes.add(magnitude);
+    }
+
+    @Override
+    public String toString() {
+      return "[ids=" + ids + ", weights=" + weights + ", magnitudes=" + magnitudes + "]";
     }
 
     @Override
@@ -161,11 +176,6 @@ public class L2APIndex implements Index {
         }
       };
     }
-  }
-
-  @Override
-  public int size() {
-    return size;
   }
 
   public static class L2APPostingEntry {
@@ -205,6 +215,11 @@ public class L2APIndex implements Index {
 
     public double getMagnitude() {
       return magnitude;
+    }
+
+    @Override
+    public String toString() {
+      return "[" + id + " -> " + weight + " (" + magnitude + ")]";
     }
   }
 

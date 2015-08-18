@@ -92,4 +92,9 @@ public class APIndex implements Index {
   public int size() {
     return size;
   }
+
+  @Override
+  public String toString() {
+    return "APIndex [idx=" + idx + ", resList=" + resList + "]";
+  }
 }

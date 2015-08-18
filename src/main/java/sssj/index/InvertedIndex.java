@@ -71,6 +71,11 @@ public class InvertedIndex implements Index {
     return size;
   }
 
+  @Override
+  public String toString() {
+    return "InvertedIndex [idx=" + idx + "]";
+  }
+
   public static class PostingList implements Iterable<PostingEntry> {
     private LongArrayList ids = new LongArrayList();
     private DoubleArrayList weights = new DoubleArrayList();
@@ -78,6 +83,11 @@ public class InvertedIndex implements Index {
     public void add(long vectorID, double weight) {
       ids.add(vectorID);
       weights.add(weight);
+    }
+
+    @Override
+    public String toString() {
+      return "[ids=" + ids + ", weights=" + weights + "]";
     }
 
     @Override
@@ -135,6 +145,11 @@ public class InvertedIndex implements Index {
 
     public double getDoubleValue() {
       return value;
+    }
+
+    @Override
+    public String toString() {
+      return "[" + key + " -> " + value + "]";
     }
   }
 }
