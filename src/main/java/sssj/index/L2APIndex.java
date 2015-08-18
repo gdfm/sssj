@@ -62,10 +62,10 @@ public class L2APIndex implements Index {
           if (Double.compare(accumulator.get(targetID) + Math.sqrt(squaredQueryPrefixMagnitude) * pe.magnitude, theta) < 0) // A[y] + ||x'_j|| * ||y'_j||
             accumulator.remove(targetID); // prune this candidate (early verification)
         }
-        remscore -= queryWeight * maxVectorInIndex.get(dimension);
-        rst -= queryWeight * queryWeight;
-        l2remscore = Math.sqrt(rst);
       }
+      remscore -= queryWeight * maxVectorInIndex.get(dimension); // rs_3 -= x_j * \hat{c_w}
+      rst -= queryWeight * queryWeight; // rs_t -= x_j^2
+      l2remscore = Math.sqrt(rst); // rs_4 = sqrt(rs_t)
     }
 
     /* candidate verification */
