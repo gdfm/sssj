@@ -18,12 +18,12 @@ import sssj.time.Timeline.Sequential;
 import com.github.gdfm.shobaidogu.IOUtils;
 
 /**
- * Baseline micro-batch method. Keeps a buffer of vectors of length 2*tau. When the buffer is full, index and query the
+ * MiniBatch micro-batch method. Keeps a buffer of vectors of length 2*tau. When the buffer is full, index and query the
  * first half of the vectors with a batch index (Inverted, AP, L2AP), and query the index built so far with the second
  * half of the buffer. Discard the first half of the buffer, retain the second half as the new first half, and repeat
  * the process.
  */
-public class Baseline {
+public class MiniBatch {
 
   public static void main(String[] args) throws Exception {
     String filename = args[0];
@@ -37,7 +37,7 @@ public class Baseline {
     // final IndexType idxType = IndexType.ALL_PAIRS;
     final IndexType idxType = IndexType.L2AP;
 
-    System.out.println(String.format("Baseline [%s, t=%f]", idxType.toString(), theta));
+    System.out.println(String.format("MiniBatch [%s, t=%f]", idxType.toString(), theta));
     compute(stream, theta, lambda, idxType);
   }
 
