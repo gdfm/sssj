@@ -40,6 +40,7 @@ public class Baseline {
 
   public static void compute(Iterable<Vector> stream, double theta, double lambda, IndexType idxType) {
     final double tau = Utils.computeTau(theta, lambda);
+    System.out.println("Tau = " + tau);
     VectorBuffer window = new VectorBuffer(tau);
 
     for (Vector v : stream) {
