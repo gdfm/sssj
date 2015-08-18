@@ -49,8 +49,8 @@ public class APIndex implements Index {
           accumulator.addTo(targetID, additionalSimilarity); // A[y] += x_j * y_j 
           //accumulator.put(targetID, currentSimilarity + additionalSimilarity);
         }
-        remscore -= queryWeight * maxVector.get(dimension);
       }
+      remscore -= queryWeight * maxVector.get(dimension);
     }
 
     /* candidate verification */
