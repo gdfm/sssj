@@ -52,21 +52,17 @@
                 </configuration>
             </plugin>
             <plugin>
-              <artifactId>maven-assembly-plugin</artifactId>
+              <groupId>org.codehaus.mojo</groupId>
+              <artifactId>appassembler-maven-plugin</artifactId>
+              <version>1.10</version>
               <configuration>
-                <descriptorRefs>
-                  <descriptorRef>jar-with-dependencies</descriptorRef>
-                </descriptorRefs>
+                <programs>
+                  <program>
+                    <mainClass>sssj.MiniBatch</mainClass>
+                    <id>minibatch</id>
+                  </program>
+                </programs>
               </configuration>
-              <executions>
-                 <execution>
-                   <id>make-assembly</id>
-                   <phase>package</phase>
-                   <goals>
-                     <goal>single</goal>
-                   </goals>
-                 </execution>
-               </executions>
             </plugin>
         </plugins>
     </build>

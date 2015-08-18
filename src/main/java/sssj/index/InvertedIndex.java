@@ -31,7 +31,7 @@ public class InvertedIndex implements Index {
     for (Entry e : v.int2DoubleEntrySet()) {
       int dimension = e.getIntKey();
       if (!idx.containsKey(dimension))
-        idx.put(dimension, new PostingList());
+        idx.put(dimension, new PostingList()); //TODO no need for this? If the posting list is empty we should not create it here
       PostingList list = idx.get(dimension);
       double queryWeight = e.getDoubleValue();
       for (PostingEntry pe : list) {

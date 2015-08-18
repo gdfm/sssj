@@ -28,12 +28,13 @@ public class Baseline {
   public static void main(String[] args) throws Exception {
     String filename = args[0];
     BufferedReader reader = IOUtils.getBufferedReader(filename);
-    VectorStreamReader stream = new VectorStreamReader(reader, Format.SSSJ);
-    //    VectorStreamReader stream = new VectorStreamReader(reader, Format.VW, new Sequential());
+//    VectorStreamReader stream = new VectorStreamReader(reader, Format.SSSJ);
+        VectorStreamReader stream = new VectorStreamReader(reader, Format.VW, new Sequential());
 
     final double theta = 0.3;
-    final double lambda = 1;
-    //        final IndexType idxType = IndexType.INVERTED;
+    final double lambda = 0.1;
+    // final IndexType idxType = IndexType.INVERTED;
+    // final IndexType idxType = IndexType.ALL_PAIRS;
     final IndexType idxType = IndexType.L2AP;
 
     System.out.println(String.format("Baseline [%s, t=%f]", idxType.toString(), theta));

@@ -6,9 +6,6 @@ import java.util.Queue;
 
 import sssj.Vector;
 
-import com.google.common.base.Predicates;
-import com.google.common.collect.Iterables;
-
 public class ResidualList implements Iterable<Vector> {
   private Queue<Vector> queue = new LinkedList<>();
 
@@ -27,7 +24,9 @@ public class ResidualList implements Iterable<Vector> {
   }
 
   public Vector get(long candidateID) {
-    Vector result = Iterables.find(queue, Predicates.equalTo(new Vector(candidateID)), null); //TODO make residual finding more efficient
-    return result;
+    for (Vector v : queue)
+      if (candidateID == v.timestamp())
+        return v;
+    return null;
   }
 }
