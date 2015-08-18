@@ -11,7 +11,7 @@ import sssj.index.APIndex;
 import sssj.index.Index;
 import sssj.index.InvertedIndex;
 import sssj.index.L2APIndex;
-import sssj.io.ParserFactory.Format;
+import sssj.io.Format;
 import sssj.io.VectorStreamReader;
 
 import com.github.gdfm.shobaidogu.IOUtils;

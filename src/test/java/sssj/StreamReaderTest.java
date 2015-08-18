@@ -6,7 +6,7 @@ import java.io.IOException;
 import org.junit.Test;
 
 import sssj.Vector;
-import sssj.io.ParserFactory.Format;
+import sssj.io.Format;
 import sssj.io.VectorStreamReader;
 
 import com.github.gdfm.shobaidogu.IOUtils;

@@ -5,7 +5,7 @@ import java.util.Map;
 
 import sssj.index.InvertedIndex;
 import sssj.index.ResidualList;
-import sssj.io.ParserFactory.Format;
+import sssj.io.Format;
 import sssj.io.VectorStreamReader;
 
 import com.github.gdfm.shobaidogu.IOUtils;
