@@ -85,7 +85,7 @@ public class L2APIndex implements Index {
 
       double score = e.getDoubleValue() + Vector.similarity(v, residual); // dot(x, y) = A[y] + dot(x, y')
       long deltaT = v.timestamp() - candidateID;
-      score *= Utils.forget(lambda, deltaT); // TODO move into similarity and index e^(-lambda*delta_T)
+      score *= Utils.forgetFactor(lambda, deltaT); // TODO move into similarity and index e^(-lambda*delta_T)
       if (Double.compare(score, theta) >= 0) // final check
         matches.put(candidateID, score);
     }

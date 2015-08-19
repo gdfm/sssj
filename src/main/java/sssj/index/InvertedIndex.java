@@ -54,7 +54,7 @@ public class InvertedIndex implements Index {
       public Double transformEntry(Long key, Double value) {
         Preconditions.checkArgument(v.timestamp() > key.longValue());
         final long deltaT = v.timestamp() - key.longValue();
-        return value.doubleValue() * Utils.forget(lambda, deltaT);
+        return value.doubleValue() * Utils.forgetFactor(lambda, deltaT);
       }
     });
     // filter candidates < theta

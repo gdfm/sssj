@@ -7,14 +7,14 @@ import com.google.common.collect.TreeBasedTable;
 
 public class Utils {
 
-  public static double computeTau(double theta, double lambda) {
+  public static double tau(double theta, double lambda) {
     Preconditions.checkArgument(theta > 0 && theta < 1);
     Preconditions.checkArgument(lambda > 0);
     double tau = 1 / lambda * Math.log(1 / theta);
     return tau;
   }
 
-  public static double forget(double lambda, long deltaT) {
+  public static double forgetFactor(double lambda, long deltaT) {
     return Math.exp(-lambda * deltaT);
   }
 
