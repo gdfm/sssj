@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.longs.Long2DoubleOpenHashMap;
 
 import java.util.Map;
 
+import sssj.Utils;
 import sssj.Vector;
 import sssj.index.InvertedIndex.PostingEntry;
 import sssj.index.InvertedIndex.PostingList;
@@ -18,10 +19,12 @@ public class APIndex implements Index {
   private ResidualList resList = new ResidualList();
   private int size = 0;
   private final double theta;
+  private final double lambda;
   private final Vector maxVector;
 
-  public APIndex(double threshold, Vector maxVector) {
-    this.theta = threshold;
+  public APIndex(double theta, double lambda, Vector maxVector) {
+    this.theta = theta;
+    this.lambda = lambda;
     this.maxVector = maxVector;
   }
 
@@ -62,6 +65,8 @@ public class APIndex implements Index {
       Vector candidateResidual = resList.get(candidateID);
       assert (candidateResidual != null);
       double score = e.getDoubleValue() + Vector.similarity(v, candidateResidual); // A[y] + dot(y',x)
+      long deltaT = v.timestamp() - candidateID;
+      score *= Utils.forget(lambda, deltaT); // e^(-lambda*delta_T)
       if (Double.compare(score, theta) >= 0) // final check
         matches.put(candidateID, score);
     }
