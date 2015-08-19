@@ -5,6 +5,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.impl.Arguments;
+import net.sourceforge.argparse4j.inf.ArgumentParser;
+import net.sourceforge.argparse4j.inf.Namespace;
 import sssj.Utils.BatchResult;
 import sssj.Utils.IndexType;
 import sssj.index.APIndex;
@@ -24,24 +28,39 @@ import com.github.gdfm.shobaidogu.ProgressTracker;
  * as the new first half, and repeat the process.
  */
 public class MiniBatch {
+  private static final double DEFAULT_THETA = 0.5;
+  private static final double DEFAULT_LAMBDA = 1;
+  private static final int DEFAULT_REPORT_PERIOD = 10_000;
 
   public static void main(String[] args) throws Exception {
-    String filename = args[0];
-    BufferedReader reader = IOUtils.getBufferedReader(filename);
+    ArgumentParser parser = ArgumentParsers.newArgumentParser("MiniBatch").description("SSSJ in MiniBatch mode.")
+        .defaultHelp(true);
+    parser.addArgument("-t", "--theta").metavar("theta").type(Double.class).choices(Arguments.range(0.0, 1.0))
+        .setDefault(DEFAULT_THETA).help("similarity threshold");
+    parser.addArgument("-l", "--lambda").metavar("lambda").type(Double.class)
+        .choices(Arguments.range(0.0, Double.MAX_VALUE)).setDefault(DEFAULT_LAMBDA).help("forgetting factor");
+    parser.addArgument("-r", "--report").metavar("period").type(Integer.class).setDefault(DEFAULT_REPORT_PERIOD)
+        .help("progress report period");
+    parser.addArgument("-i", "--index").type(IndexType.class).choices(IndexType.values())
+        .setDefault(IndexType.INVERTED).help("type of indexing");
+    parser.addArgument("-f", "--format").type(Format.class).choices(Format.values()).setDefault(Format.SSSJ)
+        .help("input format");
+    parser.addArgument("input").metavar("file")
+        .type(Arguments.fileType().verifyExists().verifyIsFile().verifyCanRead()).help("input file");
+    Namespace res = parser.parseArgsOrFail(args);
+
+    final double theta = res.get("theta");
+    final double lambda = res.get("lambda");
+    final int reportPeriod = res.getInt("report");
+    final IndexType idxType = res.<IndexType>get("index");
+    final Format fmt = res.<Format>get("format");
+    final String filename = res.getString("input");
+    final BufferedReader reader = IOUtils.getBufferedReader(filename);
     final int numItems = IOUtils.getNumberOfLines(IOUtils.getBufferedReader(filename));
-    final int reportPeriod = 10_000;
     final ProgressTracker tracker = new ProgressTracker(numItems, reportPeriod);
-    // VectorStreamReader stream = new VectorStreamReader(reader, Format.SSSJ);
-    VectorStreamReader stream = new VectorStreamReader(reader, Format.SVMLIB, new Sequential());
+    final VectorStreamReader stream = new VectorStreamReader(reader, fmt, new Sequential());
 
-    // TODO options for theta, lambda, and idxType (and report period)
-    final double theta = 0.5;
-    final double lambda = 0.001;
-    // final IndexType idxType = IndexType.INVERTED;
-     final IndexType idxType = IndexType.ALL_PAIRS;
-    //    final IndexType idxType = IndexType.L2AP;
-
-    System.out.println(String.format("MiniBatch [%s, t=%f, l=%f]", idxType.toString(), theta, lambda));
+    System.out.println(String.format("MiniBatch [t=%f, l=%f, i=%s]", theta, lambda, idxType.toString()));
     compute(stream, theta, lambda, idxType, tracker);
   }
 

@@ -39,8 +39,8 @@ public class L2APIndex implements Index {
     rst = 1, squaredQueryPrefixMagnitude = 1;
 
     /* candidate generation */
-    for (BidirectionalIterator<Entry> it = v.int2DoubleEntrySet().fastIterator(
-        v.int2DoubleEntrySet().last()); it.hasPrevious();) { // iterate over v in reverse order
+    for (BidirectionalIterator<Entry> it = v.int2DoubleEntrySet().fastIterator(v.int2DoubleEntrySet().last()); it
+        .hasPrevious();) { // iterate over v in reverse order
       Entry e = it.previous();
       int dimension = e.getIntKey();
       double queryWeight = e.getDoubleValue(); // x_j
@@ -48,7 +48,7 @@ public class L2APIndex implements Index {
       if (!idx.containsKey(dimension))
         idx.put(dimension, new L2APPostingList());
       L2APPostingList list = idx.get(dimension);
-      //TODO possibly size filtering: remove entries from the posting list with |y| < minsize (need to save size in the posting list)
+      // TODO possibly size filtering: remove entries from the posting list with |y| < minsize (need to save size in the posting list)
 
       squaredQueryPrefixMagnitude -= queryWeight * queryWeight;
       for (L2APPostingEntry pe : list) {
@@ -56,9 +56,9 @@ public class L2APIndex implements Index {
         double rscore = Math.min(remscore, l2remscore);
         if (accumulator.containsKey(targetID) || Double.compare(rscore, theta) >= 0) {
           double targetWeight = pe.getWeight(); // y_j
-          double additionalSimilarity = queryWeight * targetWeight; // x_j * y_j 
+          double additionalSimilarity = queryWeight * targetWeight; // x_j * y_j
           // TODO add e^(-lambda*delta_t)
-          accumulator.addTo(targetID, additionalSimilarity); // A[y] += x_j * y_j 
+          accumulator.addTo(targetID, additionalSimilarity); // A[y] += x_j * y_j
           if (Double.compare(accumulator.get(targetID) + Math.sqrt(squaredQueryPrefixMagnitude) * pe.magnitude, theta) < 0) // A[y] + ||x'_j|| * ||y'_j||
             accumulator.remove(targetID); // prune this candidate (early verification)
         }
@@ -70,7 +70,7 @@ public class L2APIndex implements Index {
 
     /* candidate verification */
     for (Long2DoubleMap.Entry e : accumulator.long2DoubleEntrySet()) {
-      //TODO possibly use size filtering (sz_3)
+      // TODO possibly use size filtering (sz_3)
       long candidateID = e.getLongKey();
       if (Double.compare(e.getDoubleValue() + ps.get(candidateID), theta) < 0) // A[y] = dot(x, y'')
         continue; // l2 pruning
@@ -111,13 +111,14 @@ public class L2APIndex implements Index {
         }
         if (!idx.containsKey(dimension))
           idx.put(dimension, new L2APPostingList());
-        idx.get(dimension).add(v.timestamp(), weight, b3); //TODO check correctness
+        idx.get(dimension).add(v.timestamp(), weight, b3); // TODO check correctness
       } else {
         residual.put(dimension, weight);
       }
     }
     resList.add(residual);
-    Vector.updateMaxByDimension(maxVectorInIndex, v); //TODO check that this is the right place to update the max, L2AP performs the update at the end of queryWith()
+    Vector.updateMaxByDimension(maxVectorInIndex, v); // TODO check that this is the right place to update the max, L2AP performs the update at the end of
+                                                      // queryWith()
     return residual;
 
   }
