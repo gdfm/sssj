@@ -39,18 +39,17 @@ public class APIndex implements Index {
       int dimension = e.getIntKey();
       double queryWeight = e.getDoubleValue(); // x_j
 
-      if (!idx.containsKey(dimension))
-        idx.put(dimension, new PostingList());
-      PostingList list = idx.get(dimension);
-      // TODO possibly size filtering: remove entries from the posting list with |y| < minsize (need to save size in the posting list)
-
-      for (PostingEntry pe : list) {
-        long targetID = pe.getLongKey(); // y
-        if (accumulator.containsKey(targetID) || Double.compare(remscore, theta) >= 0) {
-          double targetWeight = pe.getDoubleValue(); // y_j
-          double additionalSimilarity = queryWeight * targetWeight; // x_j * y_j
-          // TODO add e^(-lambda*delta_t)
-          accumulator.addTo(targetID, additionalSimilarity); // A[y] += x_j * y_j
+      if (idx.containsKey(dimension)) {
+        PostingList list = idx.get(dimension);
+        // TODO possibly size filtering: remove entries from the posting list with |y| < minsize (need to save size in the posting list)
+        for (PostingEntry pe : list) {
+          long targetID = pe.getLongKey(); // y
+          if (accumulator.containsKey(targetID) || Double.compare(remscore, theta) >= 0) {
+            double targetWeight = pe.getDoubleValue(); // y_j
+            double additionalSimilarity = queryWeight * targetWeight; // x_j * y_j
+            // TODO add e^(-lambda*delta_t)
+            accumulator.addTo(targetID, additionalSimilarity); // A[y] += x_j * y_j
+          }
         }
       }
       remscore -= queryWeight * maxVector.get(dimension);
