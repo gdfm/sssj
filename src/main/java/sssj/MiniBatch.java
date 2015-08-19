@@ -98,7 +98,7 @@ public class MiniBatch {
       index = new APIndex(theta, lambda, window.getMax());
       break;
     case L2AP:
-      index = new L2APIndex(theta, window.getMax());
+      index = new L2APIndex(theta, lambda, window.getMax());
       break;
     default:
       throw new RuntimeException("Unsupported index type");

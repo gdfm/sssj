@@ -12,6 +12,7 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
+import sssj.Utils;
 import sssj.Vector;
 
 public class L2APIndex implements Index {
@@ -20,11 +21,13 @@ public class L2APIndex implements Index {
   private Long2DoubleMap ps = new Long2DoubleOpenHashMap();
   private int size = 0;
   private final double theta;
+  private final double lambda;
   private final Vector maxVectorInWindow; // c_w
   private final Vector maxVectorInIndex; // \hat(c_w)
 
-  public L2APIndex(double theta, Vector maxVector) {
+  public L2APIndex(double theta, double lambda, Vector maxVector) {
     this.theta = theta;
+    this.lambda = lambda;
     this.maxVectorInWindow = maxVector;
     this.maxVectorInIndex = new Vector();
   }
@@ -81,7 +84,8 @@ public class L2APIndex implements Index {
         continue; // dpscore, eq. (5)
 
       double score = e.getDoubleValue() + Vector.similarity(v, residual); // dot(x, y) = A[y] + dot(x, y')
-
+      long deltaT = v.timestamp() - candidateID;
+      score *= Utils.forget(lambda, deltaT); // TODO move into similarity and index e^(-lambda*delta_T)
       if (Double.compare(score, theta) >= 0) // final check
         matches.put(candidateID, score);
     }
