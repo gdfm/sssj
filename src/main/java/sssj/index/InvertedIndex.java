@@ -11,27 +11,32 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
+import sssj.Utils;
 import sssj.Vector;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Maps.EntryTransformer;
 
 public class InvertedIndex implements Index {
   private Int2ReferenceMap<PostingList> idx = new Int2ReferenceOpenHashMap<>();
   private final double theta;
+  private final double lambda;
   private int size = 0;
 
-  public InvertedIndex(double theta) {
+  public InvertedIndex(double theta, double lambda) {
     this.theta = theta;
+    this.lambda = lambda;
   }
 
   @Override
-  public Map<Long, Double> queryWith(Vector v) {
+  public Map<Long, Double> queryWith(final Vector v) {
     Long2DoubleMap accumulator = new Long2DoubleOpenHashMap(size);
     for (Entry e : v.int2DoubleEntrySet()) {
       int dimension = e.getIntKey();
       if (!idx.containsKey(dimension))
-        idx.put(dimension, new PostingList()); //TODO no need for this? If the posting list is empty we should not create it here
+        continue;
       PostingList list = idx.get(dimension);
       double queryWeight = e.getDoubleValue();
       for (PostingEntry pe : list) {
@@ -42,9 +47,18 @@ public class InvertedIndex implements Index {
         accumulator.put(targetID, currentSimilarity + additionalSimilarity);
       }
     }
-    //    return accumulator;
 
-    Map<Long, Double> results = Maps.filterValues(accumulator, new Predicate<Double>() {
+    // add forgetting factor e^(-lambda*delta_T)
+    Map<Long, Double> results = Maps.transformEntries(accumulator, new EntryTransformer<Long, Double, Double>() {
+      @Override
+      public Double transformEntry(Long key, Double value) {
+        Preconditions.checkArgument(v.timestamp() > key.longValue());
+        final long deltaT = v.timestamp() - key.longValue();
+        return value.doubleValue() * Utils.forget(lambda, deltaT);
+      }
+    });
+    // filter candidates < theta
+    results = Maps.filterValues(results, new Predicate<Double>() {
       @Override
       public boolean apply(Double input) {
         return input.compareTo(theta) >= 0;

@@ -76,7 +76,7 @@ public class MiniBatch {
       boolean inWindow = window.add(v);
       while (!inWindow) {
         if (window.size() > 0)
-          computeResults(window, theta, idxType);
+          computeResults(window, theta, lambda, idxType);
         else
           window.slide();
         inWindow = window.add(v);
@@ -84,15 +84,15 @@ public class MiniBatch {
     }
     // last 2 window slides
     while (!window.isEmpty())
-      computeResults(window, theta, idxType);
+      computeResults(window, theta, lambda, idxType);
   }
 
-  private static void computeResults(VectorBuffer window, double theta, IndexType type) {
+  private static void computeResults(VectorBuffer window, double theta, double lambda, IndexType type) {
     // select and initialize index
     Index index = null;
     switch (type) {
     case INVERTED:
-      index = new InvertedIndex(theta);
+      index = new InvertedIndex(theta, lambda);
       break;
     case ALL_PAIRS:
       index = new APIndex(theta, window.getMax());
@@ -105,9 +105,6 @@ public class MiniBatch {
     }
     assert (index != null);
 
-    // final int numItems = window.size();
-    // final int reportPeriod = 1000;
-    // final ProgressTracker tracker = new ProgressTracker(numItems, reportPeriod);
     // query and build the index on first half of the buffer
     BatchResult res1 = query(index, window.firstHalf(), true);
     // query the index with the second half of the buffer without indexing it
@@ -127,7 +124,6 @@ public class MiniBatch {
   private static BatchResult query(Index index, Iterator<Vector> iterator, boolean buildIndex) {
     BatchResult result = new BatchResult();
     while (iterator.hasNext()) {
-      // tracker.progress();
       Vector v = iterator.next();
       Map<Long, Double> matches = index.queryWith(v);
       for (Entry<Long, Double> e : matches.entrySet()) {

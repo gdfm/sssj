@@ -16,12 +16,13 @@ public class SSSJ {
     System.out.println("RUN!");
     String filename = args[0];
     final double theta = 0.03;
+    final double lambda = 0.1;
     BufferedReader reader = IOUtils.getBufferedReader(filename);
     VectorStreamReader stream = new VectorStreamReader(reader, Format.SSSJ);
-    InvertedIndex index = new InvertedIndex(theta);
+    InvertedIndex index = new InvertedIndex(theta, lambda);
     ResidualList residual = new ResidualList();
 
-    //TODO first update MAX, then query, then index
+    // TODO first update MAX, then query, then index
     long currentTimestamp = -1, previousTimestamp = -1;
     for (Vector v : stream) {
       previousTimestamp = currentTimestamp;

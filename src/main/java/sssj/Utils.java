@@ -14,6 +14,10 @@ public class Utils {
     return tau;
   }
 
+  public static double forget(double lambda, long deltaT) {
+    return Math.exp(-lambda * deltaT);
+  }
+
   public static class BatchResult extends ForwardingTable<Long, Long, Double> {
     private final Table<Long, Long, Double> delegate = TreeBasedTable.create();
 
