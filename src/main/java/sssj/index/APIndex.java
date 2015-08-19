@@ -1,5 +1,6 @@
 package sssj.index;
 
+import it.unimi.dsi.fastutil.BidirectionalIterator;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap.Entry;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
@@ -32,22 +33,24 @@ public class APIndex implements Index {
     double remscore = Vector.similarity(v, maxVector);
 
     /* candidate generation */
-    for (Entry e : v.int2DoubleEntrySet()) {
+    for (BidirectionalIterator<Entry> it = v.int2DoubleEntrySet().fastIterator(v.int2DoubleEntrySet().last()); it
+        .hasPrevious();) { // iterate over v in reverse order
+      Entry e = it.previous();
       int dimension = e.getIntKey();
+      double queryWeight = e.getDoubleValue(); // x_j
+
       if (!idx.containsKey(dimension))
         idx.put(dimension, new PostingList());
       PostingList list = idx.get(dimension);
-      //TODO possibly size filtering: remove entries from the posting list with |y| < minsize (need to save size in the posting list)
-      double queryWeight = e.getDoubleValue(); // x_j
+      // TODO possibly size filtering: remove entries from the posting list with |y| < minsize (need to save size in the posting list)
+
       for (PostingEntry pe : list) {
         long targetID = pe.getLongKey(); // y
         if (accumulator.containsKey(targetID) || Double.compare(remscore, theta) >= 0) {
           double targetWeight = pe.getDoubleValue(); // y_j
-          //double currentSimilarity = accumulator.get(targetID);
-          double additionalSimilarity = queryWeight * targetWeight; // x_j * y_j 
+          double additionalSimilarity = queryWeight * targetWeight; // x_j * y_j
           // TODO add e^(-lambda*delta_t)
-          accumulator.addTo(targetID, additionalSimilarity); // A[y] += x_j * y_j 
-          //accumulator.put(targetID, currentSimilarity + additionalSimilarity);
+          accumulator.addTo(targetID, additionalSimilarity); // A[y] += x_j * y_j
         }
       }
       remscore -= queryWeight * maxVector.get(dimension);
@@ -55,7 +58,7 @@ public class APIndex implements Index {
 
     /* candidate verification */
     for (Long2DoubleMap.Entry e : accumulator.long2DoubleEntrySet()) {
-      //TODO possibly use size filtering (sz_3)
+      // TODO possibly use size filtering (sz_3)
       long candidateID = e.getLongKey();
       Vector candidateResidual = resList.get(candidateID);
       assert (candidateResidual != null);

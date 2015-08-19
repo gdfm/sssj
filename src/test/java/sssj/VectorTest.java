@@ -1,12 +1,10 @@
 package sssj;
 
-import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import it.unimi.dsi.fastutil.BidirectionalIterator;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
-import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap.Entry;
-import it.unimi.dsi.fastutil.ints.IntIterators;
+import it.unimi.dsi.fastutil.ints.IntIterator;
 
 import org.junit.Test;
 
