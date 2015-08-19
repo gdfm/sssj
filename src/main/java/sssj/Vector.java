@@ -6,7 +6,7 @@ import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 /**
  * A sparse vector in a multidimensional Euclidean space. The vector is identified by a unique timestamp.
  */
-//public class Vector extends Int2DoubleAVLTreeMap {
+// public class Vector extends Int2DoubleAVLTreeMap {
 public class Vector extends Int2DoubleLinkedOpenHashMap { // entries are returned in the same order they are added
   public static final Vector EMPTY_VECTOR = new Vector(Long.MIN_VALUE);
   protected long timestamp;
@@ -102,19 +102,17 @@ public class Vector extends Int2DoubleLinkedOpenHashMap { // entries are returne
   }
 
   /**
-   * Updates the vector maxVector to the max of itself and the vector query.
+   * Updates the vector to the max of itself and the vector query.
    * 
-   * @param maxVector
-   *          the old max vector
    * @param query
    *          the new vector
    * @return the subset of the new vector that was larger than maxVector (for reindexing)
    */
-  public static Vector updateMaxByDimension(Vector maxVector, Vector query) {
+  public Vector updateMaxByDimension(Vector query) {
     Vector result = new Vector();
     for (Int2DoubleMap.Entry e : query.int2DoubleEntrySet()) {
-      if (Double.compare(maxVector.get(e.getIntKey()), e.getDoubleValue()) < 0) {
-        maxVector.put(e.getIntKey(), e.getDoubleValue());
+      if (Double.compare(this.get(e.getIntKey()), e.getDoubleValue()) < 0) {
+        this.put(e.getIntKey(), e.getDoubleValue());
         result.put(e.getIntKey(), e.getDoubleValue());
       }
     }
@@ -124,7 +122,7 @@ public class Vector extends Int2DoubleLinkedOpenHashMap { // entries are returne
   public static double similarity(Vector query, Vector target) {
     double result = 0;
     for (Int2DoubleMap.Entry e : query.int2DoubleEntrySet()) {
-      result += e.getDoubleValue() * target.get(e.getIntKey()); //TODO add time decay
+      result += e.getDoubleValue() * target.get(e.getIntKey()); // TODO add forgetting factor
     }
     return result;
   }

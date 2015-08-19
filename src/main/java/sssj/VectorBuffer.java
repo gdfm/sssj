@@ -9,8 +9,8 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 
 /**
- * A buffer for Vectors. The buffer keeps the order of the vectors as they are added, and maintains the maximum vector.
- * Assumes vectors are added in increasing order of timestamp.
+ * A buffer for Vectors. The buffer keeps the order of the vectors as they are added, and maintains the maximum vector. Assumes vectors are added in increasing
+ * order of timestamp.
  */
 public class VectorBuffer {
   private Vector max = new Vector();
@@ -30,13 +30,13 @@ public class VectorBuffer {
    */
   public boolean add(Vector v) {
     Preconditions.checkArgument(v.timestamp() >= windowStart());
-    Vector.updateMaxByDimension(max, v); // update the max vector
+    max.updateMaxByDimension(v); // update the max vector
     if (v.timestamp() < windowEnd()) { // v is within the time window of 2*tau
       queue.add(v);
       return true;
-    }
-    else
+    } else {
       return false;
+    }
   }
 
   public Vector getMax() {
@@ -50,7 +50,7 @@ public class VectorBuffer {
     // update the max vector
     this.max.clear();
     for (Vector v : queue)
-      Vector.updateMaxByDimension(max, v);
+      max.updateMaxByDimension(v);
     return this;
   }
 

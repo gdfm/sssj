@@ -121,8 +121,8 @@ public class L2APIndex implements Index {
       }
     }
     resList.add(residual);
-    Vector.updateMaxByDimension(maxVectorInIndex, v); // TODO check that this is the right place to update the max, L2AP performs the update at the end of
-                                                      // queryWith()
+    maxVectorInIndex.updateMaxByDimension(v); // TODO check that this is the right place to update the max, L2AP performs the update at the end of
+                                              // queryWith()
     return residual;
 
   }
