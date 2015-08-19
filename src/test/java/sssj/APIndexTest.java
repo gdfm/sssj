@@ -13,7 +13,7 @@ public class APIndexTest {
     Vector max = new Vector();
     max.put(0, 1.0);
     max.put(1, 1.0);
-    APIndex index = new APIndex(0.5, max);
+    APIndex index = new APIndex(0.5, 1, max);
     Vector v = new Vector();
     v.put(0, 0.1);
     v.put(1, 1.0);
@@ -22,6 +22,5 @@ public class APIndexTest {
     assertEquals(1, residual.size());
     assertTrue(residual.containsKey(0));
     assertEquals(0.1, residual.get(0), Double.MIN_NORMAL);
-    //assertEquals(v, residual); // index.addVector() returns the same vector (implementation detail)
   }
 }
