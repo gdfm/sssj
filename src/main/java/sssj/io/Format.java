@@ -10,7 +10,7 @@ public enum Format {
     public Function<String, Vector> getRecordParser() {
       return new Function<String, Vector>() {
         public Vector apply(String input) {
-          String[] tokens = input.split(" ");
+          String[] tokens = input.split("\\s");
           Long ts = Long.parseLong(tokens[0]);
           Vector result = new Vector(ts);
           for (int i = 1; i < tokens.length; i += 2) {
