@@ -42,7 +42,28 @@ public enum Format {
         }
       };
     }
+  },
+
+  VW {
+    @Override
+    public Function<String, Vector> getRecordParser() {
+      return new Function<String, Vector>() {
+        public Vector apply(String input) {
+          String[] tokens = input.split("\\s");
+          // ignore class label tokens[0] and namespace tokens[1]
+          Vector result = new Vector();
+          for (int i = 2; i < tokens.length; i++) {
+            String[] parts = tokens[i].split(":");
+            int key = Integer.parseInt(parts[0]);
+            double val = Double.parseDouble(parts[1]);
+            result.put(key, val);
+          }
+          return result;
+        }
+      };
+    }
   };
+  ;
 
   abstract public Function<String, Vector> getRecordParser();
 }
