@@ -175,6 +175,7 @@ public class L2APIndex implements Index {
 
         @Override
         public void remove() {
+          i--;
           ids.removeLong(i);
           weights.removeDouble(i);
           magnitudes.removeDouble(i);

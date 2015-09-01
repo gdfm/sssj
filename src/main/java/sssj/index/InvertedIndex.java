@@ -21,9 +21,9 @@ import com.google.common.collect.Maps.EntryTransformer;
 
 public class InvertedIndex implements Index {
   private Int2ReferenceMap<PostingList> idx = new Int2ReferenceOpenHashMap<>();
+  private int size = 0;
   private final double theta;
   private final double lambda;
-  private int size = 0;
 
   public InvertedIndex(double theta, double lambda) {
     this.theta = theta;
@@ -125,6 +125,7 @@ public class InvertedIndex implements Index {
 
         @Override
         public void remove() {
+          i--;
           ids.removeLong(i);
           weights.removeDouble(i);
         }
