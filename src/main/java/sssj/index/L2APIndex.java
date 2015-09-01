@@ -23,7 +23,7 @@ public class L2APIndex implements Index {
   private final double theta;
   private final double lambda;
   private final Vector maxVectorInWindow; // c_w
-  private final Vector maxVectorInIndex; // \hat(c_w)
+  private final Vector maxVectorInIndex; // \hat{c_w}
 
   public L2APIndex(double theta, double lambda, Vector maxVector) {
     this.theta = theta;
