@@ -1,4 +1,4 @@
-package sssj;
+package sssj.base;
 
 import java.util.Iterator;
 import java.util.LinkedList;

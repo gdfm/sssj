@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Iterator;
 
-import sssj.Vector;
+import sssj.base.Vector;
 import sssj.time.Timeline;
 import sssj.time.TimeStamper;
 

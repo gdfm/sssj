@@ -11,8 +11,8 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
-import sssj.Commons;
-import sssj.Vector;
+import sssj.base.Commons;
+import sssj.base.Vector;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;

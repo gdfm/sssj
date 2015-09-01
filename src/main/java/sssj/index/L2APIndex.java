@@ -12,9 +12,9 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
-import sssj.Commons;
-import sssj.Commons.ResidualList;
-import sssj.Vector;
+import sssj.base.Commons;
+import sssj.base.Vector;
+import sssj.base.Commons.ResidualList;
 
 public class L2APIndex implements Index {
   private Int2ReferenceMap<L2APPostingList> idx = new Int2ReferenceOpenHashMap<>();

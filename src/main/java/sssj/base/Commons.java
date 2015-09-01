@@ -1,7 +1,9 @@
-package sssj;
+package sssj.base;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Queue;
 
 import com.google.common.base.Preconditions;
@@ -10,9 +12,9 @@ import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
 
 public class Commons {
-  static final double DEFAULT_THETA = 0.5;
-  static final double DEFAULT_LAMBDA = 1;
-  static final int DEFAULT_REPORT_PERIOD = 10_000;
+  public static final double DEFAULT_THETA = 0.5;
+  public static final double DEFAULT_LAMBDA = 1;
+  public static final int DEFAULT_REPORT_PERIOD = 10_000;
 
   public static double tau(double theta, double lambda) {
     Preconditions.checkArgument(theta > 0 && theta < 1);
@@ -23,6 +25,20 @@ public class Commons {
 
   public static double forgetFactor(double lambda, long deltaT) {
     return Math.exp(-lambda * deltaT);
+  }
+
+  public static String formatMap(Map<Long, Double> map) {
+    StringBuilder sb = new StringBuilder();
+    sb.append('{');
+    Iterator<Entry<Long, Double>> iter = map.entrySet().iterator();
+    while (iter.hasNext()) {
+      Entry<Long, Double> entry = iter.next();
+      sb.append(entry.getKey()).append('=').append(String.format("%.5f", entry.getValue()));
+      if (iter.hasNext())
+        sb.append(", ");
+    }
+    sb.append('}');
+    return sb.toString();
   }
 
   public static class BatchResult extends ForwardingTable<Long, Long, Double> {
@@ -62,4 +78,5 @@ public class Commons {
       return null;
     }
   }
+
 }

@@ -4,6 +4,9 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import sssj.base.Vector;
+import sssj.base.VectorBuffer;
+
 import com.google.common.collect.Iterators;
 
 public class VectorBufferTest {

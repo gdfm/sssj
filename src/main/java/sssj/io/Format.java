@@ -1,6 +1,6 @@
 package sssj.io;
 
-import sssj.Vector;
+import sssj.base.Vector;
 
 import com.google.common.base.Function;
 

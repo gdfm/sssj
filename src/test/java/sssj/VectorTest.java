@@ -8,6 +8,8 @@ import it.unimi.dsi.fastutil.ints.IntIterator;
 
 import org.junit.Test;
 
+import sssj.base.Vector;
+
 public class VectorTest {
 
   @Test

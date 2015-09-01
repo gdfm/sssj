@@ -1,5 +1,7 @@
 package sssj;
 
+import static sssj.base.Commons.*;
+
 import java.io.BufferedReader;
 import java.util.Map;
 
@@ -7,6 +9,7 @@ import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.Namespace;
+import sssj.base.Vector;
 import sssj.index.Index;
 import sssj.index.StreamingIndex;
 import sssj.io.Format;
@@ -22,11 +25,11 @@ public class Streaming {
     ArgumentParser parser = ArgumentParsers.newArgumentParser("Streaming").description("SSSJ in Streaming mode.")
         .defaultHelp(true);
     parser.addArgument("-t", "--theta").metavar("theta").type(Double.class).choices(Arguments.range(0.0, 1.0))
-        .setDefault(Commons.DEFAULT_THETA).help("similarity threshold");
+        .setDefault(DEFAULT_THETA).help("similarity threshold");
     parser.addArgument("-l", "--lambda").metavar("lambda").type(Double.class)
-        .choices(Arguments.range(0.0, Double.MAX_VALUE)).setDefault(Commons.DEFAULT_LAMBDA).help("forgetting factor");
-    parser.addArgument("-r", "--report").metavar("period").type(Integer.class)
-        .setDefault(Commons.DEFAULT_REPORT_PERIOD).help("progress report period");
+        .choices(Arguments.range(0.0, Double.MAX_VALUE)).setDefault(DEFAULT_LAMBDA).help("forgetting factor");
+    parser.addArgument("-r", "--report").metavar("period").type(Integer.class).setDefault(DEFAULT_REPORT_PERIOD)
+        .help("progress report period");
     // parser.addArgument("-i", "--index").type(IndexType.class).choices(IndexType.values())
     // .setDefault(IndexType.INVERTED).help("type of indexing");
     parser.addArgument("-f", "--format").type(Format.class).choices(Format.values()).setDefault(Format.SSSJ)
@@ -57,7 +60,7 @@ public class Streaming {
 
       Map<Long, Double> results = index.queryWith(v);
       if (!results.isEmpty())
-        System.out.println(v.timestamp() + ": " + results);
+        System.out.println(v.timestamp() + ": " + formatMap(results));
 
       index.addVector(v);
     }

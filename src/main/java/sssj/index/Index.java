@@ -2,7 +2,7 @@ package sssj.index;
 
 import java.util.Map;
 
-import sssj.Vector;
+import sssj.base.Vector;
 
 public interface Index {
 

@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import sssj.base.Vector;
 import sssj.index.APIndex;
 
 public class APIndexTest {

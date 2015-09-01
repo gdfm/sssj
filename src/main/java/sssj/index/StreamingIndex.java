@@ -1,6 +1,6 @@
 package sssj.index;
 
-import static sssj.Commons.forgetFactor;
+import static sssj.base.Commons.forgetFactor;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap.Entry;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
@@ -15,9 +15,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import sssj.Commons;
-import sssj.Commons.ResidualList;
-import sssj.Vector;
+import sssj.base.Commons;
+import sssj.base.Vector;
+import sssj.base.Commons.ResidualList;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
@@ -40,7 +40,7 @@ public class StreamingIndex implements Index {
     this.lambda = lambda;
     this.tau = Commons.tau(theta, lambda);
     this.maxVector = new Vector();
-    log.info("Tau = {}", tau);
+    System.out.println("Tau = " + tau);
   }
 
   @Override
