@@ -3,30 +3,59 @@ package sssj;
 import java.io.BufferedReader;
 import java.util.Map;
 
+import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.impl.Arguments;
+import net.sourceforge.argparse4j.inf.ArgumentParser;
+import net.sourceforge.argparse4j.inf.Namespace;
+import sssj.Commons.IndexType;
 import sssj.index.InvertedIndex;
 import sssj.index.ResidualList;
 import sssj.io.Format;
 import sssj.io.VectorStreamReader;
+import sssj.time.Timeline.Sequential;
 
 import com.github.gdfm.shobaidogu.IOUtils;
+import com.github.gdfm.shobaidogu.ProgressTracker;
 
 public class SSSJ {
 
   public static void main(String[] args) throws Exception {
-    System.out.println("RUN!");
-    String filename = args[0];
-    final double theta = 0.03;
-    final double lambda = 0.1;
-    BufferedReader reader = IOUtils.getBufferedReader(filename);
-    VectorStreamReader stream = new VectorStreamReader(reader, Format.SSSJ);
+    ArgumentParser parser = ArgumentParsers.newArgumentParser("SSSJ").description("SSSJ in Streaming mode.")
+        .defaultHelp(true);
+    parser.addArgument("-t", "--theta").metavar("theta").type(Double.class).choices(Arguments.range(0.0, 1.0))
+        .setDefault(Commons.DEFAULT_THETA).help("similarity threshold");
+    parser.addArgument("-l", "--lambda").metavar("lambda").type(Double.class)
+        .choices(Arguments.range(0.0, Double.MAX_VALUE)).setDefault(Commons.DEFAULT_LAMBDA).help("forgetting factor");
+    parser.addArgument("-r", "--report").metavar("period").type(Integer.class)
+        .setDefault(Commons.DEFAULT_REPORT_PERIOD).help("progress report period");
+    parser.addArgument("-i", "--index").type(IndexType.class).choices(IndexType.values())
+        .setDefault(IndexType.INVERTED).help("type of indexing");
+    parser.addArgument("-f", "--format").type(Format.class).choices(Format.values()).setDefault(Format.SSSJ)
+        .help("input format");
+    parser.addArgument("input").metavar("file")
+        .type(Arguments.fileType().verifyExists().verifyIsFile().verifyCanRead()).help("input file");
+    Namespace res = parser.parseArgsOrFail(args);
+
+    final double theta = res.get("theta");
+    final double lambda = res.get("lambda");
+    final int reportPeriod = res.getInt("report");
+    final IndexType idxType = res.<IndexType>get("index");
+    final Format fmt = res.<Format>get("format");
+    final String filename = res.getString("input");
+    final BufferedReader reader = IOUtils.getBufferedReader(filename);
+    final int numItems = IOUtils.getNumberOfLines(IOUtils.getBufferedReader(filename));
+    final ProgressTracker tracker = new ProgressTracker(numItems, reportPeriod);
+    final VectorStreamReader stream = new VectorStreamReader(reader, fmt, new Sequential());
+
+    System.out.println(String.format("SSSJ [t=%f, l=%f, i=%s]", theta, lambda, idxType.toString()));
+
     InvertedIndex index = new InvertedIndex(theta, lambda);
     ResidualList residual = new ResidualList();
 
     // TODO first update MAX, then query, then index
-    long currentTimestamp = -1, previousTimestamp = -1;
     for (Vector v : stream) {
-      previousTimestamp = currentTimestamp;
-      currentTimestamp = v.timestamp();
+      if (tracker != null)
+        tracker.progress();
 
       Map<Long, Double> results = index.queryWith(v);
       if (!results.isEmpty())
