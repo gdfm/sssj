@@ -1,5 +1,9 @@
 package sssj;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Queue;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ForwardingTable;
 import com.google.common.collect.Table;
@@ -32,5 +36,30 @@ public class Commons {
 
   public static enum IndexType {
     INVERTED, ALL_PAIRS, L2AP;
+  }
+
+  public static class ResidualList implements Iterable<Vector> {
+    private Queue<Vector> queue = new LinkedList<>();
+
+    public void add(Vector residual) {
+      queue.add(residual);
+    }
+
+    @Override
+    public Iterator<Vector> iterator() {
+      return queue.iterator();
+    }
+
+    @Override
+    public String toString() {
+      return "ResidualList = [" + queue + "]";
+    }
+
+    public Vector get(long candidateID) {
+      for (Vector v : queue)
+        if (candidateID == v.timestamp())
+          return v;
+      return null;
+    }
   }
 }

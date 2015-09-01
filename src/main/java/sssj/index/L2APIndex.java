@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import sssj.Commons;
+import sssj.Commons.ResidualList;
 import sssj.Vector;
 
 public class L2APIndex implements Index {
