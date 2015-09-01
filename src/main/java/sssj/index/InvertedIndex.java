@@ -11,7 +11,7 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
-import sssj.Utils;
+import sssj.Commons;
 import sssj.Vector;
 
 import com.google.common.base.Preconditions;
@@ -54,7 +54,7 @@ public class InvertedIndex implements Index {
       public Double transformEntry(Long key, Double value) {
         Preconditions.checkArgument(v.timestamp() > key.longValue());
         final long deltaT = v.timestamp() - key.longValue();
-        return value.doubleValue() * Utils.forgetFactor(lambda, deltaT);
+        return value.doubleValue() * Commons.forgetFactor(lambda, deltaT);
       }
     });
     // filter candidates < theta

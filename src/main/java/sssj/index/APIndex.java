@@ -9,7 +9,7 @@ import it.unimi.dsi.fastutil.longs.Long2DoubleOpenHashMap;
 
 import java.util.Map;
 
-import sssj.Utils;
+import sssj.Commons;
 import sssj.Vector;
 import sssj.index.InvertedIndex.PostingEntry;
 import sssj.index.InvertedIndex.PostingList;
@@ -66,7 +66,7 @@ public class APIndex implements Index {
       assert (candidateResidual != null);
       double score = e.getDoubleValue() + Vector.similarity(v, candidateResidual); // A[y] + dot(y',x)
       long deltaT = v.timestamp() - candidateID;
-      score *= Utils.forgetFactor(lambda, deltaT); // TODO move into similarity and index e^(-lambda*delta_T)
+      score *= Commons.forgetFactor(lambda, deltaT); // TODO move into similarity and index e^(-lambda*delta_T)
       if (Double.compare(score, theta) >= 0) // final check
         matches.put(candidateID, score);
     }

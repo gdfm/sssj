@@ -5,7 +5,10 @@ import com.google.common.collect.ForwardingTable;
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
 
-public class Utils {
+public class Commons {
+  static final double DEFAULT_THETA = 0.5;
+  static final double DEFAULT_LAMBDA = 1;
+  static final int DEFAULT_REPORT_PERIOD = 10_000;
 
   public static double tau(double theta, double lambda) {
     Preconditions.checkArgument(theta > 0 && theta < 1);
