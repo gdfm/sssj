@@ -1,5 +1,6 @@
 package sssj.index;
 
+import static sssj.Commons.forgetFactor;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap.Entry;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
@@ -65,22 +66,13 @@ public class StreamingIndex implements Index {
 
         double targetWeight = pe.getDoubleValue();
         double currentSimilarity = accumulator.get(targetID);
-        double additionalSimilarity = queryWeight * targetWeight;
+        double additionalSimilarity = queryWeight * targetWeight * forgetFactor(lambda, deltaT); // add forgetting factor e^(-lambda*delta_T)
         accumulator.put(targetID, currentSimilarity + additionalSimilarity);
       }
     }
 
-    // add forgetting factor e^(-lambda*delta_T)
-    Map<Long, Double> results = Maps.transformEntries(accumulator, new EntryTransformer<Long, Double, Double>() {
-      @Override
-      public Double transformEntry(Long key, Double value) {
-        Preconditions.checkArgument(v.timestamp() > key.longValue());
-        final long deltaT = v.timestamp() - key.longValue();
-        return value.doubleValue() * Commons.forgetFactor(lambda, deltaT);
-      }
-    });
     // filter candidates < theta
-    results = Maps.filterValues(results, new Predicate<Double>() {
+    Map<Long, Double> results = Maps.filterValues(accumulator, new Predicate<Double>() {
       @Override
       public boolean apply(Double input) {
         return input.compareTo(theta) >= 0;
