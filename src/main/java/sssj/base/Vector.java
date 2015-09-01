@@ -10,7 +10,7 @@ import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 public class Vector extends Int2DoubleLinkedOpenHashMap { // entries are returned in the same order they are added
   public static final Vector EMPTY_VECTOR = new Vector(Long.MIN_VALUE);
   protected long timestamp;
-  protected double maxValue;
+  public double maxValue;
 
   public Vector() {
     this(0);
