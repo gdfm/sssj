@@ -76,6 +76,10 @@
                             <mainClass>sssj.MiniBatch</mainClass>
                             <id>minibatch</id>
                         </program>
+                        <program>
+                            <mainClass>sssj.Streaming</mainClass>
+                            <id>streaming</id>
+                        </program>
                     </programs>
                 </configuration>
                 <executions>

@@ -16,10 +16,10 @@ import sssj.time.Timeline.Sequential;
 import com.github.gdfm.shobaidogu.IOUtils;
 import com.github.gdfm.shobaidogu.ProgressTracker;
 
-public class SSSJ {
+public class Streaming {
 
   public static void main(String[] args) throws Exception {
-    ArgumentParser parser = ArgumentParsers.newArgumentParser("SSSJ").description("SSSJ in Streaming mode.")
+    ArgumentParser parser = ArgumentParsers.newArgumentParser("Streaming").description("SSSJ in Streaming mode.")
         .defaultHelp(true);
     parser.addArgument("-t", "--theta").metavar("theta").type(Double.class).choices(Arguments.range(0.0, 1.0))
         .setDefault(Commons.DEFAULT_THETA).help("similarity threshold");
@@ -46,8 +46,8 @@ public class SSSJ {
     final ProgressTracker tracker = new ProgressTracker(numItems, reportPeriod);
     final VectorStreamReader stream = new VectorStreamReader(reader, fmt, new Sequential());
 
-    // System.out.println(String.format("SSSJ [t=%f, l=%f, i=%s]", theta, lambda, idxType.toString()));
-    System.out.println(String.format("SSSJ [t=%f, l=%f]", theta, lambda));
+    // System.out.println(String.format("Streaming [t=%f, l=%f, i=%s]", theta, lambda, idxType.toString()));
+    System.out.println(String.format("Streaming [t=%f, l=%f]", theta, lambda));
 
     Index index = new StreamingIndex(theta, lambda);
     // TODO first update MAX, then query, then index
