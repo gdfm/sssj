@@ -7,9 +7,8 @@ import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.Namespace;
-import sssj.Commons.IndexType;
-import sssj.Commons.ResidualList;
-import sssj.index.InvertedIndex;
+import sssj.index.Index;
+import sssj.index.StreamingIndex;
 import sssj.io.Format;
 import sssj.io.VectorStreamReader;
 import sssj.time.Timeline.Sequential;
@@ -28,8 +27,8 @@ public class SSSJ {
         .choices(Arguments.range(0.0, Double.MAX_VALUE)).setDefault(Commons.DEFAULT_LAMBDA).help("forgetting factor");
     parser.addArgument("-r", "--report").metavar("period").type(Integer.class)
         .setDefault(Commons.DEFAULT_REPORT_PERIOD).help("progress report period");
-    parser.addArgument("-i", "--index").type(IndexType.class).choices(IndexType.values())
-        .setDefault(IndexType.INVERTED).help("type of indexing");
+    // parser.addArgument("-i", "--index").type(IndexType.class).choices(IndexType.values())
+    // .setDefault(IndexType.INVERTED).help("type of indexing");
     parser.addArgument("-f", "--format").type(Format.class).choices(Format.values()).setDefault(Format.SSSJ)
         .help("input format");
     parser.addArgument("input").metavar("file")
@@ -39,7 +38,7 @@ public class SSSJ {
     final double theta = res.get("theta");
     final double lambda = res.get("lambda");
     final int reportPeriod = res.getInt("report");
-    final IndexType idxType = res.<IndexType>get("index");
+    // final IndexType idxType = res.<IndexType>get("index");
     final Format fmt = res.<Format>get("format");
     final String filename = res.getString("input");
     final BufferedReader reader = IOUtils.getBufferedReader(filename);
@@ -47,11 +46,10 @@ public class SSSJ {
     final ProgressTracker tracker = new ProgressTracker(numItems, reportPeriod);
     final VectorStreamReader stream = new VectorStreamReader(reader, fmt, new Sequential());
 
-    System.out.println(String.format("SSSJ [t=%f, l=%f, i=%s]", theta, lambda, idxType.toString()));
+    // System.out.println(String.format("SSSJ [t=%f, l=%f, i=%s]", theta, lambda, idxType.toString()));
+    System.out.println(String.format("SSSJ [t=%f, l=%f]", theta, lambda));
 
-    InvertedIndex index = new InvertedIndex(theta, lambda);
-    ResidualList residual = new ResidualList();
-
+    Index index = new StreamingIndex(theta, lambda);
     // TODO first update MAX, then query, then index
     for (Vector v : stream) {
       if (tracker != null)
@@ -61,8 +59,7 @@ public class SSSJ {
       if (!results.isEmpty())
         System.out.println(v.timestamp() + ": " + results);
 
-      Vector r = index.addVector(v);
-      residual.add(r);
+      index.addVector(v);
     }
   }
 }
