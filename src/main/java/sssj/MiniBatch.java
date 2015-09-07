@@ -27,6 +27,7 @@ import sssj.index.InvertedIndex;
 import sssj.index.L2APIndex;
 import sssj.io.Format;
 import sssj.io.VectorStream;
+import sssj.io.VectorStreamFactory;
 import sssj.io.VectorStreamReader;
 import sssj.time.Timeline.Sequential;
 
@@ -63,7 +64,7 @@ public class MiniBatch {
     final IndexType idxType = opts.<IndexType>get("index");
     final Format fmt = opts.<Format>get("format");
     final File file = opts.<File>get("input");
-    final VectorStream stream = new VectorStreamReader(file, fmt, new Sequential());
+    final VectorStream stream = VectorStreamFactory.getVectorStream(file, fmt, new Sequential());
     final int numVectors = stream.numVectors();
     final ProgressTracker tracker = new ProgressTracker(numVectors, reportPeriod);
 
