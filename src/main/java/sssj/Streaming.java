@@ -40,14 +40,14 @@ public class Streaming {
         .help("input format");
     parser.addArgument("input").metavar("file")
         .type(Arguments.fileType().verifyExists().verifyIsFile().verifyCanRead()).help("input file");
-    Namespace res = parser.parseArgsOrFail(args);
+    Namespace opts = parser.parseArgsOrFail(args);
 
-    final double theta = res.get("theta");
-    final double lambda = res.get("lambda");
-    final int reportPeriod = res.getInt("report");
+    final double theta = opts.get("theta");
+    final double lambda = opts.get("lambda");
+    final int reportPeriod = opts.getInt("report");
     // final IndexType idxType = res.<IndexType>get("index");
-    final Format fmt = res.<Format>get("format");
-    final String filename = res.getString("input");
+    final Format fmt = opts.<Format>get("format");
+    final String filename = opts.getString("input");
     final BufferedReader reader = IOUtils.getBufferedReader(filename);
     final int numItems = IOUtils.getNumberOfLines(IOUtils.getBufferedReader(filename));
     final ProgressTracker tracker = new ProgressTracker(numItems, reportPeriod);

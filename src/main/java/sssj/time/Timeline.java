@@ -3,6 +3,8 @@ package sssj.time;
 import org.apache.commons.math3.distribution.PoissonDistribution;
 
 public interface Timeline {
+  @SuppressWarnings("rawtypes") public static final Class[] TIMELINES = { Sequential.class, Poisson.class };
+
   long nextTimestamp();
 
   public static class Sequential implements Timeline {

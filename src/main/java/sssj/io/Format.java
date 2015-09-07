@@ -62,8 +62,14 @@ public enum Format {
         }
       };
     }
+  },
+
+  BINARY {
+    @Override
+    public Function<String, Vector> getRecordParser() {
+      throw new UnsupportedOperationException("Binary format does not need a parser");
+    }
   };
-  ;
 
   abstract public Function<String, Vector> getRecordParser();
 }

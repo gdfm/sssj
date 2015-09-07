@@ -31,6 +31,7 @@ public class VectorStreamReader implements Iterable<Vector> {
     this.ts = timeline != null ? new TimeStamper(timeline) : null;
   }
 
+  @Override
   public Iterator<Vector> iterator() {
     Iterator<Vector> result = Iterators.transform(it.iterator(), format.getRecordParser()); // parser
     result = Iterators.transform(result, new Function<Vector, Vector>() { // decorator normalizer

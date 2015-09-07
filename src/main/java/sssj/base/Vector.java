@@ -3,8 +3,17 @@ package sssj.base;
 import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+
 /**
  * A sparse vector in a multidimensional Euclidean space. The vector is identified by a unique timestamp.
+ * Each vector has the following serialization format.
+ * VECTOR := VECTOR_ID(long) NUM_ELEMENTS(int) [ELEMENT]+
+ * ELEMENT := DIMENSION(int) VALUE(double)
+ * Where VECTOR_ID is the vector id (which also represents its timestamp), NUM_ELEMENTS is the number of non-zero-valued dimensions in the vector, and ELEMENT
+ * is a single dimension-value pair. Finally, DIMENSION is the id of the dimension and VALUE its value.
  */
 // public class Vector extends Int2DoubleAVLTreeMap {
 public class Vector extends Int2DoubleLinkedOpenHashMap { // entries are returned in the same order they are added
@@ -101,6 +110,25 @@ public class Vector extends Int2DoubleLinkedOpenHashMap { // entries are returne
     return result;
   }
 
+  public void read(DataInput in) throws IOException {
+    this.setTimestamp(in.readLong());
+    int numElements = in.readInt();
+    for (int i = 0; i < numElements; i++) {
+      int dim = in.readInt();
+      double val = in.readDouble();
+      this.put(dim, val);
+    }
+  }
+
+  public void write(DataOutput out) throws IOException {
+    out.writeLong(this.timestamp());
+    out.writeInt(this.size());
+    for (Int2DoubleMap.Entry e : this.int2DoubleEntrySet()) {
+      out.writeInt(e.getIntKey());
+      out.writeDouble(e.getDoubleValue());
+    }
+  }
+
   /**
    * Updates the vector to the max of itself and the vector query.
    * 
@@ -126,4 +154,5 @@ public class Vector extends Int2DoubleLinkedOpenHashMap { // entries are returne
     }
     return result;
   }
+
 }
