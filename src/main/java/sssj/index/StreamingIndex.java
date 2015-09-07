@@ -29,25 +29,27 @@ import com.google.common.primitives.Doubles;
 public class StreamingIndex implements Index {
   private static final Logger log = LoggerFactory.getLogger(StreamingIndex.class);
   private Int2ReferenceMap<StreamingPostingList> idx = new Int2ReferenceOpenHashMap<>();
-  private ResidualList resList = new ResidualList();
+  // private ResidualList resList = new ResidualList();
+  private final Long2DoubleMap accumulator = new Long2DoubleOpenHashMap();
   private int size = 0;
   private final double theta;
   private final double lambda;
   private final double tau;
-  private final Vector maxVector; // \hat{y}
+
+  // private final Vector maxVector; // \hat{y}
 
   public StreamingIndex(double theta, double lambda) {
     this.theta = theta;
     this.lambda = lambda;
     this.tau = Commons.tau(theta, lambda);
-    this.maxVector = new Vector();
+    // this.maxVector = new Vector();
     System.out.println("Tau = " + tau);
   }
 
   @Override
   public Map<Long, Double> queryWith(final Vector v) {
-    Vector updates = maxVector.updateMaxByDimension(v);
-    Long2DoubleMap accumulator = new Long2DoubleOpenHashMap(size);
+    // Vector updates = maxVector.updateMaxByDimension(v);
+    accumulator.clear();
     for (Entry e : v.int2DoubleEntrySet()) {
       int dimension = e.getIntKey();
       if (!idx.containsKey(dimension))

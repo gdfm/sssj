@@ -8,6 +8,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
@@ -21,6 +24,7 @@ import sssj.index.APIndex;
 import sssj.index.Index;
 import sssj.index.InvertedIndex;
 import sssj.index.L2APIndex;
+import sssj.index.StreamingIndex;
 import sssj.io.Format;
 import sssj.io.VectorStreamReader;
 import sssj.time.Timeline.Sequential;
@@ -34,6 +38,7 @@ import com.github.gdfm.shobaidogu.ProgressTracker;
  * as the new first half, and repeat the process.
  */
 public class MiniBatch {
+  private static final Logger log = LoggerFactory.getLogger(MiniBatch.class);
 
   public static void main(String[] args) throws Exception {
     ArgumentParser parser = ArgumentParsers.newArgumentParser("MiniBatch").description("SSSJ in MiniBatch mode.")
@@ -64,6 +69,7 @@ public class MiniBatch {
     final VectorStreamReader stream = new VectorStreamReader(reader, fmt, new Sequential());
 
     System.out.println(String.format("MiniBatch [t=%f, l=%f, i=%s]", theta, lambda, idxType.toString()));
+    log.info(String.format("MiniBatch [t=%f, l=%f, i=%s]", theta, lambda, idxType.toString()));
     compute(stream, theta, lambda, idxType, tracker);
   }
 
