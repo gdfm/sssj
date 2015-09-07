@@ -28,6 +28,7 @@ public class VectorStreamReader implements Iterable<Vector> {
       IOException {
     this.it = new LineIterable(reader);
     this.format = format;
+    Preconditions.checkArgument(timeline != null || format == Format.SSSJ); // the format needs to have a timestamp
     this.ts = timeline != null ? new TimeStamper(timeline) : null;
   }
 
@@ -35,11 +36,11 @@ public class VectorStreamReader implements Iterable<Vector> {
   public Iterator<Vector> iterator() {
     Iterator<Vector> result = Iterators.transform(it.iterator(), format.getRecordParser()); // parser
     result = Iterators.transform(result, new Function<Vector, Vector>() { // decorator normalizer
-      @Override
-      public Vector apply(Vector input) {
-        return Vector.l2normalize(input);
-      }
-    });
+          @Override
+          public Vector apply(Vector input) {
+            return Vector.l2normalize(input);
+          }
+        });
     if (ts != null)
       result = Iterators.transform(result, ts); // decorator timestamper
     return result;

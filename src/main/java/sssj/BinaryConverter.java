@@ -16,22 +16,24 @@ import sssj.io.VectorStreamReader;
 import sssj.time.Timeline;
 
 import com.github.gdfm.shobaidogu.IOUtils;
+import com.google.common.base.Preconditions;
 
 public class BinaryConverter {
   public static void main(String[] args) throws Exception {
-    ArgumentParser parser = ArgumentParsers.newArgumentParser("Converter")
+    ArgumentParser parser = ArgumentParsers.newArgumentParser("Convert")
         .description("Convert files to binary SSSJ format.").defaultHelp(true);
     parser.addArgument("-f", "--format").type(Format.class).choices(Format.values()).setDefault(Format.SSSJ)
         .help("input format");
     parser.addArgument("-t", "--timeline").type(Timeline.class).choices(Timeline.TIMELINES).help("timeline to apply");
     parser.addArgument("input").metavar("input")
         .type(Arguments.fileType().verifyExists().verifyIsFile().verifyCanRead()).help("input file");
-    parser.addArgument("output").metavar("output").type(Arguments.fileType().verifyCanCreate().verifyCanWrite())
-        .help("output file");
+    parser.addArgument("output").metavar("output").type(Arguments.fileType().verifyCanCreate()).help("output file");
     Namespace opts = parser.parseArgsOrFail(args);
 
     final Format fmt = opts.<Format>get("format");
     final Timeline tml = opts.<Timeline>get("timeline");
+    Preconditions.checkArgument(tml != null || fmt == Format.SSSJ,
+        "Either a timeline is specified or the input format has a timestamp. Timeline={}, Format={}", tml, fmt);
     final BufferedReader reader = new BufferedReader(new FileReader(opts.<File>get("input")));
     final VectorStreamReader stream = new VectorStreamReader(reader, fmt, tml);
     final DataOutputStream dos = new DataOutputStream(new FileOutputStream(opts.<File>get("output")));

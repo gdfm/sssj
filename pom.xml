@@ -80,6 +80,10 @@
                             <mainClass>sssj.Streaming</mainClass>
                             <id>streaming</id>
                         </program>
+                        <program>
+                            <mainClass>sssj.BinaryConverter</mainClass>
+                            <id>convert</id>
+                        </program>
                     </programs>
                 </configuration>
                 <executions>
