@@ -1,5 +1,6 @@
 package sssj.io;
 
+import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,7 +32,7 @@ public class BinaryVectorStreamReader implements VectorStream {
   }
 
   public BinaryVectorStreamReader(InputStream input) throws IOException {
-    dis = new DataInputStream(input);
+    dis = new DataInputStream(new BufferedInputStream(input));
     numVectors = dis.readInt();
   }
 

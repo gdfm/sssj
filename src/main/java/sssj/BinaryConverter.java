@@ -1,5 +1,6 @@
 package sssj;
 
+import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -52,7 +53,8 @@ public class BinaryConverter {
     final File file = opts.<File>get("input");
     final VectorStream stream = new VectorStreamReader(file, fmt, tml);
     final int numVectors = stream.numVectors();
-    final DataOutputStream dos = new DataOutputStream(new FileOutputStream(opts.<File>get("output")));
+    final DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(
+        opts.<File>get("output"))));
 
     log.info("Converting input file {} in format {} with {} vectors to binary output file {} with timeline {}",
         opts.getString("input"), fmt, numVectors, opts.getString("output"), tml);
