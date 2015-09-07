@@ -1,4 +1,4 @@
-package sssj;
+package sssj.io;
 
 import static org.junit.Assert.assertEquals;
 

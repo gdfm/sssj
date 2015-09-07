@@ -1,4 +1,4 @@
-package sssj;
+package sssj.base;
 
 import static org.junit.Assert.*;
 import it.unimi.dsi.fastutil.BidirectionalIterator;

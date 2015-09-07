@@ -1,35 +1,43 @@
 package sssj.io;
 
-import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.Iterator;
 
 import sssj.base.Vector;
-import sssj.time.Timeline;
 import sssj.time.TimeStamper;
+import sssj.time.Timeline;
 
+import com.github.gdfm.shobaidogu.IOUtils;
 import com.github.gdfm.shobaidogu.LineIterable;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 
-public class VectorStreamReader implements Iterable<Vector> {
+public class VectorStreamReader implements VectorStream {
   private final LineIterable it;
   private final Format format;
   private final TimeStamper ts;
+  private final int numVectors;
 
-  public VectorStreamReader(BufferedReader reader, Format format) throws FileNotFoundException, IOException {
-    this(reader, format, null);
+  public VectorStreamReader(File file, Format format) throws FileNotFoundException, IOException {
+    this(file, format, null);
     Preconditions.checkArgument(format == Format.SSSJ); // the format needs to have a timestamp
   }
 
-  public VectorStreamReader(BufferedReader reader, Format format, Timeline timeline) throws FileNotFoundException,
-      IOException {
-    this.it = new LineIterable(reader);
+  public VectorStreamReader(File file, Format format, Timeline timeline) throws FileNotFoundException, IOException {
+    this.numVectors = IOUtils.getNumberOfLines(new FileReader(file));
+    this.it = new LineIterable(file);
     this.format = format;
     Preconditions.checkArgument(timeline != null || format == Format.SSSJ); // the format needs to have a timestamp
     this.ts = timeline != null ? new TimeStamper(timeline) : null;
+  }
+
+  @Override
+  public int numVectors() {
+    return numVectors;
   }
 
   @Override

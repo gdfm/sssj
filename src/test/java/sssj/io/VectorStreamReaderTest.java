@@ -1,8 +1,8 @@
-package sssj;
+package sssj.io;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
-import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 
 import org.junit.Test;
@@ -11,15 +11,13 @@ import sssj.base.Vector;
 import sssj.io.Format;
 import sssj.io.VectorStreamReader;
 
-import com.github.gdfm.shobaidogu.IOUtils;
-
-public class StreamReaderTest {
+public class VectorStreamReaderTest {
   public static final String EXAMPLE_FILENAME = "/example.txt";
 
   @Test
   public void test() throws IOException {
-    BufferedReader reader = IOUtils.getBufferedReader(EXAMPLE_FILENAME);
-    VectorStreamReader stream = new VectorStreamReader(reader, Format.SSSJ);
+    File file = new File(this.getClass().getResource(EXAMPLE_FILENAME).getPath());
+    VectorStreamReader stream = new VectorStreamReader(file, Format.SSSJ);
     int[] sizes = new int[] { 8, 14, 14, 8, 9, 10, 12, 18, 10 };
     int i = 0;
     for (Vector v : stream)

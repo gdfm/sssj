@@ -1,10 +1,8 @@
 package sssj;
 
-import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
@@ -16,10 +14,10 @@ import org.slf4j.LoggerFactory;
 
 import sssj.base.Vector;
 import sssj.io.Format;
+import sssj.io.VectorStream;
 import sssj.io.VectorStreamReader;
 import sssj.time.Timeline;
 
-import com.github.gdfm.shobaidogu.IOUtils;
 import com.google.common.base.Preconditions;
 
 public class BinaryConverter {
@@ -50,14 +48,15 @@ public class BinaryConverter {
     }
     Preconditions.checkArgument(tml != null || fmt == Format.SSSJ,
         "Please specify a timeline or an input format with timestamp information. Timeline=%s, Format=%s.", tml, fmt);
-    final BufferedReader reader = new BufferedReader(new FileReader(opts.<File>get("input")));
-    final VectorStreamReader stream = new VectorStreamReader(reader, fmt, tml);
-    final DataOutputStream dos = new DataOutputStream(new FileOutputStream(opts.<File>get("output")));
-    final int numItems = IOUtils.getNumberOfLines(IOUtils.getBufferedReader(opts.getString("input")));
 
-    log.info("Converting input file {} in format {} to binary output file {} with timeline {}",
-        opts.getString("input"), fmt, opts.getString("output"), tml);
-    dos.writeInt(numItems);
+    final File file = opts.<File>get("input");
+    final VectorStream stream = new VectorStreamReader(file, fmt, tml);
+    final int numVectors = stream.numVectors();
+    final DataOutputStream dos = new DataOutputStream(new FileOutputStream(opts.<File>get("output")));
+
+    log.info("Converting input file {} in format {} with {} vectors to binary output file {} with timeline {}",
+        opts.getString("input"), fmt, numVectors, opts.getString("output"), tml);
+    dos.writeInt(numVectors);
     for (Vector v : stream) {
       v.write(dos);
     }

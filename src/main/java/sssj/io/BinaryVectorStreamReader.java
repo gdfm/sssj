@@ -1,6 +1,8 @@
 package sssj.io;
 
 import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
@@ -20,31 +22,32 @@ import sssj.base.Vector;
  * @throws IOException
  */
 
-public class BinaryVectorStreamReader implements Iterable<Vector> {
+public class BinaryVectorStreamReader implements VectorStream {
   private final DataInputStream dis;
+  private final int numVectors;
+
+  public BinaryVectorStreamReader(File file) throws IOException {
+    this(new FileInputStream(file));
+  }
 
   public BinaryVectorStreamReader(InputStream input) throws IOException {
     dis = new DataInputStream(input);
+    numVectors = dis.readInt();
+  }
+
+  @Override
+  public int numVectors() {
+    return numVectors;
   }
 
   @Override
   public Iterator<Vector> iterator() {
-    try {
-      return new BinaryVectorIterator();
-    } catch (IOException e) {
-      e.printStackTrace();
-      throw new RuntimeException(e);
-    }
+    return new BinaryVectorIterator();
   }
 
   public class BinaryVectorIterator implements Iterator<Vector> {
     private final Vector current = new Vector();
-    private final int numVectors;
     private int numReads;
-
-    public BinaryVectorIterator() throws IOException {
-      numVectors = dis.readInt();
-    }
 
     @Override
     public boolean hasNext() {

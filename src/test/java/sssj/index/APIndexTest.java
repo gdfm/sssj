@@ -1,4 +1,4 @@
-package sssj;
+package sssj.index;
 
 import static org.junit.Assert.*;
 

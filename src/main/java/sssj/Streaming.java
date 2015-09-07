@@ -2,24 +2,26 @@ package sssj;
 
 import static sssj.base.Commons.*;
 
-import java.io.BufferedReader;
+import java.io.File;
 import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.Namespace;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import sssj.base.Commons.IndexType;
 import sssj.base.Vector;
 import sssj.index.Index;
 import sssj.index.StreamingIndex;
 import sssj.io.Format;
+import sssj.io.VectorStream;
 import sssj.io.VectorStreamReader;
 import sssj.time.Timeline.Sequential;
 
-import com.github.gdfm.shobaidogu.IOUtils;
 import com.github.gdfm.shobaidogu.ProgressTracker;
 
 public class Streaming {
@@ -47,11 +49,10 @@ public class Streaming {
     final int reportPeriod = opts.getInt("report");
     // final IndexType idxType = res.<IndexType>get("index");
     final Format fmt = opts.<Format>get("format");
-    final String filename = opts.getString("input");
-    final BufferedReader reader = IOUtils.getBufferedReader(filename);
-    final int numItems = IOUtils.getNumberOfLines(IOUtils.getBufferedReader(filename));
-    final ProgressTracker tracker = new ProgressTracker(numItems, reportPeriod);
-    final VectorStreamReader stream = new VectorStreamReader(reader, fmt, new Sequential());
+    final File file = opts.<File>get("input");
+    final VectorStream stream = new VectorStreamReader(file, fmt, new Sequential());
+    final int numVectors = stream.numVectors();
+    final ProgressTracker tracker = new ProgressTracker(numVectors, reportPeriod);
 
     // System.out.println(String.format("Streaming [t=%f, l=%f, i=%s]", theta, lambda, idxType.toString()));
     System.out.println(String.format("Streaming [t=%f, l=%f]", theta, lambda));
