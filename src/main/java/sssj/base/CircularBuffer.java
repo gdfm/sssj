@@ -95,7 +95,6 @@ public final class CircularBuffer {
   private final int cycleIndex(int index) {
     Preconditions.checkArgument(index < size());
     int i = (head + index * Longs.BYTES) % buffer.capacity();
-    assert (i < tail);
     return i;
   }
 

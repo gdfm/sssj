@@ -15,6 +15,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import sssj.base.CircularBuffer;
 import sssj.base.Commons;
 import sssj.base.Vector;
 import sssj.base.Commons.ResidualList;
@@ -105,12 +106,12 @@ public class StreamingIndex implements Index {
   }
 
   public static class StreamingPostingList implements Iterable<StreamingPostingEntry> {
-    private LongArrayList ids = new LongArrayList();
-    private DoubleArrayList weights = new DoubleArrayList();
+    private CircularBuffer ids = new CircularBuffer();
+    private CircularBuffer weights = new CircularBuffer();
 
     public void add(long vectorID, double weight) {
-      ids.add(vectorID);
-      weights.add(weight);
+      ids.pushLong(vectorID);
+      weights.pushDouble(weight);
     }
 
     @Override
@@ -131,17 +132,18 @@ public class StreamingIndex implements Index {
 
         @Override
         public StreamingPostingEntry next() {
-          entry.setKey(ids.getLong(i));
-          entry.setValue(weights.getDouble(i));
+          entry.setKey(ids.peekLong(i));
+          entry.setValue(weights.peekDouble(i));
           i++;
           return entry;
         }
 
         @Override
-        public void remove() { // TODO optimize to avoid too many system.arraycopy() calls
+        public void remove() {
           i--;
-          ids.removeLong(i);
-          weights.removeDouble(i);
+          assert (i == 0); // removals always happen at the head
+          ids.popLong();
+          weights.popDouble();
         }
       };
     }
