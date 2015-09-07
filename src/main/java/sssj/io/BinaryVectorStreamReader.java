@@ -38,7 +38,7 @@ public class BinaryVectorStreamReader implements Iterable<Vector> {
   }
 
   public class BinaryVectorIterator implements Iterator<Vector> {
-    private final Vector current = null;
+    private final Vector current = new Vector();
     private final int numVectors;
     private int numReads;
 
