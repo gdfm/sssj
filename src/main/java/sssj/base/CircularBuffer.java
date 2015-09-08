@@ -8,8 +8,8 @@ import com.google.common.primitives.Longs;
 
 public final class CircularBuffer {
   private static final int DEFAULT_SIZE = 1024;
-  private int head, tail;
-  private int size;
+  private static final int LOG2_LONG_BYETS = 63 - Long.numberOfLeadingZeros(Longs.BYTES); // log2(Long.BYTES)
+  private int head, tail, size;
   private ByteBuffer buffer;
 
   public CircularBuffer() {
@@ -43,11 +43,6 @@ public final class CircularBuffer {
     return this;
   }
 
-  // public LongBuffer put(int index, long l) {
-  // // TODO Auto-generated method stub
-  // return null;
-  // }
-
   public double popDouble() {
     if (isEmpty())
       throw new BufferUnderflowException();
@@ -71,11 +66,6 @@ public final class CircularBuffer {
     return this;
   }
 
-  // public DoubleBuffer put(int index, double d) {
-  // // TODO Auto-generated method stub
-  // return null;
-  // }
-
   public final boolean isEmpty() {
     return size == 0;
   }
@@ -89,7 +79,7 @@ public final class CircularBuffer {
   }
 
   public final int capacity() {
-    return buffer.capacity() >> 3; // assumes Longs.BYTES = 8
+    return buffer.capacity() >> LOG2_LONG_BYETS;
   }
 
   private final int cycleIndex(int index) {
