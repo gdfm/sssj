@@ -118,31 +118,33 @@ public class StreamingIndex implements Index {
 
     @Override
     public Iterator<StreamingPostingEntry> iterator() {
-      return new Iterator<StreamingPostingEntry>() {
-        private final StreamingPostingEntry entry = new StreamingPostingEntry();
-        private int i = 0;
+      return new StreamingPostingListIterator();
+    }
 
-        @Override
-        public boolean hasNext() {
-          return i < ids.size();
-        }
+    class StreamingPostingListIterator implements Iterator<StreamingPostingEntry> {
+      private final StreamingPostingEntry entry = new StreamingPostingEntry();
+      private int i = 0;
 
-        @Override
-        public StreamingPostingEntry next() {
-          entry.setKey(ids.peekLong(i));
-          entry.setValue(weights.peekDouble(i));
-          i++;
-          return entry;
-        }
+      @Override
+      public boolean hasNext() {
+        return i < ids.size();
+      }
 
-        @Override
-        public void remove() {
-          i--;
-          assert (i == 0); // removals always happen at the head
-          ids.popLong();
-          weights.popDouble();
-        }
-      };
+      @Override
+      public StreamingPostingEntry next() {
+        entry.setKey(ids.peekLong(i));
+        entry.setValue(weights.peekDouble(i));
+        i++;
+        return entry;
+      }
+
+      @Override
+      public void remove() {
+        i--;
+        assert (i == 0); // removals always happen at the head
+        ids.popLong();
+        weights.popDouble();
+      }
     }
   }
 
