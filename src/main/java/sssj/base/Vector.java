@@ -32,7 +32,7 @@ public class Vector extends Int2DoubleLinkedOpenHashMap { // entries are returne
   /**
    * Copy constructor. The values are deep copied.
    * 
-   * @param other
+   * @param other the vector to copy
    */
   public Vector(Vector other) {
     this.timestamp = other.timestamp;

@@ -47,4 +47,36 @@ public class BinaryVectorStreamReaderTest {
     Vector r = Vector.l2normalize(Format.VW.getRecordParser().apply(vw_example));
     assertEquals(r, v);
   }
+
+/*  
+  @Test
+  public void testSpeed() throws IOException {
+    File file;
+    VectorStream reader;
+    int nzf;
+    long start, finish;
+
+    file = new File("data/RCV1_seq.bin");
+    reader = new BinaryVectorStreamReader(file);
+    nzf = 0;
+    start = System.currentTimeMillis();
+    for (Vector v : reader) {
+      nzf += v.size();
+    }
+    finish = System.currentTimeMillis();
+    System.out.println(nzf);
+    System.out.println("BINARY READER - Total time taken: " + TimeUnit.MILLISECONDS.toSeconds(finish - start) + " seconds.");
+
+    file = new File("data/RCV1.vw");
+    reader = new VectorStreamReader(file, Format.VW, new Timeline.Sequential());
+    nzf = 0;
+    start = System.currentTimeMillis();
+    for (Vector v : reader) {
+      nzf += v.size();
+    }
+    finish = System.currentTimeMillis();
+    System.out.println(nzf);
+    System.out.println("TEXT READER - Total time taken: " + TimeUnit.MILLISECONDS.toSeconds(finish - start) + " seconds.");
+  }
+*/
 }

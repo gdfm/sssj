@@ -13,7 +13,7 @@ import com.google.common.collect.Iterators;
  * order of timestamp.
  */
 public class VectorBuffer {
-  private Vector max = new Vector();
+  private Vector max = new Vector(); // TODO for INVERTED index the max is not needed
   private Queue<Vector> queue = new LinkedList<>();
   private final double tau;
   private int epoch;
@@ -24,7 +24,7 @@ public class VectorBuffer {
   }
 
   /**
-   * Add a vector to the current buffer if the vector timestamp lies within the current buffer window.
+   * Add a vector to the current buffer if the vector timestamp lies within the current buffer window. The vector is defensively copied.
    * 
    * @return true if successfully added the vector, false if the vector timestamp is beyond the current window
    */
@@ -32,7 +32,7 @@ public class VectorBuffer {
     Preconditions.checkArgument(v.timestamp() >= windowStart());
     max.updateMaxByDimension(v); // update the max vector
     if (v.timestamp() < windowEnd()) { // v is within the time window of 2*tau
-      queue.add(v);
+      queue.add(new Vector(v)); // copy constructor needed because the vector iterator reuses its instance
       return true;
     } else {
       return false;
@@ -48,7 +48,7 @@ public class VectorBuffer {
     while (!queue.isEmpty() && queue.peek().timestamp() < windowStart())
       queue.remove();
     // update the max vector
-    this.max.clear();
+    max.clear();
     for (Vector v : queue)
       max.updateMaxByDimension(v);
     return this;
@@ -96,5 +96,4 @@ public class VectorBuffer {
   public String toString() {
     return "[epoch=" + epoch + ", queue=" + queue + "]";
   }
-
 }

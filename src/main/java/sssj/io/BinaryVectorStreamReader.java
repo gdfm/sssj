@@ -32,7 +32,7 @@ public class BinaryVectorStreamReader implements VectorStream {
   }
 
   public BinaryVectorStreamReader(InputStream input) throws IOException {
-    dis = new DataInputStream(new BufferedInputStream(input));
+    dis = new DataInputStream(new BufferedInputStream(input)); // TODO can be made faster by using FileChannel
     numVectors = dis.readInt();
   }
 

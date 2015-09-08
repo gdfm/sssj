@@ -31,7 +31,8 @@ public class VectorStreamReader implements VectorStream {
     this.numVectors = IOUtils.getNumberOfLines(new FileReader(file));
     this.it = new LineIterable(file);
     this.format = format;
-    Preconditions.checkArgument(timeline != null || format == Format.SSSJ); // the format needs to have a timestamp
+    Preconditions.checkArgument(timeline != null || format == Format.SSSJ,
+        "Specify a timeline or an input format with timestamp information. Timeline=%s, Format=%s.", timeline, format);
     this.ts = timeline != null ? new TimeStamper(timeline) : null;
   }
 

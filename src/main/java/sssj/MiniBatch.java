@@ -28,7 +28,6 @@ import sssj.index.L2APIndex;
 import sssj.io.Format;
 import sssj.io.VectorStream;
 import sssj.io.VectorStreamFactory;
-import sssj.io.VectorStreamReader;
 import sssj.time.Timeline.Sequential;
 
 import com.github.gdfm.shobaidogu.ProgressTracker;

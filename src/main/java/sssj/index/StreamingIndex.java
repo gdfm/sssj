@@ -1,13 +1,11 @@
 package sssj.index;
 
 import static sssj.base.Commons.forgetFactor;
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap.Entry;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2DoubleMap;
 import it.unimi.dsi.fastutil.longs.Long2DoubleOpenHashMap;
-import it.unimi.dsi.fastutil.longs.LongArrayList;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -18,12 +16,9 @@ import org.slf4j.LoggerFactory;
 import sssj.base.CircularBuffer;
 import sssj.base.Commons;
 import sssj.base.Vector;
-import sssj.base.Commons.ResidualList;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Maps.EntryTransformer;
 import com.google.common.primitives.Doubles;
 
 public class StreamingIndex implements Index {
