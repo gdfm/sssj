@@ -147,8 +147,8 @@ public class StreamingIndex implements Index {
   }
 
   static class StreamingPostingEntry {
-    protected long key;
-    protected double value;
+    private long key;
+    private double value;
 
     public StreamingPostingEntry() {
       this(0, 0);
