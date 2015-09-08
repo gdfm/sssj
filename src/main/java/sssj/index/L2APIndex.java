@@ -185,7 +185,7 @@ public class L2APIndex implements Index {
     }
   }
 
-  public static class L2APPostingEntry {
+  static class L2APPostingEntry {
     protected long id;
     protected double weight;
     protected double magnitude;

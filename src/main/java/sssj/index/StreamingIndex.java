@@ -102,7 +102,7 @@ public class StreamingIndex implements Index {
     return "StreamingIndex [idx=" + idx + "]";
   }
 
-  public static class StreamingPostingList implements Iterable<StreamingPostingEntry> {
+  static class StreamingPostingList implements Iterable<StreamingPostingEntry> {
     private CircularBuffer ids = new CircularBuffer();
     private CircularBuffer weights = new CircularBuffer();
 
@@ -119,8 +119,8 @@ public class StreamingIndex implements Index {
     @Override
     public Iterator<StreamingPostingEntry> iterator() {
       return new Iterator<StreamingPostingEntry>() {
+        private final StreamingPostingEntry entry = new StreamingPostingEntry();
         private int i = 0;
-        private StreamingPostingEntry entry = new StreamingPostingEntry();
 
         @Override
         public boolean hasNext() {
@@ -146,7 +146,7 @@ public class StreamingIndex implements Index {
     }
   }
 
-  public static class StreamingPostingEntry {
+  static class StreamingPostingEntry {
     protected long key;
     protected double value;
 

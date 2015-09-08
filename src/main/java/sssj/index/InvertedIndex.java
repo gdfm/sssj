@@ -133,7 +133,7 @@ public class InvertedIndex implements Index {
     }
   }
 
-  public static class PostingEntry {
+  static class PostingEntry {
     protected long key;
     protected double value;
 
