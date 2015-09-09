@@ -1,3 +1,5 @@
-for t in 0.5 0.7 0.9 0.99 ; do for l in 1 0.1 0.01 0.001 ; do ./scripts/minibatch data/RCV1.vw -f VW -t $t -l $l -i INVERTED; ./scripts/streaming data/RCV1.vw -f VW -t $t -l $l; done ; done > results/test
-grep -A 7 MiniBatch times | grep 9% | cut -d . -f 6 > tmp
-grep MiniBatch times | cut -d '-' -f 2 | paste - tmp > mb_times 
+for t in 0.5 0.7 0.9 0.99 ; do for l in 1 0.1 0.01 0.001 ; do ./scripts/minibatch data/RCV1_seq.bin -f BINARY -t $t -l $l -i INVERTED; ./scripts/streaming data/RCV1_seq.bin -f BINARY -t $t -l $l; done ; done > results/test
+grep -A 7 MiniBatch times | grep 9% | cut -d . -f 6 |  sed 's#iters/s##' > tmp
+grep MiniBatch times | cut -d '-' -f 2 | paste - tmp > mb_times
+grep -A 7 Streaming times | grep 9% | cut -d . -f 6 |  sed 's#iters/s##' > tmp
+grep Streaming times | cut -d '-' -f 2 | paste - tmp > str_times
