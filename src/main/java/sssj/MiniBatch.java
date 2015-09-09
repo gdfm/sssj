@@ -69,7 +69,11 @@ public class MiniBatch {
 
     System.out.println(String.format("MiniBatch [t=%f, l=%f, i=%s]", theta, lambda, idxType.toString()));
     log.info(String.format("MiniBatch [t=%f, l=%f, i=%s]", theta, lambda, idxType.toString()));
+    long start = System.currentTimeMillis();
     compute(stream, theta, lambda, idxType, tracker);
+    long elapsed = System.currentTimeMillis() - start;
+    System.out.println(String.format("MiniBatch-%s, %f, %f, %d", idxType.toString(), theta, lambda, elapsed));
+    log.info(String.format("MiniBatch [t=%f, l=%f, i=%s, time=$d]", theta, lambda, idxType.toString(), elapsed));
   }
 
   public static void compute(Iterable<Vector> stream, double theta, double lambda, IndexType idxType,

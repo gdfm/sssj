@@ -54,10 +54,16 @@ public class Streaming {
     final int numVectors = stream.numVectors();
     final ProgressTracker tracker = new ProgressTracker(numVectors, reportPeriod);
 
-    // System.out.println(String.format("Streaming [t=%f, l=%f, i=%s]", theta, lambda, idxType.toString()));
     System.out.println(String.format("Streaming [t=%f, l=%f]", theta, lambda));
     log.info(String.format("Streaming [t=%f, l=%f]", theta, lambda));
+    long start = System.currentTimeMillis();
+    compute(stream, theta, lambda, tracker);
+    long elapsed = System.currentTimeMillis() - start;
+    System.out.println(String.format("Streaming, %f, %f, %d", theta, lambda, elapsed));
+    log.info(String.format("Streaming [t=%f, l=%f, time=%d]", theta, lambda, elapsed));
+  }
 
+  public static void compute(Iterable<Vector> stream, double theta, double lambda, ProgressTracker tracker) {
     Index index = new StreamingIndex(theta, lambda);
     // TODO first update MAX, then query, then index
     for (Vector v : stream) {
