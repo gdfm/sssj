@@ -3,9 +3,9 @@ package sssj.base;
 import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 
-import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 /**
  * A sparse vector in a multidimensional Euclidean space. The vector is identified by a unique timestamp.
@@ -110,12 +110,12 @@ public class Vector extends Int2DoubleLinkedOpenHashMap { // entries are returne
     return result;
   }
 
-  public void read(DataInput in) throws IOException {
-    this.setTimestamp(in.readLong());
-    int numElements = in.readInt();
+  public void read(ByteBuffer in) throws IOException {
+    this.setTimestamp(in.getLong());
+    int numElements = in.getInt();
     for (int i = 0; i < numElements; i++) {
-      int dim = in.readInt();
-      double val = in.readDouble();
+      int dim = in.getInt();
+      double val = in.getDouble();
       this.put(dim, val);
     }
   }

@@ -1,11 +1,10 @@
 package sssj.io;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel.MapMode;
 import java.util.Iterator;
 
 import org.apache.commons.lang.SerializationException;
@@ -24,16 +23,20 @@ import sssj.base.Vector;
  */
 
 public class BinaryVectorStreamReader implements VectorStream {
-  private final DataInputStream dis;
+  private final ByteBuffer bb;
   private final int numVectors;
 
   public BinaryVectorStreamReader(File file) throws IOException {
     this(new FileInputStream(file));
   }
 
-  public BinaryVectorStreamReader(InputStream input) throws IOException {
-    dis = new DataInputStream(new BufferedInputStream(input)); // TODO can be made faster by using FileChannel
-    numVectors = dis.readInt();
+  public BinaryVectorStreamReader(FileInputStream input) throws IOException {
+    this(input.getChannel().map(MapMode.READ_ONLY, 0L, input.getChannel().size()));
+  }
+
+  public BinaryVectorStreamReader(ByteBuffer buffer) { // mostly for testing purposes
+    bb = buffer;
+    numVectors = bb.getInt();
   }
 
   @Override
@@ -59,7 +62,7 @@ public class BinaryVectorStreamReader implements VectorStream {
     public Vector next() {
       current.clear();
       try {
-        current.read(dis);
+        current.read(bb);
       } catch (IOException e) {
         e.printStackTrace();
         throw new SerializationException();
@@ -74,12 +77,3 @@ public class BinaryVectorStreamReader implements VectorStream {
     }
   }
 }
-
-// FileChannel fc2 = new FileInputStream(tmp).getChannel();
-// bb.clear();
-// while (fc2.read(bb) > 0) {
-// while (bb.remaining() > 0)
-// total += bb.get();
-// bb.clear();
-// }
-// fc2.close();
