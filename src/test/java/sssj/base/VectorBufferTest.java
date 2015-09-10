@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import sssj.base.Vector;
-import sssj.base.VectorWindow;
+import sssj.index.VectorWindow;
 
 import com.google.common.collect.Iterators;
 

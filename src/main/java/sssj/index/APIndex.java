@@ -30,7 +30,7 @@ public class APIndex implements Index {
   }
 
   @Override
-  public Map<Long, Double> queryWith(Vector v) {
+  public Map<Long, Double> queryWith(final Vector v) {
     Long2DoubleOpenHashMap matches = new Long2DoubleOpenHashMap();
     Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap(size);
     // int minSize = theta / rw_x; //TODO possibly size filtering (need to sort dataset by max row weight rw_x)
@@ -75,7 +75,7 @@ public class APIndex implements Index {
   }
 
   @Override
-  public Vector addVector(Vector v) {
+  public Vector addVector(final Vector v) {
     size++;
     double pscore = 0;
     Vector residual = new Vector(v.timestamp());

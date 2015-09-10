@@ -68,7 +68,7 @@ public class InvertedIndex implements Index {
   }
 
   @Override
-  public Vector addVector(Vector v) {
+  public Vector addVector(final Vector v) {
     size++;
     for (Entry e : v.int2DoubleEntrySet()) {
       int dimension = e.getIntKey();

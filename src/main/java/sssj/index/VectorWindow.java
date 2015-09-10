@@ -1,8 +1,10 @@
-package sssj.base;
+package sssj.index;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
+
+import sssj.base.Vector;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;

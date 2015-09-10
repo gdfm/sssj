@@ -42,7 +42,7 @@ public class StreamingIndex implements Index {
   }
 
   @Override
-  public Map<Long, Double> queryWith(final Vector v) {
+  public Map<Long, Double> queryWith(final Vector v) { // FIXME can we scan the vector only once and already add it here?
     // Vector updates = maxVector.updateMaxByDimension(v);
     accumulator.clear();
     for (Entry e : v.int2DoubleEntrySet()) {
@@ -80,7 +80,7 @@ public class StreamingIndex implements Index {
   }
 
   @Override
-  public Vector addVector(Vector v) {
+  public Vector addVector(final Vector v) {
     size++;
     for (Entry e : v.int2DoubleEntrySet()) {
       int dimension = e.getIntKey();
