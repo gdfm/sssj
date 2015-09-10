@@ -20,7 +20,7 @@ import sssj.base.Commons;
 import sssj.base.Commons.BatchResult;
 import sssj.base.Commons.IndexType;
 import sssj.base.Vector;
-import sssj.base.VectorBuffer;
+import sssj.base.VectorWindow;
 import sssj.index.APIndex;
 import sssj.index.Index;
 import sssj.index.InvertedIndex;
@@ -80,7 +80,7 @@ public class MiniBatch {
       ProgressTracker tracker) {
     final double tau = Commons.tau(theta, lambda);
     System.out.println("Tau = " + tau);
-    VectorBuffer window = new VectorBuffer(tau);
+    VectorWindow window = new VectorWindow(tau);
 
     for (Vector v : stream) {
       if (tracker != null)
@@ -99,7 +99,7 @@ public class MiniBatch {
       computeResults(window, theta, lambda, idxType);
   }
 
-  private static void computeResults(VectorBuffer window, double theta, double lambda, IndexType type) {
+  private static void computeResults(VectorWindow window, double theta, double lambda, IndexType type) {
     // select and initialize index
     Index index = null;
     switch (type) {

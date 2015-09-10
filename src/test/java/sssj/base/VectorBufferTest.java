@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import sssj.base.Vector;
-import sssj.base.VectorBuffer;
+import sssj.base.VectorWindow;
 
 import com.google.common.collect.Iterators;
 
@@ -13,7 +13,7 @@ public class VectorBufferTest {
 
   @Test
   public void testAddAndSlide() {
-    VectorBuffer buffer = new VectorBuffer(1);
+    VectorWindow buffer = new VectorWindow(1);
     Vector v0 = new Vector(0);
     Vector v1 = new Vector(1);
     Vector v2 = new Vector(2);
@@ -28,7 +28,7 @@ public class VectorBufferTest {
 
   @Test
   public void testWindow() {
-    VectorBuffer buffer = new VectorBuffer(1.5);
+    VectorWindow buffer = new VectorWindow(1.5);
     assertEquals(0, buffer.windowStart(), Double.MIN_NORMAL);
     assertEquals(3, buffer.windowEnd(), Double.MIN_NORMAL);
     buffer.slide().slide();
@@ -38,7 +38,7 @@ public class VectorBufferTest {
 
   @Test
   public void testIterators() {
-    VectorBuffer buffer = new VectorBuffer(2);
+    VectorWindow buffer = new VectorWindow(2);
     for (int i = 0; i < 4; i++)
       assertTrue(buffer.add(new Vector(i)));
     assertTrue(buffer.add(new Vector(3))); // duplicate vector
@@ -53,7 +53,7 @@ public class VectorBufferTest {
 
   @Test
   public void testMax() {
-    VectorBuffer buffer = new VectorBuffer(1);
+    VectorWindow buffer = new VectorWindow(1);
     Vector v0 = new Vector(0);
     Vector v1 = new Vector(1);
     Vector v2 = new Vector(2);

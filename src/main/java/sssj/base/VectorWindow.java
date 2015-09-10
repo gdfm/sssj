@@ -12,13 +12,13 @@ import com.google.common.collect.Iterators;
  * A buffer for Vectors. The buffer keeps the order of the vectors as they are added, and maintains the maximum vector. Assumes vectors are added in increasing
  * order of timestamp.
  */
-public class VectorBuffer {
+public class VectorWindow {
   private Vector max = new Vector(); // TODO for INVERTED index the max is not needed
   private Queue<Vector> queue = new LinkedList<>();
   private final double tau;
   private int epoch;
 
-  public VectorBuffer(double tau) {
+  public VectorWindow(double tau) {
     this.tau = tau;
     this.epoch = 0;
   }
@@ -43,7 +43,7 @@ public class VectorBuffer {
     return max;
   }
 
-  public VectorBuffer slide() {
+  public VectorWindow slide() {
     this.epoch++;
     while (!queue.isEmpty() && queue.peek().timestamp() < windowStart())
       queue.remove();
