@@ -13,7 +13,7 @@ import com.google.common.collect.TreeBasedTable;
 
 public class Commons {
   public static final double DEFAULT_THETA = 0.5;
-  public static final double DEFAULT_LAMBDA = 1;
+  public static final double DEFAULT_LAMBDA = 0.1;
   public static final int DEFAULT_REPORT_PERIOD = 10_000;
 
   public static double tau(double theta, double lambda) {
