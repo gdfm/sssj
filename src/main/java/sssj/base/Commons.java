@@ -33,7 +33,7 @@ public class Commons {
     Iterator<Entry<Long, Double>> iter = map.entrySet().iterator();
     while (iter.hasNext()) {
       Entry<Long, Double> entry = iter.next();
-      sb.append(entry.getKey()).append('=').append(String.format("%.5f", entry.getValue()));
+      sb.append(entry.getKey()).append(':').append(String.format("%.5f", entry.getValue()));
       if (iter.hasNext())
         sb.append(", ");
     }

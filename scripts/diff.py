@@ -18,11 +18,11 @@ def load_result(path):
   f = open(path)
   res = set()
   for line in f:
-    if not ':' in line:
+    if not '~' in line:
       continue
-    tokens = line.split(':')
+    tokens = line.split('~')
     v1 = eval(tokens[0].strip())
-    d1 = eval(tokens[1].strip().replace('=',':'))
+    d1 = eval(tokens[1].strip())
     for v2,s in d1.iteritems():
       tup = (min(v1,v2), max(v1,v2), s)
       res.add(tup)

@@ -126,10 +126,10 @@ public class MiniBatch {
 
     // print results
     for (Entry<Long, Map<Long, Double>> row : res1.rowMap().entrySet()) {
-      System.out.println(row.getKey() + ": " + formatMap(row.getValue()));
+      System.out.println(row.getKey() + " ~ " + formatMap(row.getValue()));
     }
     for (Entry<Long, Map<Long, Double>> row : res2.rowMap().entrySet()) {
-      System.out.println(row.getKey() + ": " + formatMap(row.getValue()));
+      System.out.println(row.getKey() + " ~ " + formatMap(row.getValue()));
     }
   }
 
