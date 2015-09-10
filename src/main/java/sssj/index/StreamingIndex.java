@@ -1,6 +1,7 @@
 package sssj.index;
 
-import static sssj.base.Commons.*;
+import static sssj.base.Commons.forgetFactor;
+import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap.Entry;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
@@ -17,8 +18,6 @@ import sssj.base.CircularBuffer;
 import sssj.base.Commons;
 import sssj.base.Vector;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Maps;
 import com.google.common.primitives.Doubles;
 
 public class StreamingIndex implements Index {
@@ -46,7 +45,7 @@ public class StreamingIndex implements Index {
   public Map<Long, Double> queryWith(final Vector v) { // FIXME can we scan the vector only once and already add it here?
     // Vector updates = maxVector.updateMaxByDimension(v);
     accumulator.clear();
-    for (Entry e : v.int2DoubleEntrySet()) {
+    for (Int2DoubleMap.Entry e : v.int2DoubleEntrySet()) {
       int dimension = e.getIntKey();
       if (!idx.containsKey(dimension))
         continue;
@@ -65,19 +64,21 @@ public class StreamingIndex implements Index {
 
         double targetWeight = pe.getDoubleValue();
         double currentSimilarity = accumulator.get(targetID);
-        double additionalSimilarity = queryWeight * targetWeight * forgetFactor(lambda, deltaT); // add forgetting factor e^(-lambda*delta_T)
+        double additionalSimilarity = queryWeight * targetWeight; // TODO add forgetting factor e^(-lambda*delta_T)
         accumulator.put(targetID, currentSimilarity + additionalSimilarity);
       }
     }
 
     // filter candidates < theta
-    Map<Long, Double> results = Maps.filterValues(accumulator, new Predicate<Double>() {
-      @Override
-      public boolean apply(Double input) {
-        return input.compareTo(theta) >= 0;
-      }
-    });
-    return results;
+    for (Iterator<Long2DoubleMap.Entry> it = accumulator.long2DoubleEntrySet().iterator(); it.hasNext();) {
+      Long2DoubleMap.Entry e = it.next();
+      final long deltaT = v.timestamp() - e.getLongKey();
+      final double ff = forgetFactor(lambda, deltaT);
+      final double val = e.getDoubleValue() * ff;
+      if (Doubles.compare(val, theta) < 0)
+        it.remove();
+    }
+    return accumulator;
   }
 
   @Override
