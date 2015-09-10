@@ -38,7 +38,7 @@ public class Streaming {
         .help("progress report period");
     parser.addArgument("-i", "--index").type(IndexType.class).choices(IndexType.values())
         .setDefault(IndexType.INVERTED).help("type of indexing");
-    parser.addArgument("-f", "--format").type(Format.class).choices(Format.values()).setDefault(Format.SSSJ)
+    parser.addArgument("-f", "--format").type(Format.class).choices(Format.values()).setDefault(Format.BINARY)
         .help("input format");
     parser.addArgument("input").metavar("file")
         .type(Arguments.fileType().verifyExists().verifyIsFile().verifyCanRead()).help("input file");
