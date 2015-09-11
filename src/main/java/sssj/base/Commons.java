@@ -18,7 +18,7 @@ public class Commons {
   public static final double DEFAULT_LAMBDA = 0.1;
   public static final int DEFAULT_REPORT_PERIOD = 10_000;
 
-  private static double[] FF;
+  private static double[] FF; // precomputed values for the forgetting factor
 
   public static double tau(final double theta, final double lambda) {
     Preconditions.checkArgument(theta > 0 && theta < 1);
