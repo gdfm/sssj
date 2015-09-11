@@ -2,7 +2,6 @@ package sssj.index;
 
 import static sssj.base.Commons.*;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
-import it.unimi.dsi.fastutil.ints.Int2DoubleMap.Entry;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2DoubleMap;
@@ -15,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import sssj.base.CircularBuffer;
-import sssj.base.Commons;
 import sssj.base.Vector;
 
 import com.google.common.primitives.Doubles;
@@ -42,7 +40,7 @@ public class StreamingIndex implements Index {
   }
 
   @Override
-  public Map<Long, Double> queryWith(final Vector v) { // FIXME can we scan the vector only once and already add it here?
+  public Map<Long, Double> queryWith(final Vector v, boolean index) { // FIXME can we scan the vector only once and already add it here?
     // Vector updates = maxVector.updateMaxByDimension(v);
     accumulator.clear();
     for (Int2DoubleMap.Entry e : v.int2DoubleEntrySet()) {
@@ -80,12 +78,6 @@ public class StreamingIndex implements Index {
     }
 
     return accumulator;
-  }
-
-  @Override
-  public Vector addVector(final Vector v) {
-    // do nothing
-    return Vector.EMPTY_VECTOR;
   }
 
   @Override

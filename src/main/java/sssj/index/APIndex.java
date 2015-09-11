@@ -10,8 +10,8 @@ import it.unimi.dsi.fastutil.longs.Long2DoubleOpenHashMap;
 import java.util.Map;
 
 import sssj.base.Commons;
-import sssj.base.Vector;
 import sssj.base.Commons.ResidualList;
+import sssj.base.Vector;
 import sssj.index.InvertedIndex.PostingEntry;
 import sssj.index.InvertedIndex.PostingList;
 
@@ -30,7 +30,7 @@ public class APIndex implements Index {
   }
 
   @Override
-  public Map<Long, Double> queryWith(final Vector v) {
+  public Map<Long, Double> queryWith(final Vector v, final boolean index) {
     Long2DoubleOpenHashMap matches = new Long2DoubleOpenHashMap();
     Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap(size);
     // int minSize = theta / rw_x; //TODO possibly size filtering (need to sort dataset by max row weight rw_x)
@@ -71,29 +71,28 @@ public class APIndex implements Index {
       if (Double.compare(score, theta) >= 0) // final check
         matches.put(candidateID, score);
     }
-    return matches;
-  }
 
-  @Override
-  public Vector addVector(final Vector v) {
-    size++;
-    double pscore = 0;
-    Vector residual = new Vector(v.timestamp());
-    for (Entry e : v.int2DoubleEntrySet()) {
-      int dimension = e.getIntKey();
-      double weight = e.getDoubleValue();
-      pscore += weight * maxVector.get(dimension);
-      if (Double.compare(pscore, theta) >= 0) {
-        if (!idx.containsKey(dimension))
-          idx.put(dimension, new PostingList());
-        idx.get(dimension).add(v.timestamp(), weight);
-        // v.remove(dimension);
-      } else {
-        residual.put(dimension, weight);
+    if (index) {
+      double pscore = 0;
+      Vector residual = new Vector(v.timestamp());
+      for (Entry e : v.int2DoubleEntrySet()) {
+        int dimension = e.getIntKey();
+        double weight = e.getDoubleValue();
+        pscore += weight * maxVector.get(dimension);
+        if (Double.compare(pscore, theta) >= 0) {
+          if (!idx.containsKey(dimension))
+            idx.put(dimension, new PostingList());
+          idx.get(dimension).add(v.timestamp(), weight);
+          size++;
+          // v.remove(dimension);
+        } else {
+          residual.put(dimension, weight);
+        }
       }
+      resList.add(residual);
     }
-    resList.add(residual);
-    return residual;
+
+    return matches;
   }
 
   @Override

@@ -31,7 +31,7 @@ public class InvertedIndex implements Index {
   }
 
   @Override
-  public Map<Long, Double> queryWith(final Vector v) {
+  public Map<Long, Double> queryWith(final Vector v, boolean index) {
     Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap(size);
     for (Entry e : v.int2DoubleEntrySet()) {
       int dimension = e.getIntKey();
@@ -47,6 +47,16 @@ public class InvertedIndex implements Index {
       }
     }
 
+    if (index) {
+      for (Entry e : v.int2DoubleEntrySet()) {
+        int dimension = e.getIntKey();
+        double weight = e.getDoubleValue();
+        if (!idx.containsKey(dimension))
+          idx.put(dimension, new PostingList());
+        idx.get(dimension).add(v.timestamp(), weight);
+        size++;
+      }
+    }
     // add forgetting factor e^(-lambda*delta_T) and filter candidates < theta
     for (Iterator<Long2DoubleMap.Entry> it = accumulator.long2DoubleEntrySet().iterator(); it.hasNext();) {
       Long2DoubleMap.Entry e = it.next();
@@ -57,19 +67,6 @@ public class InvertedIndex implements Index {
     }
 
     return accumulator;
-  }
-
-  @Override
-  public Vector addVector(final Vector v) {
-    for (Entry e : v.int2DoubleEntrySet()) {
-      int dimension = e.getIntKey();
-      double weight = e.getDoubleValue();
-      if (!idx.containsKey(dimension))
-        idx.put(dimension, new PostingList());
-      idx.get(dimension).add(v.timestamp(), weight);
-      size++;
-    }
-    return Vector.EMPTY_VECTOR;
   }
 
   @Override

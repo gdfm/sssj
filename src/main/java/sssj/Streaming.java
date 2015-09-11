@@ -70,7 +70,7 @@ public class Streaming {
       if (tracker != null)
         tracker.progress();
 
-      Map<Long, Double> results = index.queryWith(v);
+      Map<Long, Double> results = index.queryWith(v, true);
       if (!results.isEmpty())
         System.out.println(v.timestamp() + " ~ " + formatMap(results));
     }

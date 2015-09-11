@@ -34,7 +34,7 @@ public class L2APIndex implements Index {
   }
 
   @Override
-  public Map<Long, Double> queryWith(final Vector v) {
+  public Map<Long, Double> queryWith(final Vector v, final boolean index) {
     Long2DoubleOpenHashMap matches = new Long2DoubleOpenHashMap();
     Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap(size);
     // int minSize = theta / rw_x; //TODO possibly size filtering (need to sort dataset by max row weight rw_x)
@@ -90,42 +90,40 @@ public class L2APIndex implements Index {
       if (Double.compare(score, theta) >= 0) // final check
         matches.put(candidateID, score);
     }
-    return matches;
-  }
 
-  @Override
-  public Vector addVector(final Vector v) {
-    size++;
-    double b1 = 0, bt = 0, b3 = 0, pscore = 0;
-    boolean psSaved = false;
-    Vector residual = new Vector(v.timestamp());
-    for (Entry e : v.int2DoubleEntrySet()) {
-      int dimension = e.getIntKey();
-      double weight = e.getDoubleValue();
+    if (index) {
+      double b1 = 0, bt = 0, b3 = 0, pscore = 0;
+      boolean psSaved = false;
+      Vector residual = new Vector(v.timestamp());
+      for (Entry e : v.int2DoubleEntrySet()) {
+        int dimension = e.getIntKey();
+        double weight = e.getDoubleValue();
 
-      pscore = Math.min(b1, b3);
-      b1 += weight * maxVectorInWindow.get(dimension);
-      bt += weight * weight;
-      b3 = Math.sqrt(bt);
+        pscore = Math.min(b1, b3);
+        b1 += weight * maxVectorInWindow.get(dimension);
+        bt += weight * weight;
+        b3 = Math.sqrt(bt);
 
-      if (Double.compare(Math.min(b1, b3), theta) >= 0) {
-        if (!psSaved) {
-          assert (!ps.containsKey(v.timestamp()));
-          ps.put(v.timestamp(), pscore);
-          psSaved = true;
+        if (Double.compare(Math.min(b1, b3), theta) >= 0) {
+          if (!psSaved) {
+            assert (!ps.containsKey(v.timestamp()));
+            ps.put(v.timestamp(), pscore);
+            psSaved = true;
+          }
+          if (!idx.containsKey(dimension))
+            idx.put(dimension, new L2APPostingList());
+          idx.get(dimension).add(v.timestamp(), weight, b3); // TODO check correctness
+          size++;
+        } else {
+          residual.put(dimension, weight);
         }
-        if (!idx.containsKey(dimension))
-          idx.put(dimension, new L2APPostingList());
-        idx.get(dimension).add(v.timestamp(), weight, b3); // TODO check correctness
-      } else {
-        residual.put(dimension, weight);
       }
+      resList.add(residual);
+      maxVectorInIndex.updateMaxByDimension(v); // TODO check that this is the right place to update the max, L2AP performs the update at the end of
+                                                // queryWith()
     }
-    resList.add(residual);
-    maxVectorInIndex.updateMaxByDimension(v); // TODO check that this is the right place to update the max, L2AP performs the update at the end of
-                                              // queryWith()
-    return residual;
 
+    return matches;
   }
 
   @Override

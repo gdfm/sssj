@@ -134,16 +134,14 @@ public class MiniBatch {
     }
   }
 
-  private static BatchResult query(Index index, Iterator<Vector> iterator, boolean buildIndex) {
+  private static BatchResult query(Index index, Iterator<Vector> iterator, final boolean buildIndex) {
     BatchResult result = new BatchResult();
     while (iterator.hasNext()) {
       Vector v = iterator.next();
-      Map<Long, Double> matches = index.queryWith(v);
+      Map<Long, Double> matches = index.queryWith(v, buildIndex);
       for (Entry<Long, Double> e : matches.entrySet()) {
         result.put(v.timestamp(), e.getKey(), e.getValue());
       }
-      if (buildIndex)
-        index.addVector(v); // index the vector
     }
     return result;
   }
