@@ -1,6 +1,6 @@
 package sssj.index;
 
-import static sssj.base.Commons.forgetFactor;
+import static sssj.base.Commons.*;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap.Entry;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
@@ -64,20 +64,17 @@ public class StreamingIndex implements Index {
 
         double targetWeight = pe.getDoubleValue();
         double currentSimilarity = accumulator.get(targetID);
-        double additionalSimilarity = queryWeight * targetWeight; // TODO add forgetting factor e^(-lambda*delta_T)
+        double additionalSimilarity = queryWeight * targetWeight * forgetFactor(lambda, deltaT); // TODO add forgetting factor e^(-lambda*delta_T)
         accumulator.put(targetID, currentSimilarity + additionalSimilarity);
       }
     }
 
     // filter candidates < theta
     for (Iterator<Long2DoubleMap.Entry> it = accumulator.long2DoubleEntrySet().iterator(); it.hasNext();) {
-      Long2DoubleMap.Entry e = it.next();
-      final long deltaT = v.timestamp() - e.getLongKey();
-      final double ff = forgetFactor(lambda, deltaT);
-      final double val = e.getDoubleValue() * ff;
-      if (Doubles.compare(val, theta) < 0)
+      if (Doubles.compare(it.next().getDoubleValue(), theta) < 0)
         it.remove();
     }
+
     return accumulator;
   }
 
