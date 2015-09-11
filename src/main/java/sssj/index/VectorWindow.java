@@ -13,16 +13,22 @@ import com.google.common.base.Preconditions;
  * order of timestamp.
  */
 public class VectorWindow {
-  private Vector max = new Vector(); // TODO for INVERTED index the max is not needed
-  private Vector max2 = new Vector(); // TODO for INVERTED index the max is not needed
+  private Vector max = new Vector();
+  private Vector max2 = new Vector();
   private Queue<Vector> q1 = new ArrayDeque<>();
   private Queue<Vector> q2 = new ArrayDeque<>();
   private final double tau;
+  private final boolean keepMax;
   private int epoch;
 
-  public VectorWindow(double tau) {
+  public VectorWindow(double tau, boolean keepMax) {
     this.tau = tau;
+    this.keepMax = keepMax;
     this.epoch = 0;
+  }
+
+  public VectorWindow(double tau) {
+    this(tau, true);
   }
 
   /**
@@ -33,14 +39,16 @@ public class VectorWindow {
   public boolean add(Vector v) {
     Preconditions.checkArgument(v.timestamp() >= windowStart());
     if (v.timestamp() < windowEnd()) { // v is within the time window of 2*tau
-      max.updateMaxByDimension(v); // update max vector
+      if (keepMax)
+        max.updateMaxByDimension(v); // update max vector
       // copy constructor needed because the vector iterator reuses its instance
       if (v.timestamp() < windowMid()) {
         q1.add(new Vector(v));
       } else {
         // v.timestamp() >= windowMid()
         q2.add(new Vector(v));
-        max2.updateMaxByDimension(v); // update max2 vector
+        if (keepMax)
+          max2.updateMaxByDimension(v); // update max2 vector
       }
       return true;
     } else {
@@ -49,7 +57,9 @@ public class VectorWindow {
   }
 
   public Vector getMax() {
-    return max;
+    if (keepMax)
+      return max;
+    return null;
   }
 
   public VectorWindow slide() {
@@ -59,11 +69,13 @@ public class VectorWindow {
     q1 = q2;
     q2 = tmpq;
     q2.clear();
-    // swap the max vectors
-    Vector tmpv = max;
-    max = max2;
-    max2 = tmpv;
-    max2.clear();
+    if (keepMax) {
+      // swap the max vectors
+      Vector tmpv = max;
+      max = max2;
+      max2 = tmpv;
+      max2.clear();
+    }
     return this;
   }
 

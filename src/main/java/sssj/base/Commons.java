@@ -87,6 +87,16 @@ public class Commons {
   }
 
   public static enum IndexType {
-    INVERTED, ALL_PAIRS, L2AP;
+    INVERTED(false), ALL_PAIRS(true), L2AP(true);
+
+    IndexType(boolean needsMax) {
+      this.needsMax = needsMax;
+    }
+
+    public boolean needsMax() {
+      return needsMax;
+    }
+
+    private final boolean needsMax;
   }
 }

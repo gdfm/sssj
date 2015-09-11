@@ -81,7 +81,7 @@ public class MiniBatch {
     final double tau = Commons.tau(theta, lambda);
     System.out.println("Tau = " + tau);
     precomputeFFTable(lambda, 2 * (int) Math.ceil(tau));
-    VectorWindow window = new VectorWindow(tau);
+    VectorWindow window = new VectorWindow(tau, idxType.needsMax());
 
     for (Vector v : stream) {
       if (tracker != null)
