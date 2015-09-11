@@ -1,6 +1,6 @@
 package sssj.index;
 
-import static sssj.base.Commons.forgetFactor;
+import static sssj.base.Commons.*;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap.Entry;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
@@ -39,6 +39,7 @@ public class StreamingIndex implements Index {
     this.tau = Commons.tau(theta, lambda);
     // this.maxVector = new Vector();
     System.out.println("Tau = " + tau);
+    precomputeFFTable(lambda, (int) Math.ceil(tau));
   }
 
   @Override

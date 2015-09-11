@@ -80,6 +80,7 @@ public class MiniBatch {
       ProgressTracker tracker) {
     final double tau = Commons.tau(theta, lambda);
     System.out.println("Tau = " + tau);
+    precomputeFFTable(lambda, 2 * (int) Math.ceil(tau));
     VectorWindow window = new VectorWindow(tau);
 
     for (Vector v : stream) {

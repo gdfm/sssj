@@ -24,7 +24,6 @@ public class Commons {
     Preconditions.checkArgument(theta > 0 && theta < 1);
     Preconditions.checkArgument(lambda > 0);
     double tau = 1 / lambda * Math.log(1 / theta);
-    precomputeFFTable(lambda, (int) Math.ceil(tau));
     return tau;
   }
 
