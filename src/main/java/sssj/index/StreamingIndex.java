@@ -24,7 +24,7 @@ public class StreamingIndex implements Index {
   private static final Logger log = LoggerFactory.getLogger(StreamingIndex.class);
   private Int2ReferenceMap<StreamingPostingList> idx = new Int2ReferenceOpenHashMap<>();
   // private ResidualList resList = new ResidualList();
-  private final Long2DoubleMap accumulator = new Long2DoubleOpenHashMap();
+  private final Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap();
   private int size = 0;
   private final double theta;
   private final double lambda;
@@ -35,7 +35,7 @@ public class StreamingIndex implements Index {
   public StreamingIndex(double theta, double lambda) {
     this.theta = theta;
     this.lambda = lambda;
-    this.tau = Commons.tau(theta, lambda);
+    this.tau = tau(theta, lambda);
     // this.maxVector = new Vector();
     System.out.println("Tau = " + tau);
     precomputeFFTable(lambda, (int) Math.ceil(tau));
@@ -46,26 +46,25 @@ public class StreamingIndex implements Index {
     // Vector updates = maxVector.updateMaxByDimension(v);
     accumulator.clear();
     for (Int2DoubleMap.Entry e : v.int2DoubleEntrySet()) {
-      int dimension = e.getIntKey();
+      final int dimension = e.getIntKey();
       if (!idx.containsKey(dimension))
         continue;
-      StreamingPostingList list = idx.get(dimension);
-      double queryWeight = e.getDoubleValue();
+      final StreamingPostingList list = idx.get(dimension);
+      final double queryWeight = e.getDoubleValue();
       for (Iterator<StreamingPostingEntry> it = list.iterator(); it.hasNext();) {
         StreamingPostingEntry pe = it.next();
-        long targetID = pe.getLongKey();
+        final long targetID = pe.getLongKey();
 
         // time filtering
-        long deltaT = v.timestamp() - targetID;
+        final long deltaT = v.timestamp() - targetID;
         if (Doubles.compare(deltaT, tau) > 0) {
           it.remove();
           continue;
         }
 
-        double targetWeight = pe.getDoubleValue();
-        double currentSimilarity = accumulator.get(targetID);
-        double additionalSimilarity = queryWeight * targetWeight * forgetFactor(lambda, deltaT); // TODO add forgetting factor e^(-lambda*delta_T)
-        accumulator.put(targetID, currentSimilarity + additionalSimilarity);
+        final double targetWeight = pe.getDoubleValue();
+        final double additionalSimilarity = queryWeight * targetWeight * forgetFactor(lambda, deltaT);
+        accumulator.addTo(targetID, additionalSimilarity);
       }
     }
 
