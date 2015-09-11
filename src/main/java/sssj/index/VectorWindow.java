@@ -46,7 +46,7 @@ public class VectorWindow {
   }
 
   public VectorWindow slide() {
-    this.epoch++;
+    epoch++;
     while (!queue.isEmpty() && queue.peek().timestamp() < windowStart())
       queue.remove();
     // update the max vector

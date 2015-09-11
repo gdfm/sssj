@@ -1,4 +1,4 @@
-package sssj.base;
+package sssj.index;
 
 import static org.junit.Assert.*;
 
@@ -9,7 +9,7 @@ import sssj.index.VectorWindow;
 
 import com.google.common.collect.Iterators;
 
-public class VectorBufferTest {
+public class VectorWindowTest {
 
   @Test
   public void testAddAndSlide() {

@@ -16,18 +16,36 @@ public class Commons {
   public static final double DEFAULT_LAMBDA = 0.1;
   public static final int DEFAULT_REPORT_PERIOD = 10_000;
 
+  private static double[] FF;
+
   public static double tau(double theta, double lambda) {
     Preconditions.checkArgument(theta > 0 && theta < 1);
     Preconditions.checkArgument(lambda > 0);
     double tau = 1 / lambda * Math.log(1 / theta);
+    precomputeFFTable(lambda, (int) Math.ceil(tau));
     return tau;
   }
 
-  public static double forgetFactor(double lambda, long deltaT) {
-    return Math.exp(-lambda * deltaT);
+  public static double forgetFactor(final double lambda, final long deltaT) {
+// return FastMath.exp(-lambda * deltaT);
+    return eTable((int) deltaT);
   }
 
-  public static String formatMap(Map<Long, Double> map) {
+  public static void precomputeFFTable(double lambda, int tau) {
+    FF = new double[tau];
+    final double base = Math.exp(-lambda);
+    FF[0] = 1;
+    for (int i = 1; i < tau; i++)
+      FF[i] = FF[i - 1] * base;
+    System.out.println(FF.length);
+  }
+
+  public static double eTable(int deltaT) {
+    assert (FF != null && deltaT >= 0 && deltaT < FF.length);
+    return FF[deltaT];
+  }
+
+  public static String formatMap(final Map<Long, Double> map) {
     StringBuilder sb = new StringBuilder();
     sb.append('{');
     Iterator<Entry<Long, Double>> iter = map.entrySet().iterator();

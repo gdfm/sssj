@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-public class CircularByteBufferTest {
+public class CircularBufferTest {
 
   @Test
   public void testSimple() {
