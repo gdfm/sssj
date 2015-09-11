@@ -22,10 +22,11 @@ public interface Index {
    *          the vector to index
    * @return the unindexed part of the vector
    */
-  public abstract Vector addVector(Vector v);
+  public abstract Vector addVector(Vector v); // TODO remove addVector, add a boolean in queryWith to indicate whether to index the vector
 
   /**
    * Returns the size of the index in number of vectors.
+   * 
    * @return the number of vectors indexed
    */
   public abstract int size();

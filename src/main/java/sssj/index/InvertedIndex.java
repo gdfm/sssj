@@ -1,5 +1,6 @@
 package sssj.index;
 
+import static sssj.base.Commons.forgetFactor;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap.Entry;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
@@ -14,10 +15,9 @@ import java.util.Map;
 import sssj.base.Commons;
 import sssj.base.Vector;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Maps.EntryTransformer;
+import com.google.common.primitives.Doubles;
 
 public class InvertedIndex implements Index {
   private Int2ReferenceMap<PostingList> idx = new Int2ReferenceOpenHashMap<>();
@@ -32,7 +32,7 @@ public class InvertedIndex implements Index {
 
   @Override
   public Map<Long, Double> queryWith(final Vector v) {
-    Long2DoubleMap accumulator = new Long2DoubleOpenHashMap(size);
+    Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap(size);
     for (Entry e : v.int2DoubleEntrySet()) {
       int dimension = e.getIntKey();
       if (!idx.containsKey(dimension))
@@ -42,29 +42,21 @@ public class InvertedIndex implements Index {
       for (PostingEntry pe : list) {
         long targetID = pe.getLongKey();
         double targetWeight = pe.getDoubleValue();
-        double currentSimilarity = accumulator.get(targetID);
         double additionalSimilarity = queryWeight * targetWeight;
-        accumulator.put(targetID, currentSimilarity + additionalSimilarity);
+        accumulator.addTo(targetID, additionalSimilarity);
       }
     }
 
-    // add forgetting factor e^(-lambda*delta_T)
-    Map<Long, Double> results = Maps.transformEntries(accumulator, new EntryTransformer<Long, Double, Double>() {
-      @Override
-      public Double transformEntry(Long key, Double value) {
-        Preconditions.checkArgument(v.timestamp() > key.longValue());
-        final long deltaT = v.timestamp() - key.longValue();
-        return value.doubleValue() * Commons.forgetFactor(lambda, deltaT);
-      }
-    });
-    // filter candidates < theta
-    results = Maps.filterValues(results, new Predicate<Double>() {
-      @Override
-      public boolean apply(Double input) {
-        return input.compareTo(theta) >= 0;
-      }
-    });
-    return results;
+    // add forgetting factor e^(-lambda*delta_T) and filter candidates < theta
+    for (Iterator<Long2DoubleMap.Entry> it = accumulator.long2DoubleEntrySet().iterator(); it.hasNext();) {
+      Long2DoubleMap.Entry e = it.next();
+      final long deltaT = v.timestamp() - e.getLongKey();
+      e.setValue(e.getDoubleValue() * forgetFactor(lambda, deltaT));
+      if (Doubles.compare(e.getDoubleValue(), theta) < 0)
+        it.remove();
+    }
+
+    return accumulator;
   }
 
   @Override
