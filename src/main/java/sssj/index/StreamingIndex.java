@@ -40,14 +40,14 @@ public class StreamingIndex implements Index {
   }
 
   @Override
-  public Map<Long, Double> queryWith(final Vector v, boolean index) { // FIXME can we scan the vector only once and already add it here?
+  public Map<Long, Double> queryWith(final Vector v, boolean addToIndex) { // FIXME can we scan the vector only once and already add it here?
     // Vector updates = maxVector.updateMaxByDimension(v);
     accumulator.clear();
     for (Int2DoubleMap.Entry e : v.int2DoubleEntrySet()) {
       final int dimension = e.getIntKey();
       final double queryWeight = e.getDoubleValue();
-      if (idx.containsKey(dimension)) {
-        final StreamingPostingList list = idx.get(dimension);
+      StreamingPostingList list;
+      if ((list = idx.get(dimension)) != null) {
         for (Iterator<StreamingPostingEntry> it = list.iterator(); it.hasNext();) {
           final StreamingPostingEntry pe = it.next();
           final long targetID = pe.getLongKey();
@@ -65,9 +65,10 @@ public class StreamingIndex implements Index {
           accumulator.addTo(targetID, additionalSimilarity);
         }
       } else {
-        idx.put(dimension, new StreamingPostingList());
+        list = new StreamingPostingList();
+        idx.put(dimension, list);
       }
-      idx.get(dimension).add(v.timestamp(), queryWeight);
+      list.add(v.timestamp(), queryWeight);
       size++;
     }
 

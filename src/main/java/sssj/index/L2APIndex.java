@@ -13,8 +13,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 import sssj.base.Commons;
-import sssj.base.Vector;
 import sssj.base.Commons.ResidualList;
+import sssj.base.Vector;
 
 public class L2APIndex implements Index {
   private Int2ReferenceMap<L2APPostingList> idx = new Int2ReferenceOpenHashMap<>();
@@ -34,9 +34,9 @@ public class L2APIndex implements Index {
   }
 
   @Override
-  public Map<Long, Double> queryWith(final Vector v, final boolean index) {
+  public Map<Long, Double> queryWith(final Vector v, final boolean addToIndex) {
     Long2DoubleOpenHashMap matches = new Long2DoubleOpenHashMap();
-    Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap(size);
+    Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap();
     // int minSize = theta / rw_x; //TODO possibly size filtering (need to sort dataset by max row weight rw_x)
     double remscore = Vector.similarity(v, maxVectorInIndex); // rs3, enhanced remscore bound
     double l2remscore = 1, // rs4
@@ -45,31 +45,29 @@ public class L2APIndex implements Index {
     /* candidate generation */
     for (BidirectionalIterator<Entry> it = v.int2DoubleEntrySet().fastIterator(v.int2DoubleEntrySet().last()); it
         .hasPrevious();) { // iterate over v in reverse order
-      Entry e = it.previous();
-      int dimension = e.getIntKey();
-      double queryWeight = e.getDoubleValue(); // x_j
-
-      if (!idx.containsKey(dimension))
-        idx.put(dimension, new L2APPostingList());
-      L2APPostingList list = idx.get(dimension);
-      // TODO possibly size filtering: remove entries from the posting list with |y| < minsize (need to save size in the posting list)
-
+      final Entry e = it.previous();
+      final int dimension = e.getIntKey();
+      final double queryWeight = e.getDoubleValue(); // x_j
       squaredQueryPrefixMagnitude -= queryWeight * queryWeight;
-      for (L2APPostingEntry pe : list) {
-        long targetID = pe.getID(); // y
-        double rscore = Math.min(remscore, l2remscore);
-        if (accumulator.containsKey(targetID) || Double.compare(rscore, theta) >= 0) {
-          double targetWeight = pe.getWeight(); // y_j
-          double additionalSimilarity = queryWeight * targetWeight; // x_j * y_j
-          // TODO add e^(-lambda*delta_t)
-          accumulator.addTo(targetID, additionalSimilarity); // A[y] += x_j * y_j
-          if (Double.compare(accumulator.get(targetID) + Math.sqrt(squaredQueryPrefixMagnitude) * pe.magnitude, theta) < 0) // A[y] + ||x'_j|| * ||y'_j||
-            accumulator.remove(targetID); // prune this candidate (early verification)
+      L2APPostingList list;
+      if ((list = idx.get(dimension)) != null) { // TODO check correctness
+        // TODO possibly size filtering: remove entries from the posting list with |y| < minsize (need to save size in the posting list)
+        for (L2APPostingEntry pe : list) {
+          final long targetID = pe.getID(); // y
+          final double rscore = Math.min(remscore, l2remscore);
+          if (accumulator.containsKey(targetID) || Double.compare(rscore, theta) >= 0) {
+            final double targetWeight = pe.getWeight(); // y_j
+            final double additionalSimilarity = queryWeight * targetWeight; // x_j * y_j
+            accumulator.addTo(targetID, additionalSimilarity); // A[y] += x_j * y_j
+            final double l2bound = accumulator.get(targetID) + Math.sqrt(squaredQueryPrefixMagnitude) * pe.magnitude;
+            if (Double.compare(l2bound, theta) < 0) // A[y] + ||x'_j|| * ||y'_j||
+              accumulator.remove(targetID); // prune this candidate (early verification)
+          }
         }
+        remscore -= queryWeight * maxVectorInIndex.get(dimension); // rs_3 -= x_j * \hat{c_w}
+        rst -= queryWeight * queryWeight; // rs_t -= x_j^2
+        l2remscore = Math.sqrt(rst); // rs_4 = sqrt(rs_t)
       }
-      remscore -= queryWeight * maxVectorInIndex.get(dimension); // rs_3 -= x_j * \hat{c_w}
-      rst -= queryWeight * queryWeight; // rs_t -= x_j^2
-      l2remscore = Math.sqrt(rst); // rs_4 = sqrt(rs_t)
     }
 
     /* candidate verification */
@@ -91,7 +89,7 @@ public class L2APIndex implements Index {
         matches.put(candidateID, score);
     }
 
-    if (index) {
+    if (addToIndex) {
       double b1 = 0, bt = 0, b3 = 0, pscore = 0;
       boolean psSaved = false;
       Vector residual = new Vector(v.timestamp());
@@ -110,17 +108,19 @@ public class L2APIndex implements Index {
             ps.put(v.timestamp(), pscore);
             psSaved = true;
           }
-          if (!idx.containsKey(dimension))
-            idx.put(dimension, new L2APPostingList());
-          idx.get(dimension).add(v.timestamp(), weight, b3); // TODO check correctness
+          L2APPostingList list;
+          if ((list = idx.get(dimension)) == null) {
+            list = new L2APPostingList();
+            idx.put(dimension, list);
+          }
+          list.add(v.timestamp(), weight, b3); // TODO check correctness
           size++;
         } else {
           residual.put(dimension, weight);
         }
       }
       resList.add(residual);
-      maxVectorInIndex.updateMaxByDimension(v); // TODO check that this is the right place to update the max, L2AP performs the update at the end of
-                                                // queryWith()
+      maxVectorInIndex.updateMaxByDimension(v);
     }
 
     return matches;

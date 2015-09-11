@@ -12,11 +12,8 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
-import sssj.base.Commons;
 import sssj.base.Vector;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Maps;
 import com.google.common.primitives.Doubles;
 
 public class InvertedIndex implements Index {
@@ -31,32 +28,30 @@ public class InvertedIndex implements Index {
   }
 
   @Override
-  public Map<Long, Double> queryWith(final Vector v, boolean index) {
+  public Map<Long, Double> queryWith(final Vector v, boolean addToIndex) {
     Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap(size);
     for (Entry e : v.int2DoubleEntrySet()) {
-      int dimension = e.getIntKey();
-      if (!idx.containsKey(dimension))
-        continue;
-      PostingList list = idx.get(dimension);
-      double queryWeight = e.getDoubleValue();
-      for (PostingEntry pe : list) {
-        long targetID = pe.getLongKey();
-        double targetWeight = pe.getDoubleValue();
-        double additionalSimilarity = queryWeight * targetWeight;
-        accumulator.addTo(targetID, additionalSimilarity);
+      final int dimension = e.getIntKey();
+      final double queryWeight = e.getDoubleValue();
+      PostingList list;
+      if ((list = idx.get(dimension)) != null) {
+        for (PostingEntry pe : list) {
+          final long targetID = pe.getLongKey();
+          final double targetWeight = pe.getDoubleValue();
+          final double additionalSimilarity = queryWeight * targetWeight;
+          accumulator.addTo(targetID, additionalSimilarity);
+        }
       }
-    }
-
-    if (index) {
-      for (Entry e : v.int2DoubleEntrySet()) {
-        int dimension = e.getIntKey();
-        double weight = e.getDoubleValue();
-        if (!idx.containsKey(dimension))
-          idx.put(dimension, new PostingList());
-        idx.get(dimension).add(v.timestamp(), weight);
+      if (addToIndex) {
+        if (list == null) {
+          list = new PostingList();
+          idx.put(dimension, list);
+        }
+        list.add(v.timestamp(), queryWeight);
         size++;
       }
     }
+
     // add forgetting factor e^(-lambda*delta_T) and filter candidates < theta
     for (Iterator<Long2DoubleMap.Entry> it = accumulator.long2DoubleEntrySet().iterator(); it.hasNext();) {
       Long2DoubleMap.Entry e = it.next();

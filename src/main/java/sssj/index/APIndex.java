@@ -30,9 +30,9 @@ public class APIndex implements Index {
   }
 
   @Override
-  public Map<Long, Double> queryWith(final Vector v, final boolean index) {
+  public Map<Long, Double> queryWith(final Vector v, final boolean addToIndex) {
     Long2DoubleOpenHashMap matches = new Long2DoubleOpenHashMap();
-    Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap(size);
+    Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap();
     // int minSize = theta / rw_x; //TODO possibly size filtering (need to sort dataset by max row weight rw_x)
     double remscore = Vector.similarity(v, maxVector);
 
@@ -43,14 +43,14 @@ public class APIndex implements Index {
       int dimension = e.getIntKey();
       double queryWeight = e.getDoubleValue(); // x_j
 
-      if (idx.containsKey(dimension)) {
-        PostingList list = idx.get(dimension);
+      PostingList list;
+      if ((list = idx.get(dimension)) != null) {
         // TODO possibly size filtering: remove entries from the posting list with |y| < minsize (need to save size in the posting list)
         for (PostingEntry pe : list) {
-          long targetID = pe.getLongKey(); // y
+          final long targetID = pe.getLongKey(); // y
           if (accumulator.containsKey(targetID) || Double.compare(remscore, theta) >= 0) {
-            double targetWeight = pe.getDoubleValue(); // y_j
-            double additionalSimilarity = queryWeight * targetWeight; // x_j * y_j
+            final double targetWeight = pe.getDoubleValue(); // y_j
+            final double additionalSimilarity = queryWeight * targetWeight; // x_j * y_j
             // TODO add e^(-lambda*delta_t)
             accumulator.addTo(targetID, additionalSimilarity); // A[y] += x_j * y_j
           }
@@ -72,7 +72,7 @@ public class APIndex implements Index {
         matches.put(candidateID, score);
     }
 
-    if (index) {
+    if (addToIndex) {
       double pscore = 0;
       Vector residual = new Vector(v.timestamp());
       for (Entry e : v.int2DoubleEntrySet()) {
