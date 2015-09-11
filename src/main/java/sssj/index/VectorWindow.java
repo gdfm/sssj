@@ -1,14 +1,12 @@
 package sssj.index;
 
+import java.util.ArrayDeque;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Queue;
 
 import sssj.base.Vector;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterators;
 
 /**
  * A buffer for Vectors. The buffer keeps the order of the vectors as they are added, and maintains the maximum vector. Assumes vectors are added in increasing
@@ -16,7 +14,9 @@ import com.google.common.collect.Iterators;
  */
 public class VectorWindow {
   private Vector max = new Vector(); // TODO for INVERTED index the max is not needed
-  private Queue<Vector> queue = new LinkedList<>();
+  private Vector max2 = new Vector(); // TODO for INVERTED index the max is not needed
+  private Queue<Vector> q1 = new ArrayDeque<>();
+  private Queue<Vector> q2 = new ArrayDeque<>();
   private final double tau;
   private int epoch;
 
@@ -32,9 +32,16 @@ public class VectorWindow {
    */
   public boolean add(Vector v) {
     Preconditions.checkArgument(v.timestamp() >= windowStart());
-    max.updateMaxByDimension(v); // update the max vector
     if (v.timestamp() < windowEnd()) { // v is within the time window of 2*tau
-      queue.add(new Vector(v)); // copy constructor needed because the vector iterator reuses its instance
+      max.updateMaxByDimension(v); // update max vector
+      // copy constructor needed because the vector iterator reuses its instance
+      if (v.timestamp() < windowMid()) {
+        q1.add(new Vector(v));
+      } else {
+        // v.timestamp() >= windowMid()
+        q2.add(new Vector(v));
+        max2.updateMaxByDimension(v); // update max2 vector
+      }
       return true;
     } else {
       return false;
@@ -47,12 +54,16 @@ public class VectorWindow {
 
   public VectorWindow slide() {
     epoch++;
-    while (!queue.isEmpty() && queue.peek().timestamp() < windowStart())
-      queue.remove();
-    // update the max vector
-    max.clear();
-    for (Vector v : queue)
-      max.updateMaxByDimension(v);
+    // swap the queues
+    Queue<Vector> tmpq = q1;
+    q1 = q2;
+    q2 = tmpq;
+    q2.clear();
+    // swap the max vectors
+    Vector tmpv = max;
+    max = max2;
+    max2 = tmpv;
+    max2.clear();
     return this;
   }
 
@@ -69,25 +80,15 @@ public class VectorWindow {
   }
 
   public int size() {
-    return queue.size();
+    return q1.size() + q2.size();
   }
 
   public Iterator<Vector> firstHalf() {
-    return Iterators.filter(queue.iterator(), new Predicate<Vector>() {
-      @Override
-      public boolean apply(Vector input) {
-        return input.timestamp() < windowMid();
-      }
-    });
+    return q1.iterator();
   }
 
   public Iterator<Vector> secondHalf() {
-    return Iterators.filter(queue.iterator(), new Predicate<Vector>() {
-      @Override
-      public boolean apply(Vector input) {
-        return input.timestamp() >= windowMid();
-      }
-    });
+    return q2.iterator();
   }
 
   public boolean isEmpty() {
@@ -96,6 +97,6 @@ public class VectorWindow {
 
   @Override
   public String toString() {
-    return "[epoch=" + epoch + ", queue=" + queue + "]";
+    return "[epoch=" + epoch + ", q1=" + q1 + ", q2=" + q2 + "]";
   }
 }
