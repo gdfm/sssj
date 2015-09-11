@@ -70,6 +70,7 @@ public class StreamingIndex implements Index {
         idx.put(dimension, new StreamingPostingList());
       }
       idx.get(dimension).add(v.timestamp(), queryWeight);
+      size++;
     }
 
     // filter candidates < theta

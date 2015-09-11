@@ -61,13 +61,13 @@ public class InvertedIndex implements Index {
 
   @Override
   public Vector addVector(final Vector v) {
-    size++;
     for (Entry e : v.int2DoubleEntrySet()) {
       int dimension = e.getIntKey();
       double weight = e.getDoubleValue();
       if (!idx.containsKey(dimension))
         idx.put(dimension, new PostingList());
       idx.get(dimension).add(v.timestamp(), weight);
+      size++;
     }
     return Vector.EMPTY_VECTOR;
   }
