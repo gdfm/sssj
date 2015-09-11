@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
 
+import org.apache.commons.math3.util.FastMath;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ForwardingTable;
 import com.google.common.collect.Table;
@@ -18,7 +20,7 @@ public class Commons {
 
   private static double[] FF;
 
-  public static double tau(double theta, double lambda) {
+  public static double tau(final double theta, final double lambda) {
     Preconditions.checkArgument(theta > 0 && theta < 1);
     Preconditions.checkArgument(lambda > 0);
     double tau = 1 / lambda * Math.log(1 / theta);
@@ -26,23 +28,15 @@ public class Commons {
     return tau;
   }
 
-  public static double forgetFactor(final double lambda, final long deltaT) {
-// return FastMath.exp(-lambda * deltaT);
-    return eTable((int) deltaT);
-  }
-
-  public static void precomputeFFTable(double lambda, int tau) {
+  public static void precomputeFFTable(final double lambda, final int tau) {
     FF = new double[tau];
-    final double base = Math.exp(-lambda);
-    FF[0] = 1;
-    for (int i = 1; i < tau; i++)
-      FF[i] = FF[i - 1] * base;
-    System.out.println(FF.length);
+    for (int i = 0; i < tau; i++)
+      FF[i] = FastMath.exp(-lambda * i);
   }
 
-  public static double eTable(int deltaT) {
+  public static double forgetFactor(final double lambda, final long deltaT) {
     assert (FF != null && deltaT >= 0 && deltaT < FF.length);
-    return FF[deltaT];
+    return FF[(int) deltaT];
   }
 
   public static String formatMap(final Map<Long, Double> map) {
@@ -68,10 +62,6 @@ public class Commons {
     }
   }
 
-  public static enum IndexType {
-    INVERTED, ALL_PAIRS, L2AP;
-  }
-
   public static class ResidualList implements Iterable<Vector> {
     private Queue<Vector> queue = new LinkedList<>();
 
@@ -95,5 +85,9 @@ public class Commons {
           return v;
       return null;
     }
+  }
+
+  public static enum IndexType {
+    INVERTED, ALL_PAIRS, L2AP;
   }
 }
