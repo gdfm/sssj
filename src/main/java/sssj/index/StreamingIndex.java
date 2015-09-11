@@ -47,25 +47,29 @@ public class StreamingIndex implements Index {
     accumulator.clear();
     for (Int2DoubleMap.Entry e : v.int2DoubleEntrySet()) {
       final int dimension = e.getIntKey();
-      if (!idx.containsKey(dimension))
-        continue;
-      final StreamingPostingList list = idx.get(dimension);
       final double queryWeight = e.getDoubleValue();
-      for (Iterator<StreamingPostingEntry> it = list.iterator(); it.hasNext();) {
-        StreamingPostingEntry pe = it.next();
-        final long targetID = pe.getLongKey();
+      if (idx.containsKey(dimension)) {
+        final StreamingPostingList list = idx.get(dimension);
+        for (Iterator<StreamingPostingEntry> it = list.iterator(); it.hasNext();) {
+          final StreamingPostingEntry pe = it.next();
+          final long targetID = pe.getLongKey();
 
-        // time filtering
-        final long deltaT = v.timestamp() - targetID;
-        if (Doubles.compare(deltaT, tau) > 0) {
-          it.remove();
-          continue;
+          // time filtering
+          final long deltaT = v.timestamp() - targetID;
+          if (Doubles.compare(deltaT, tau) > 0) {
+            it.remove();
+            size--;
+            continue;
+          }
+
+          final double targetWeight = pe.getDoubleValue();
+          final double additionalSimilarity = queryWeight * targetWeight * forgetFactor(lambda, deltaT);
+          accumulator.addTo(targetID, additionalSimilarity);
         }
-
-        final double targetWeight = pe.getDoubleValue();
-        final double additionalSimilarity = queryWeight * targetWeight * forgetFactor(lambda, deltaT);
-        accumulator.addTo(targetID, additionalSimilarity);
+      } else {
+        idx.put(dimension, new StreamingPostingList());
       }
+      idx.get(dimension).add(v.timestamp(), queryWeight);
     }
 
     // filter candidates < theta
@@ -79,14 +83,7 @@ public class StreamingIndex implements Index {
 
   @Override
   public Vector addVector(final Vector v) {
-    size++;
-    for (Entry e : v.int2DoubleEntrySet()) {
-      int dimension = e.getIntKey();
-      double weight = e.getDoubleValue();
-      if (!idx.containsKey(dimension))
-        idx.put(dimension, new StreamingPostingList());
-      idx.get(dimension).add(v.timestamp(), weight);
-    }
+    // do nothing
     return Vector.EMPTY_VECTOR;
   }
 

@@ -73,8 +73,6 @@ public class Streaming {
       Map<Long, Double> results = index.queryWith(v);
       if (!results.isEmpty())
         System.out.println(v.timestamp() + " ~ " + formatMap(results));
-
-      index.addVector(v);
     }
   }
 }
