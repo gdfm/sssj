@@ -107,7 +107,7 @@ public class MiniBatch {
     case INVERTED:
       index = new InvertedIndex(theta, lambda);
       break;
-    case ALL_PAIRS:
+    case ALLPAIRS:
       index = new APIndex(theta, lambda, window.getMax());
       break;
     case L2AP:
