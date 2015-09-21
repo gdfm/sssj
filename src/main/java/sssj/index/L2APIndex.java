@@ -17,14 +17,14 @@ import sssj.base.Commons.ResidualList;
 import sssj.base.Vector;
 
 public class L2APIndex implements Index {
-  private Int2ReferenceMap<L2APPostingList> idx = new Int2ReferenceOpenHashMap<>();
-  private ResidualList resList = new ResidualList();
-  private Long2DoubleMap ps = new Long2DoubleOpenHashMap();
-  private int size = 0;
+  private final Int2ReferenceMap<L2APPostingList> idx = new Int2ReferenceOpenHashMap<>();
+  private final ResidualList resList = new ResidualList();
+  private final Long2DoubleOpenHashMap ps = new Long2DoubleOpenHashMap();
   private final double theta;
   private final double lambda;
   private final Vector maxVectorInWindow; // c_w
   private final Vector maxVectorInIndex; // \hat{c_w}
+  private int size = 0;
 
   public L2APIndex(double theta, double lambda, Vector maxVector) {
     this.theta = theta;
