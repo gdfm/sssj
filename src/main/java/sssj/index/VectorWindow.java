@@ -13,7 +13,7 @@ import com.google.common.base.Preconditions;
  * order of timestamp.
  */
 public class VectorWindow {
-  private Vector max = new Vector();
+  private Vector max1 = new Vector();
   private Vector max2 = new Vector();
   private Queue<Vector> q1 = new ArrayDeque<>();
   private Queue<Vector> q2 = new ArrayDeque<>();
@@ -40,7 +40,7 @@ public class VectorWindow {
     Preconditions.checkArgument(v.timestamp() >= windowStart());
     if (v.timestamp() < windowEnd()) { // v is within the time window of 2*tau
       if (keepMax)
-        max.updateMaxByDimension(v); // update max vector
+        max1.updateMaxByDimension(v); // update max1 vector
       // copy constructor needed because the vector iterator reuses its instance
       if (v.timestamp() < windowMid()) {
         q1.add(new Vector(v));
@@ -58,7 +58,7 @@ public class VectorWindow {
 
   public Vector getMax() {
     if (keepMax)
-      return max;
+      return max1;
     return null;
   }
 
@@ -70,9 +70,9 @@ public class VectorWindow {
     q2 = tmpq;
     q2.clear();
     if (keepMax) {
-      // swap the max vectors
-      Vector tmpv = max;
-      max = max2;
+      // swap the max1 vectors
+      Vector tmpv = max1;
+      max1 = max2;
       max2 = tmpv;
       max2.clear();
     }
