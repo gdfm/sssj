@@ -59,7 +59,7 @@ public class VectorWindow {
   public Vector getMax() {
     if (keepMax)
       return max1;
-    return null;
+    throw new UnsupportedOperationException("Window initialized not to track maximum");
   }
 
   public VectorWindow slide() {
