@@ -1,7 +1,7 @@
 #!/bin/bash
 
 cliopts="$@"
-max_procs=2
+max_procs=1
 
 DATA="data/RCV1_seq.bin"
 THETA="0.35 0.5 0.7 0.8 0.9 0.99"
