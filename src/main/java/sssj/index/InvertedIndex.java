@@ -1,6 +1,6 @@
 package sssj.index;
 
-import static sssj.base.Commons.forgetFactor;
+import static sssj.base.Commons.forgettingFactor;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap.Entry;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
@@ -56,7 +56,7 @@ public class InvertedIndex implements Index {
     for (Iterator<Long2DoubleMap.Entry> it = accumulator.long2DoubleEntrySet().iterator(); it.hasNext();) {
       Long2DoubleMap.Entry e = it.next();
       final long deltaT = v.timestamp() - e.getLongKey();
-      e.setValue(e.getDoubleValue() * forgetFactor(lambda, deltaT));
+      e.setValue(e.getDoubleValue() * forgettingFactor(lambda, deltaT));
       if (Doubles.compare(e.getDoubleValue(), theta) < 0)
         it.remove();
     }

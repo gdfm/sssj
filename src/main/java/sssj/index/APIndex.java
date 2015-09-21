@@ -51,7 +51,6 @@ public class APIndex implements Index {
           if (accumulator.containsKey(targetID) || Double.compare(remscore, theta) >= 0) {
             final double targetWeight = pe.getDoubleValue(); // y_j
             final double additionalSimilarity = queryWeight * targetWeight; // x_j * y_j
-            // TODO add e^(-lambda*delta_t)
             accumulator.addTo(targetID, additionalSimilarity); // A[y] += x_j * y_j
           }
         }
@@ -67,7 +66,7 @@ public class APIndex implements Index {
       assert (candidateResidual != null);
       double score = e.getDoubleValue() + Vector.similarity(v, candidateResidual); // A[y] + dot(y',x)
       long deltaT = v.timestamp() - candidateID;
-      score *= Commons.forgetFactor(lambda, deltaT); // TODO move into similarity and index e^(-lambda*delta_T)
+      score *= Commons.forgettingFactor(lambda, deltaT); // apply forgetting factor
       if (Double.compare(score, theta) >= 0) // final check
         matches.put(candidateID, score);
     }

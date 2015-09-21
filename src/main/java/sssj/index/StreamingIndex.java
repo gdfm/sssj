@@ -61,7 +61,7 @@ public class StreamingIndex implements Index {
           }
 
           final double targetWeight = pe.getDoubleValue();
-          final double additionalSimilarity = queryWeight * targetWeight * forgetFactor(lambda, deltaT);
+          final double additionalSimilarity = queryWeight * targetWeight * forgettingFactor(lambda, deltaT);
           accumulator.addTo(targetID, additionalSimilarity);
         }
       } else {

@@ -84,7 +84,7 @@ public class L2APIndex implements Index {
 
       double score = e.getDoubleValue() + Vector.similarity(v, residual); // dot(x, y) = A[y] + dot(x, y')
       long deltaT = v.timestamp() - candidateID;
-      score *= Commons.forgetFactor(lambda, deltaT); // TODO move into similarity and index e^(-lambda*delta_T)
+      score *= Commons.forgettingFactor(lambda, deltaT); // apply forgetting factor
       if (Double.compare(score, theta) >= 0) // final check
         matches.put(candidateID, score);
     }
@@ -113,7 +113,7 @@ public class L2APIndex implements Index {
             list = new L2APPostingList();
             idx.put(dimension, list);
           }
-          list.add(v.timestamp(), weight, b3); // TODO check correctness
+          list.add(v.timestamp(), weight, b3);
           size++;
         } else {
           residual.put(dimension, weight);

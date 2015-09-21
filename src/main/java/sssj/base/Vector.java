@@ -98,19 +98,6 @@ public class Vector extends Int2DoubleLinkedOpenHashMap { // entries are returne
     throw new UnsupportedOperationException("Cannot remove from a vector");
   }
 
-  public static Vector l2normalize(Vector v) {
-    Vector result;
-    double magnitude = v.magnitude();
-    if (Double.compare(1.0, magnitude) != 0) {
-      result = new Vector(v.timestamp());
-      for (Int2DoubleMap.Entry e : v.int2DoubleEntrySet())
-        result.put(e.getIntKey(), e.getDoubleValue() / magnitude);
-    } else {
-      result = v;
-    }
-    return result;
-  }
-
   public void read(ByteBuffer in) throws IOException {
     this.setTimestamp(in.getLong());
     int numElements = in.getInt();
@@ -147,6 +134,19 @@ public class Vector extends Int2DoubleLinkedOpenHashMap { // entries are returne
       out.writeInt(e.getIntKey());
       out.writeDouble(e.getDoubleValue());
     }
+  }
+
+  public static Vector l2normalize(Vector v) {
+    Vector result;
+    double magnitude = v.magnitude();
+    if (Double.compare(1.0, magnitude) != 0) {
+      result = new Vector(v.timestamp());
+      for (Int2DoubleMap.Entry e : v.int2DoubleEntrySet())
+        result.put(e.getIntKey(), e.getDoubleValue() / magnitude);
+    } else {
+      result = v;
+    }
+    return result;
   }
 
   /**

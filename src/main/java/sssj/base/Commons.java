@@ -33,7 +33,7 @@ public class Commons {
       FF[i] = FastMath.exp(-lambda * i);
   }
 
-  public static double forgetFactor(final double lambda, final long deltaT) {
+  public static double forgettingFactor(final double lambda, final long deltaT) {
     assert (FF != null && deltaT >= 0 && deltaT < FF.length);
     return FF[(int) deltaT];
   }

@@ -17,7 +17,7 @@ public class CommonsTest {
     Commons.precomputeFFTable(l, N);
     long mid = System.currentTimeMillis();
     for (d = i = 0; i < N; i++) {
-      d += Commons.forgetFactor(l, i);
+      d += Commons.forgettingFactor(l, i);
     }
     finish = System.currentTimeMillis();
 
