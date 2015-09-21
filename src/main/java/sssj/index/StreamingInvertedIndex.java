@@ -10,27 +10,20 @@ import it.unimi.dsi.fastutil.longs.Long2DoubleOpenHashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import sssj.base.CircularBuffer;
 import sssj.base.Vector;
 
 import com.google.common.primitives.Doubles;
 
-public class StreamingIndex implements Index {
-  private static final Logger log = LoggerFactory.getLogger(StreamingIndex.class);
+public class StreamingInvertedIndex implements Index {
   private Int2ReferenceMap<StreamingPostingList> idx = new Int2ReferenceOpenHashMap<>();
-  // private ResidualList resList = new ResidualList();
   private final Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap();
   private int size = 0;
   private final double theta;
   private final double lambda;
   private final double tau;
 
-  // private final Vector maxVector; // \hat{y}
-
-  public StreamingIndex(double theta, double lambda) {
+  public StreamingInvertedIndex(double theta, double lambda) {
     this.theta = theta;
     this.lambda = lambda;
     this.tau = tau(theta, lambda);
@@ -41,7 +34,6 @@ public class StreamingIndex implements Index {
 
   @Override
   public Map<Long, Double> queryWith(final Vector v, boolean addToIndex) {
-    // Vector updates = maxVector.updateMaxByDimension(v);
     accumulator.clear();
     for (Int2DoubleMap.Entry e : v.int2DoubleEntrySet()) {
       final int dimension = e.getIntKey();
@@ -88,7 +80,7 @@ public class StreamingIndex implements Index {
 
   @Override
   public String toString() {
-    return "StreamingIndex [idx=" + idx + "]";
+    return "StreamingInvertedIndex [idx=" + idx + "]";
   }
 
   static class StreamingPostingList implements Iterable<StreamingPostingEntry> {

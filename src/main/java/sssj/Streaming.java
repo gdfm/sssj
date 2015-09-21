@@ -16,7 +16,8 @@ import org.slf4j.LoggerFactory;
 import sssj.base.Commons.IndexType;
 import sssj.base.Vector;
 import sssj.index.Index;
-import sssj.index.StreamingIndex;
+import sssj.index.StreamingInvertedIndex;
+import sssj.index.StreamingL2APIndex;
 import sssj.io.Format;
 import sssj.io.VectorStream;
 import sssj.io.VectorStreamFactory;
@@ -36,7 +37,7 @@ public class Streaming {
         .choices(Arguments.range(0.0, Double.MAX_VALUE)).setDefault(DEFAULT_LAMBDA).help("forgetting factor");
     parser.addArgument("-r", "--report").metavar("period").type(Integer.class).setDefault(DEFAULT_REPORT_PERIOD)
         .help("progress report period");
-    parser.addArgument("-i", "--index").type(IndexType.class).choices(IndexType.values())
+    parser.addArgument("-i", "--index").type(IndexType.class).choices(IndexType.INVERTED, IndexType.L2AP)
         .setDefault(IndexType.INVERTED).help("type of indexing");
     parser.addArgument("-f", "--format").type(Format.class).choices(Format.values()).setDefault(Format.BINARY)
         .help("input format");
@@ -47,7 +48,7 @@ public class Streaming {
     final double theta = opts.get("theta");
     final double lambda = opts.get("lambda");
     final int reportPeriod = opts.getInt("report");
-    // final IndexType idxType = res.<IndexType>get("index");
+    final IndexType idxType = opts.<IndexType>get("index");
     final Format fmt = opts.<Format>get("format");
     final File file = opts.<File>get("input");
     final VectorStream stream = VectorStreamFactory.getVectorStream(file, fmt, new Sequential());
@@ -57,14 +58,27 @@ public class Streaming {
     System.out.println(String.format("Streaming [t=%f, l=%f]", theta, lambda));
     log.info(String.format("Streaming [t=%f, l=%f]", theta, lambda));
     long start = System.currentTimeMillis();
-    compute(stream, theta, lambda, tracker);
+    compute(stream, theta, lambda, idxType, tracker);
     long elapsed = System.currentTimeMillis() - start;
     System.out.println(String.format("Streaming, %f, %f, %d", theta, lambda, elapsed));
     log.info(String.format("Streaming [t=%f, l=%f, time=%d]", theta, lambda, elapsed));
   }
 
-  public static void compute(Iterable<Vector> stream, double theta, double lambda, ProgressTracker tracker) {
-    Index index = new StreamingIndex(theta, lambda);
+  public static void compute(Iterable<Vector> stream, double theta, double lambda, IndexType type,
+      ProgressTracker tracker) {
+    Index index = null;
+    switch (type) {
+    case INVERTED:
+      index = new StreamingInvertedIndex(theta, lambda);
+      break;
+    case L2AP:
+      index = new StreamingL2APIndex(theta, lambda);
+      break;
+    default:
+      throw new RuntimeException("Unsupported index type");
+    }
+    assert (index != null);
+
     // TODO first update MAX, then query, then index
     for (Vector v : stream) {
       if (tracker != null)
