@@ -3,6 +3,7 @@ package sssj.base;
 import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 
+import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -120,6 +121,25 @@ public class Vector extends Int2DoubleLinkedOpenHashMap { // entries are returne
     }
   }
 
+  public void write(ByteBuffer out) throws IOException {
+    out.putLong(this.timestamp());
+    out.putInt(this.size());
+    for (Int2DoubleMap.Entry e : this.int2DoubleEntrySet()) {
+      out.putInt(e.getIntKey());
+      out.putDouble(e.getDoubleValue());
+    }
+  }
+
+  public void read(DataInput in) throws IOException {
+    this.setTimestamp(in.readLong());
+    int numElements = in.readInt();
+    for (int i = 0; i < numElements; i++) {
+      int dim = in.readInt();
+      double val = in.readDouble();
+      this.put(dim, val);
+    }
+  }
+
   public void write(DataOutput out) throws IOException {
     out.writeLong(this.timestamp());
     out.writeInt(this.size());
@@ -150,7 +170,7 @@ public class Vector extends Int2DoubleLinkedOpenHashMap { // entries are returne
   public static double similarity(Vector query, Vector target) {
     double result = 0;
     for (Int2DoubleMap.Entry e : query.int2DoubleEntrySet()) {
-      result += e.getDoubleValue() * target.get(e.getIntKey()); // TODO add forgetting factor
+      result += e.getDoubleValue() * target.get(e.getIntKey());
     }
     return result;
   }
