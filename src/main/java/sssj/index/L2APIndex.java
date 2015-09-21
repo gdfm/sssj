@@ -12,6 +12,8 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.math3.util.FastMath;
+
 import sssj.base.Commons;
 import sssj.base.Commons.ResidualList;
 import sssj.base.Vector;
@@ -59,14 +61,14 @@ public class L2APIndex implements Index {
             final double targetWeight = pe.getWeight(); // y_j
             final double additionalSimilarity = queryWeight * targetWeight; // x_j * y_j
             accumulator.addTo(targetID, additionalSimilarity); // A[y] += x_j * y_j
-            final double l2bound = accumulator.get(targetID) + Math.sqrt(squaredQueryPrefixMagnitude) * pe.magnitude; // A[y] + ||x'_j|| * ||y'_j||
+            final double l2bound = accumulator.get(targetID) + FastMath.sqrt(squaredQueryPrefixMagnitude) * pe.magnitude; // A[y] + ||x'_j|| * ||y'_j||
             if (Double.compare(l2bound, theta) < 0)
               accumulator.remove(targetID); // prune this candidate (early verification)
           }
         }
         remscore -= queryWeight * maxVectorInIndex.get(dimension); // rs_3 -= x_j * \hat{c_w}
         rst -= queryWeight * queryWeight; // rs_t -= x_j^2
-        l2remscore = Math.sqrt(rst); // rs_4 = sqrt(rs_t)
+        l2remscore = FastMath.sqrt(rst); // rs_4 = sqrt(rs_t)
       }
     }
 
@@ -100,7 +102,7 @@ public class L2APIndex implements Index {
         pscore = Math.min(b1, b3);
         b1 += weight * maxVectorInWindow.get(dimension);
         bt += weight * weight;
-        b3 = Math.sqrt(bt);
+        b3 = FastMath.sqrt(bt);
 
         if (Double.compare(Math.min(b1, b3), theta) >= 0) {
           if (!psSaved) {
