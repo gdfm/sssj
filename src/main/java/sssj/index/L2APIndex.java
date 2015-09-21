@@ -48,19 +48,19 @@ public class L2APIndex implements Index {
       final Entry e = it.previous();
       final int dimension = e.getIntKey();
       final double queryWeight = e.getDoubleValue(); // x_j
+      final double rscore = Math.min(remscore, l2remscore);
       squaredQueryPrefixMagnitude -= queryWeight * queryWeight;
       L2APPostingList list;
       if ((list = idx.get(dimension)) != null) {
         // TODO possibly size filtering: remove entries from the posting list with |y| < minsize (need to save size in the posting list)
         for (L2APPostingEntry pe : list) {
           final long targetID = pe.getID(); // y
-          final double rscore = Math.min(remscore, l2remscore);
           if (accumulator.containsKey(targetID) || Double.compare(rscore, theta) >= 0) {
             final double targetWeight = pe.getWeight(); // y_j
             final double additionalSimilarity = queryWeight * targetWeight; // x_j * y_j
             accumulator.addTo(targetID, additionalSimilarity); // A[y] += x_j * y_j
-            final double l2bound = accumulator.get(targetID) + Math.sqrt(squaredQueryPrefixMagnitude) * pe.magnitude;
-            if (Double.compare(l2bound, theta) < 0) // A[y] + ||x'_j|| * ||y'_j||
+            final double l2bound = accumulator.get(targetID) + Math.sqrt(squaredQueryPrefixMagnitude) * pe.magnitude; // A[y] + ||x'_j|| * ||y'_j||
+            if (Double.compare(l2bound, theta) < 0)
               accumulator.remove(targetID); // prune this candidate (early verification)
           }
         }
