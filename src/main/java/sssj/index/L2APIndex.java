@@ -50,7 +50,7 @@ public class L2APIndex implements Index {
       final double queryWeight = e.getDoubleValue(); // x_j
       squaredQueryPrefixMagnitude -= queryWeight * queryWeight;
       L2APPostingList list;
-      if ((list = idx.get(dimension)) != null) { // TODO check correctness
+      if ((list = idx.get(dimension)) != null) {
         // TODO possibly size filtering: remove entries from the posting list with |y| < minsize (need to save size in the posting list)
         for (L2APPostingEntry pe : list) {
           final long targetID = pe.getID(); // y
