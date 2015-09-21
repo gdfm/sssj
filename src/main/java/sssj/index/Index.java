@@ -15,12 +15,12 @@ public interface Index {
    *          a boolean indicating whether to add the query vector to the index
    * @return the matchings between the previously indexed vectors and the query
    */
-  public abstract Map<Long, Double> queryWith(final Vector v, final boolean addToIndex);
+  public Map<Long, Double> queryWith(final Vector v, final boolean addToIndex);
 
   /**
    * Returns the size of the index in number of vectors.
    * 
    * @return the number of vectors indexed
    */
-  public abstract int size();
+  public int size();
 }
