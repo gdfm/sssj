@@ -38,10 +38,11 @@ import com.github.gdfm.shobaidogu.ProgressTracker;
  * as the new first half, and repeat the process.
  */
 public class MiniBatch {
+  private static final String ALGO = "MiniBatch";
   private static final Logger log = LoggerFactory.getLogger(MiniBatch.class);
 
   public static void main(String[] args) throws Exception {
-    ArgumentParser parser = ArgumentParsers.newArgumentParser("MiniBatch").description("SSSJ in MiniBatch mode.")
+    ArgumentParser parser = ArgumentParsers.newArgumentParser(ALGO).description("SSSJ in " + ALGO + " mode.")
         .defaultHelp(true);
     parser.addArgument("-t", "--theta").metavar("theta").type(Double.class).choices(Arguments.range(0.0, 1.0))
         .setDefault(DEFAULT_THETA).help("similarity threshold");
@@ -67,13 +68,13 @@ public class MiniBatch {
     final int numVectors = stream.numVectors();
     final ProgressTracker tracker = new ProgressTracker(numVectors, reportPeriod);
 
-    System.out.println(String.format("MiniBatch [t=%f, l=%f, i=%s]", theta, lambda, idxType.toString()));
-    log.info(String.format("MiniBatch [t=%f, l=%f, i=%s]", theta, lambda, idxType.toString()));
+    System.out.println(String.format(ALGO + " [t=%f, l=%f, i=%s]", theta, lambda, idxType.toString()));
+    log.info(String.format(ALGO + " [t=%f, l=%f, i=%s]", theta, lambda, idxType.toString()));
     long start = System.currentTimeMillis();
     compute(stream, theta, lambda, idxType, tracker);
     long elapsed = System.currentTimeMillis() - start;
-    System.out.println(String.format("MiniBatch-%s, %f, %f, %d", idxType.toString(), theta, lambda, elapsed));
-    log.info(String.format("MiniBatch [t=%f, l=%f, i=%s, time=%d]", theta, lambda, idxType.toString(), elapsed));
+    System.out.println(String.format(ALGO + "-%s, %f, %f, %d", idxType.toString(), theta, lambda, elapsed));
+    log.info(String.format(ALGO + " [t=%f, l=%f, i=%s, time=%d]", theta, lambda, idxType.toString(), elapsed));
   }
 
   public static void compute(Iterable<Vector> stream, double theta, double lambda, IndexType idxType,

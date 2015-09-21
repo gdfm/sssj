@@ -27,9 +27,10 @@ import com.github.gdfm.shobaidogu.ProgressTracker;
 
 public class Streaming {
   private static final Logger log = LoggerFactory.getLogger(Streaming.class);
+  private static final String ALGO = "Streaming";
 
   public static void main(String[] args) throws Exception {
-    ArgumentParser parser = ArgumentParsers.newArgumentParser("Streaming").description("SSSJ in Streaming mode.")
+    ArgumentParser parser = ArgumentParsers.newArgumentParser(ALGO).description("SSSJ in " + ALGO + " mode.")
         .defaultHelp(true);
     parser.addArgument("-t", "--theta").metavar("theta").type(Double.class).choices(Arguments.range(0.0, 1.0))
         .setDefault(DEFAULT_THETA).help("similarity threshold");
@@ -55,13 +56,13 @@ public class Streaming {
     final int numVectors = stream.numVectors();
     final ProgressTracker tracker = new ProgressTracker(numVectors, reportPeriod);
 
-    System.out.println(String.format("Streaming [t=%f, l=%f]", theta, lambda));
-    log.info(String.format("Streaming [t=%f, l=%f]", theta, lambda));
+    System.out.println(String.format(ALGO + " [t=%f, l=%f, i=%s]", theta, lambda, idxType.toString()));
+    log.info(String.format(ALGO + " [t=%f, l=%f, i=%s]", theta, lambda, idxType.toString()));
     long start = System.currentTimeMillis();
     compute(stream, theta, lambda, idxType, tracker);
     long elapsed = System.currentTimeMillis() - start;
-    System.out.println(String.format("Streaming, %f, %f, %d", theta, lambda, elapsed));
-    log.info(String.format("Streaming [t=%f, l=%f, time=%d]", theta, lambda, elapsed));
+    System.out.println(String.format(ALGO + "-%s, %f, %f, %d", idxType.toString(), theta, lambda, elapsed));
+    log.info(String.format(ALGO + " [t=%f, l=%f, i=%s, time=%d]", theta, lambda, idxType.toString(), elapsed));
   }
 
   public static void compute(Iterable<Vector> stream, double theta, double lambda, IndexType type,
@@ -79,11 +80,9 @@ public class Streaming {
     }
     assert (index != null);
 
-    // TODO first update MAX, then query, then index
     for (Vector v : stream) {
       if (tracker != null)
         tracker.progress();
-
       Map<Long, Double> results = index.queryWith(v, true);
       if (!results.isEmpty())
         System.out.println(v.timestamp() + " ~ " + formatMap(results));
