@@ -12,6 +12,7 @@ import java.util.Map;
 
 import sssj.base.CircularBuffer;
 import sssj.base.Vector;
+import sssj.index.InvertedIndex.PostingEntry;
 
 import com.google.common.primitives.Doubles;
 
@@ -40,9 +41,9 @@ public class StreamingInvertedIndex implements Index {
       final double queryWeight = e.getDoubleValue();
       StreamingPostingList list;
       if ((list = idx.get(dimension)) != null) {
-        for (Iterator<StreamingPostingEntry> it = list.iterator(); it.hasNext();) {
-          final StreamingPostingEntry pe = it.next();
-          final long targetID = pe.getLongKey();
+        for (Iterator<PostingEntry> it = list.iterator(); it.hasNext();) {
+          final PostingEntry pe = it.next();
+          final long targetID = pe.getID();
 
           // time filtering
           final long deltaT = v.timestamp() - targetID;
@@ -52,7 +53,7 @@ public class StreamingInvertedIndex implements Index {
             continue;
           }
 
-          final double targetWeight = pe.getDoubleValue();
+          final double targetWeight = pe.getWeight();
           final double additionalSimilarity = queryWeight * targetWeight * forgettingFactor(lambda, deltaT);
           accumulator.addTo(targetID, additionalSimilarity);
         }
@@ -83,9 +84,9 @@ public class StreamingInvertedIndex implements Index {
     return "StreamingInvertedIndex [idx=" + idx + "]";
   }
 
-  static class StreamingPostingList implements Iterable<StreamingPostingEntry> {
-    private CircularBuffer ids = new CircularBuffer();
-    private CircularBuffer weights = new CircularBuffer();
+  static class StreamingPostingList implements Iterable<PostingEntry> {
+    private CircularBuffer ids = new CircularBuffer(); // longs
+    private CircularBuffer weights = new CircularBuffer(); // doubles
 
     public void add(long vectorID, double weight) {
       ids.pushLong(vectorID);
@@ -98,12 +99,12 @@ public class StreamingInvertedIndex implements Index {
     }
 
     @Override
-    public Iterator<StreamingPostingEntry> iterator() {
+    public Iterator<PostingEntry> iterator() {
       return new StreamingPostingListIterator();
     }
 
-    class StreamingPostingListIterator implements Iterator<StreamingPostingEntry> {
-      private final StreamingPostingEntry entry = new StreamingPostingEntry();
+    class StreamingPostingListIterator implements Iterator<PostingEntry> {
+      private final PostingEntry entry = new PostingEntry();
       private int i = 0;
 
       @Override
@@ -112,9 +113,9 @@ public class StreamingInvertedIndex implements Index {
       }
 
       @Override
-      public StreamingPostingEntry next() {
-        entry.setKey(ids.peekLong(i));
-        entry.setValue(weights.peekDouble(i));
+      public PostingEntry next() {
+        entry.setID(ids.peekLong(i));
+        entry.setWeight(weights.peekDouble(i));
         i++;
         return entry;
       }
@@ -126,41 +127,6 @@ public class StreamingInvertedIndex implements Index {
         ids.popLong();
         weights.popDouble();
       }
-    }
-  }
-
-  static class StreamingPostingEntry {
-    private long key;
-    private double value;
-
-    public StreamingPostingEntry() {
-      this(0, 0);
-    }
-
-    public StreamingPostingEntry(long key, double value) {
-      this.key = key;
-      this.value = value;
-    }
-
-    public void setKey(long key) {
-      this.key = key;
-    }
-
-    public void setValue(double value) {
-      this.value = value;
-    }
-
-    public long getLongKey() {
-      return key;
-    }
-
-    public double getDoubleValue() {
-      return value;
-    }
-
-    @Override
-    public String toString() {
-      return "[" + key + " -> " + value + "]";
     }
   }
 }

@@ -36,8 +36,8 @@ public class InvertedIndex implements Index {
       PostingList list;
       if ((list = idx.get(dimension)) != null) {
         for (PostingEntry pe : list) {
-          final long targetID = pe.getLongKey();
-          final double targetWeight = pe.getDoubleValue();
+          final long targetID = pe.getID();
+          final double targetWeight = pe.getWeight();
           final double additionalSimilarity = queryWeight * targetWeight;
           accumulator.addTo(targetID, additionalSimilarity);
         }
@@ -101,8 +101,8 @@ public class InvertedIndex implements Index {
 
         @Override
         public PostingEntry next() {
-          entry.setKey(ids.getLong(i));
-          entry.setValue(weights.getDouble(i));
+          entry.setID(ids.getLong(i));
+          entry.setWeight(weights.getDouble(i));
           i++;
           return entry;
         }
@@ -118,37 +118,37 @@ public class InvertedIndex implements Index {
   }
 
   static class PostingEntry {
-    protected long key;
-    protected double value;
+    protected long id;
+    protected double weight;
 
     public PostingEntry() {
       this(0, 0);
     }
 
     public PostingEntry(long key, double value) {
-      this.key = key;
-      this.value = value;
+      this.id = key;
+      this.weight = value;
     }
 
-    public void setKey(long key) {
-      this.key = key;
+    public void setID(long id) {
+      this.id = id;
     }
 
-    public void setValue(double value) {
-      this.value = value;
+    public void setWeight(double weight) {
+      this.weight = weight;
     }
 
-    public long getLongKey() {
-      return key;
+    public long getID() {
+      return id;
     }
 
-    public double getDoubleValue() {
-      return value;
+    public double getWeight() {
+      return weight;
     }
 
     @Override
     public String toString() {
-      return "[" + key + " -> " + value + "]";
+      return "[" + id + " -> " + weight + "]";
     }
   }
 }

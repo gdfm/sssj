@@ -47,9 +47,9 @@ public class APIndex implements Index {
       if ((list = idx.get(dimension)) != null) {
         // TODO possibly size filtering: remove entries from the posting list with |y| < minsize (need to save size in the posting list)
         for (PostingEntry pe : list) {
-          final long targetID = pe.getLongKey(); // y
+          final long targetID = pe.getID(); // y
           if (accumulator.containsKey(targetID) || Double.compare(remscore, theta) >= 0) {
-            final double targetWeight = pe.getDoubleValue(); // y_j
+            final double targetWeight = pe.getWeight(); // y_j
             final double additionalSimilarity = queryWeight * targetWeight; // x_j * y_j
             accumulator.addTo(targetID, additionalSimilarity); // A[y] += x_j * y_j
           }

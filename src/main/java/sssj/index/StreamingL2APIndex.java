@@ -19,7 +19,7 @@ import com.google.common.primitives.Doubles;
 
 public class StreamingL2APIndex implements Index {
 // private static final Logger log = LoggerFactory.getLogger(StreamingL2APIndex.class);
-  private Int2ReferenceMap<StreamingPostingList> idx = new Int2ReferenceOpenHashMap<>();
+  private Int2ReferenceMap<StreamingL2APPostingList> idx = new Int2ReferenceOpenHashMap<>();
   private ResidualList resList = new ResidualList();
   private final Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap();
   private int size = 0;
@@ -45,7 +45,7 @@ public class StreamingL2APIndex implements Index {
     for (Int2DoubleMap.Entry e : v.int2DoubleEntrySet()) {
       final int dimension = e.getIntKey();
       final double queryWeight = e.getDoubleValue();
-      StreamingPostingList list;
+      StreamingL2APPostingList list;
       if ((list = idx.get(dimension)) != null) {
         for (Iterator<L2APPostingEntry> it = list.iterator(); it.hasNext();) {
           final L2APPostingEntry pe = it.next();
@@ -64,7 +64,7 @@ public class StreamingL2APIndex implements Index {
           accumulator.addTo(targetID, additionalSimilarity);
         }
       } else {
-        list = new StreamingPostingList();
+        list = new StreamingL2APPostingList();
         idx.put(dimension, list);
       }
       list.add(v.timestamp(), queryWeight);
@@ -90,7 +90,7 @@ public class StreamingL2APIndex implements Index {
     return "StreamingInvertedIndex [idx=" + idx + "]";
   }
 
-  static class StreamingPostingList implements Iterable<L2APPostingEntry> {
+  static class StreamingL2APPostingList implements Iterable<L2APPostingEntry> {
     private CircularBuffer ids = new CircularBuffer(); // longs
     private CircularBuffer weights = new CircularBuffer(); // doubles
     private CircularBuffer magnitudes = new CircularBuffer(); // doubles
