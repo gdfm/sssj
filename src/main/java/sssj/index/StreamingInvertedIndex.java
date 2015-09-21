@@ -58,18 +58,21 @@ public class StreamingInvertedIndex implements Index {
           accumulator.addTo(targetID, additionalSimilarity);
         }
       } else {
-        list = new StreamingPostingList();
-        idx.put(dimension, list);
+        if (addToIndex) {
+          list = new StreamingPostingList();
+          idx.put(dimension, list);
+        }
       }
-      list.add(v.timestamp(), queryWeight);
-      size++;
+      if (addToIndex) {
+        list.add(v.timestamp(), queryWeight);
+        size++;
+      }
     }
 
     // filter candidates < theta
-    for (Iterator<Long2DoubleMap.Entry> it = accumulator.long2DoubleEntrySet().iterator(); it.hasNext();) {
+    for (Iterator<Long2DoubleMap.Entry> it = accumulator.long2DoubleEntrySet().iterator(); it.hasNext();)
       if (Doubles.compare(it.next().getDoubleValue(), theta) < 0)
         it.remove();
-    }
 
     return accumulator;
   }
