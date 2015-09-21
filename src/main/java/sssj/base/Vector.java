@@ -162,11 +162,14 @@ public class Vector extends Int2DoubleLinkedOpenHashMap { // entries are returne
       if (Double.compare(this.get(e.getIntKey()), e.getDoubleValue()) < 0) {
         this.put(e.getIntKey(), e.getDoubleValue());
         result.put(e.getIntKey(), e.getDoubleValue());
+        this.setTimestamp(query.timestamp());
       }
     }
     return result;
   }
 
+  // FIXME move these static methods to subclass for MaxVector
+  
   public static double similarity(Vector query, Vector target) {
     double result = 0;
     for (Int2DoubleMap.Entry e : query.int2DoubleEntrySet()) {
