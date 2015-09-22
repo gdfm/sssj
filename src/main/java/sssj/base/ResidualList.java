@@ -21,7 +21,6 @@ public class ResidualList implements Iterable<Vector> {
     return "ResidualList = [" + queue + "]";
   }
 
-  // TODO should use a map for MiniBatch?
   public Vector get(long candidateID) {
     for (Vector v : queue)
       if (candidateID == v.timestamp())
