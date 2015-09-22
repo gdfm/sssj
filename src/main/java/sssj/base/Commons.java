@@ -1,10 +1,8 @@
 package sssj.base;
 
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Queue;
 
 import org.apache.commons.math3.util.FastMath;
 
@@ -58,31 +56,6 @@ public class Commons {
     @Override
     protected Table<Long, Long, Double> delegate() {
       return delegate;
-    }
-  }
-
-  public static class ResidualList implements Iterable<Vector> {
-    private Queue<Vector> queue = new LinkedList<>();
-
-    public void add(Vector residual) {
-      queue.add(residual);
-    }
-
-    @Override
-    public Iterator<Vector> iterator() {
-      return queue.iterator();
-    }
-
-    @Override
-    public String toString() {
-      return "ResidualList = [" + queue + "]";
-    }
-
-    public Vector get(long candidateID) {
-      for (Vector v : queue)
-        if (candidateID == v.timestamp())
-          return v;
-      return null;
     }
   }
 

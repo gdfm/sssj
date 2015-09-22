@@ -1,5 +1,6 @@
 package sssj.index;
 
+import static sssj.base.Commons.forgettingFactor;
 import it.unimi.dsi.fastutil.BidirectionalIterator;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap.Entry;
@@ -15,7 +16,7 @@ import java.util.Map;
 import org.apache.commons.math3.util.FastMath;
 
 import sssj.base.Commons;
-import sssj.base.Commons.ResidualList;
+import sssj.base.ResidualList;
 import sssj.base.Vector;
 
 public class L2APIndex implements Index {
@@ -37,14 +38,23 @@ public class L2APIndex implements Index {
 
   @Override
   public Map<Long, Double> queryWith(final Vector v, final boolean addToIndex) {
-    Long2DoubleOpenHashMap matches = new Long2DoubleOpenHashMap();
-    Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap();
+    /* candidate generation */
+    Long2DoubleOpenHashMap accumulator = generateCandidates(v);
+    /* candidate verification */
+    Long2DoubleOpenHashMap matches = verifyCandidates(v, accumulator);
+    /* index building */
+    if (addToIndex)
+      addToIndex(v);
+    return matches;
+  }
+
+  private final Long2DoubleOpenHashMap generateCandidates(final Vector v) {
     // int minSize = theta / rw_x; //TODO possibly size filtering (need to sort dataset by max row weight rw_x)
+    final Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap();
     double remscore = Vector.similarity(v, maxVectorInIndex); // rs3, enhanced remscore bound
     double l2remscore = 1, // rs4
     rst = 1, squaredQueryPrefixMagnitude = 1;
 
-    /* candidate generation */
     for (BidirectionalIterator<Entry> it = v.int2DoubleEntrySet().fastIterator(v.int2DoubleEntrySet().last()); it
         .hasPrevious();) { // iterate over v in reverse order
       final Entry e = it.previous();
@@ -61,7 +71,8 @@ public class L2APIndex implements Index {
             final double targetWeight = pe.getWeight(); // y_j
             final double additionalSimilarity = queryWeight * targetWeight; // x_j * y_j
             accumulator.addTo(targetID, additionalSimilarity); // A[y] += x_j * y_j
-            final double l2bound = accumulator.get(targetID) + FastMath.sqrt(squaredQueryPrefixMagnitude) * pe.magnitude; // A[y] + ||x'_j|| * ||y'_j||
+            final double l2bound = accumulator.get(targetID) + FastMath.sqrt(squaredQueryPrefixMagnitude)
+                * pe.magnitude; // A[y] + ||x'_j|| * ||y'_j||
             if (Double.compare(l2bound, theta) < 0)
               accumulator.remove(targetID); // prune this candidate (early verification)
           }
@@ -71,8 +82,11 @@ public class L2APIndex implements Index {
         l2remscore = FastMath.sqrt(rst); // rs_4 = sqrt(rs_t)
       }
     }
+    return accumulator;
+  }
 
-    /* candidate verification */
+  private final Long2DoubleOpenHashMap verifyCandidates(final Vector v, Long2DoubleOpenHashMap accumulator) {
+    Long2DoubleOpenHashMap matches = new Long2DoubleOpenHashMap();
     for (Long2DoubleMap.Entry e : accumulator.long2DoubleEntrySet()) {
       // TODO possibly use size filtering (sz_3)
       long candidateID = e.getLongKey();
@@ -86,46 +100,45 @@ public class L2APIndex implements Index {
 
       double score = e.getDoubleValue() + Vector.similarity(v, residual); // dot(x, y) = A[y] + dot(x, y')
       long deltaT = v.timestamp() - candidateID;
-      score *= Commons.forgettingFactor(lambda, deltaT); // apply forgetting factor
+      score *= forgettingFactor(lambda, deltaT); // apply forgetting factor
       if (Double.compare(score, theta) >= 0) // final check
         matches.put(candidateID, score);
     }
-
-    if (addToIndex) {
-      double b1 = 0, bt = 0, b3 = 0, pscore = 0;
-      boolean psSaved = false;
-      Vector residual = new Vector(v.timestamp());
-      for (Entry e : v.int2DoubleEntrySet()) {
-        int dimension = e.getIntKey();
-        double weight = e.getDoubleValue();
-
-        pscore = Math.min(b1, b3);
-        b1 += weight * maxVectorInWindow.get(dimension);
-        bt += weight * weight;
-        b3 = FastMath.sqrt(bt);
-
-        if (Double.compare(Math.min(b1, b3), theta) >= 0) {
-          if (!psSaved) {
-            assert (!ps.containsKey(v.timestamp()));
-            ps.put(v.timestamp(), pscore);
-            psSaved = true;
-          }
-          L2APPostingList list;
-          if ((list = idx.get(dimension)) == null) {
-            list = new L2APPostingList();
-            idx.put(dimension, list);
-          }
-          list.add(v.timestamp(), weight, b3);
-          size++;
-        } else {
-          residual.put(dimension, weight);
-        }
-      }
-      resList.add(residual);
-      maxVectorInIndex.updateMaxByDimension(v);
-    }
-
     return matches;
+  }
+
+  private final void addToIndex(final Vector v) {
+    double b1 = 0, bt = 0, b3 = 0, pscore = 0;
+    boolean psSaved = false;
+    Vector residual = new Vector(v.timestamp());
+    for (Entry e : v.int2DoubleEntrySet()) {
+      int dimension = e.getIntKey();
+      double weight = e.getDoubleValue();
+
+      pscore = Math.min(b1, b3);
+      b1 += weight * maxVectorInWindow.get(dimension);
+      bt += weight * weight;
+      b3 = FastMath.sqrt(bt);
+
+      if (Double.compare(Math.min(b1, b3), theta) >= 0) {
+        if (!psSaved) {
+          assert (!ps.containsKey(v.timestamp()));
+          ps.put(v.timestamp(), pscore);
+          psSaved = true;
+        }
+        L2APPostingList list;
+        if ((list = idx.get(dimension)) == null) {
+          list = new L2APPostingList();
+          idx.put(dimension, list);
+        }
+        list.add(v.timestamp(), weight, b3);
+        size++;
+      } else {
+        residual.put(dimension, weight);
+      }
+    }
+    resList.add(residual);
+    maxVectorInIndex.updateMaxByDimension(v);
   }
 
   @Override
@@ -185,7 +198,7 @@ public class L2APIndex implements Index {
     }
   }
 
-  static class L2APPostingEntry {
+  public static class L2APPostingEntry {
     protected long id;
     protected double weight;
     protected double magnitude;

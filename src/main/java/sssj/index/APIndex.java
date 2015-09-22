@@ -10,7 +10,7 @@ import it.unimi.dsi.fastutil.longs.Long2DoubleOpenHashMap;
 import java.util.Map;
 
 import sssj.base.Commons;
-import sssj.base.Commons.ResidualList;
+import sssj.base.ResidualList;
 import sssj.base.Vector;
 import sssj.index.InvertedIndex.PostingEntry;
 import sssj.index.InvertedIndex.PostingList;
