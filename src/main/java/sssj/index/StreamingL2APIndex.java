@@ -29,7 +29,6 @@ public class StreamingL2APIndex implements Index {
   private final double theta;
   private final double lambda;
   private final double tau;
-  // private final Vector maxVectorInWindow; // c_w
   private final Vector maxVector; // \hat{c_w}
   private int size = 0;
 
@@ -196,9 +195,9 @@ public class StreamingL2APIndex implements Index {
   }
 
   public static class StreamingL2APPostingList implements Iterable<L2APPostingEntry> {
-    private CircularBuffer ids = new CircularBuffer(); // longs
-    private CircularBuffer weights = new CircularBuffer(); // doubles
-    private CircularBuffer magnitudes = new CircularBuffer(); // doubles
+    private final CircularBuffer ids = new CircularBuffer(); // longs
+    private final CircularBuffer weights = new CircularBuffer(); // doubles
+    private final CircularBuffer magnitudes = new CircularBuffer(); // doubles
 
     public void add(long vectorID, double weight, double magnitude) {
       ids.pushLong(vectorID);
@@ -213,35 +212,33 @@ public class StreamingL2APIndex implements Index {
 
     @Override
     public Iterator<L2APPostingEntry> iterator() {
-      return new StreamingPostingListIterator();
-    }
+      return new Iterator<L2APPostingEntry>() {
+        private final L2APPostingEntry entry = new L2APPostingEntry();
+        private int i = 0;
 
-    class StreamingPostingListIterator implements Iterator<L2APPostingEntry> {
-      private final L2APPostingEntry entry = new L2APPostingEntry();
-      private int i = 0;
+        @Override
+        public boolean hasNext() {
+          return i < ids.size();
+        }
 
-      @Override
-      public boolean hasNext() {
-        return i < ids.size();
-      }
+        @Override
+        public L2APPostingEntry next() {
+          entry.setID(ids.peekLong(i));
+          entry.setWeight(weights.peekDouble(i));
+          entry.setMagnitude(magnitudes.peekDouble(i));
+          i++;
+          return entry;
+        }
 
-      @Override
-      public L2APPostingEntry next() {
-        entry.setID(ids.peekLong(i));
-        entry.setWeight(weights.peekDouble(i));
-        entry.setMagnitude(magnitudes.peekDouble(i));
-        i++;
-        return entry;
-      }
-
-      @Override
-      public void remove() {
-        i--;
-        assert (i == 0); // removals always happen at the head
-        ids.popLong();
-        weights.popDouble();
-        magnitudes.popDouble();
-      }
+        @Override
+        public void remove() {
+          i--;
+          assert (i == 0); // removal always happens at the head
+          ids.popLong();
+          weights.popDouble();
+          magnitudes.popDouble();
+        }
+      };
     }
   }
 }

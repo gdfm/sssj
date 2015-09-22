@@ -151,9 +151,9 @@ public class L2APIndex implements Index {
   }
 
   public static class L2APPostingList implements Iterable<L2APPostingEntry> {
-    private LongArrayList ids = new LongArrayList();
-    private DoubleArrayList weights = new DoubleArrayList();
-    private DoubleArrayList magnitudes = new DoubleArrayList();
+    private final LongArrayList ids = new LongArrayList();
+    private final DoubleArrayList weights = new DoubleArrayList();
+    private final DoubleArrayList magnitudes = new DoubleArrayList();
 
     public void add(long vectorID, double weight, double magnitude) {
       ids.add(vectorID);
@@ -169,8 +169,8 @@ public class L2APIndex implements Index {
     @Override
     public Iterator<L2APPostingEntry> iterator() {
       return new Iterator<L2APPostingEntry>() {
+        private final L2APPostingEntry entry = new L2APPostingEntry();
         private int i = 0;
-        private L2APPostingEntry entry = new L2APPostingEntry();
 
         @Override
         public boolean hasNext() {
