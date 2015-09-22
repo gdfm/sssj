@@ -15,7 +15,6 @@ import java.util.Map;
 
 import org.apache.commons.math3.util.FastMath;
 
-import sssj.base.Commons;
 import sssj.base.ResidualList;
 import sssj.base.Vector;
 

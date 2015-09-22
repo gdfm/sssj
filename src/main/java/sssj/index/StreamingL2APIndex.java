@@ -46,9 +46,9 @@ public class StreamingL2APIndex implements Index {
   public Map<Long, Double> queryWith(final Vector v, final boolean addToIndex) {
     accumulator.clear();
     matches.clear();
-    Vector updates = maxVector.updateMaxByDimension(v); // TODO use updates for reindexing
+    Vector updates = maxVector.updateMaxByDimension(v);
     /* reindexing */
-
+    reindex(updates);
     /* candidate generation */
     generateCandidates(v);
     /* candidate verification */
@@ -58,6 +58,10 @@ public class StreamingL2APIndex implements Index {
       addToIndex(v);
 
     return matches;
+  }
+
+  private final void reindex(Vector updates) {
+    // TODO use updates for reindexing
   }
 
   private final void generateCandidates(final Vector v) {
@@ -139,7 +143,7 @@ public class StreamingL2APIndex implements Index {
     }
   }
 
-  private void addToIndex(final Vector v) {
+  private final void addToIndex(final Vector v) {
     double b1 = 0, bt = 0, b3 = 0, pscore = 0;
     boolean psSaved = false;
     final Vector residual = new Vector(v.timestamp());
