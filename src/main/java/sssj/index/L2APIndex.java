@@ -15,6 +15,7 @@ import java.util.Map;
 
 import org.apache.commons.math3.util.FastMath;
 
+import sssj.base.MaxVector;
 import sssj.base.ResidualList;
 import sssj.base.Vector;
 
@@ -24,15 +25,15 @@ public class L2APIndex implements Index {
   private final Long2DoubleOpenHashMap ps = new Long2DoubleOpenHashMap();
   private final double theta;
   private final double lambda;
-  private final Vector maxVectorInWindow; // c_w
-  private final Vector maxVectorInIndex; // \hat{c_w}
+  private final MaxVector maxVectorInWindow; // c_w
+  private final MaxVector maxVectorInIndex; // \hat{c_w}
   private int size = 0;
 
-  public L2APIndex(double theta, double lambda, Vector maxVector) {
+  public L2APIndex(double theta, double lambda, MaxVector maxVector) {
     this.theta = theta;
     this.lambda = lambda;
     this.maxVectorInWindow = maxVector;
-    this.maxVectorInIndex = new Vector();
+    this.maxVectorInIndex = new MaxVector();
   }
 
   @Override

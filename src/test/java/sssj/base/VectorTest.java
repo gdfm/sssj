@@ -1,10 +1,14 @@
 package sssj.base;
 
 import static org.junit.Assert.*;
+
+import java.util.Iterator;
+
 import it.unimi.dsi.fastutil.BidirectionalIterator;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap.Entry;
 import it.unimi.dsi.fastutil.ints.IntIterator;
+import it.unimi.dsi.fastutil.objects.ObjectBidirectionalIterator;
 
 import org.junit.Test;
 
@@ -28,7 +32,7 @@ public class VectorTest {
     v.put(3, 3);
     v.put(4, 4);
     BidirectionalIterator<Int2DoubleMap.Entry> it = v.int2DoubleEntrySet().fastIterator(v.int2DoubleEntrySet().last());
-    //    for (int i = 0; i < v.size(); i++) {
+    // for (int i = 0; i < v.size(); i++) {
     int i = 4;
     while (it.hasPrevious()) {
       Entry e = it.previous();
@@ -39,8 +43,8 @@ public class VectorTest {
       i--;
     }
     assertEquals(5, v.size());
-    assertEquals(0, v.firstIntKey());
-    assertEquals(4, v.lastIntKey());
+    assertEquals(0, v.int2DoubleEntrySet().first().getIntKey());
+    assertEquals(4, v.int2DoubleEntrySet().last().getIntKey());
   }
 
   @Test
@@ -63,9 +67,9 @@ public class VectorTest {
     n = Vector.l2normalize(v);
     assertEquals(1, n.magnitude(), Double.MIN_NORMAL);
     assertEquals(3, n.size());
-    IntIterator it = v.keySet().iterator();
-    for (int k : n.keySet()) {
-      assertEquals(k, it.nextInt()); // same order
+    Iterator<Entry> it = v.int2DoubleEntrySet().fastIterator();
+    for (Entry e : n.int2DoubleEntrySet()) {
+      assertEquals(e.getIntKey(), it.next().getIntKey()); // same order
     }
     assertEquals(0.5 / v.magnitude(), n.maxValue(), Double.MIN_NORMAL); // max is updated
   }

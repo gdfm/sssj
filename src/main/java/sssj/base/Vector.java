@@ -2,6 +2,7 @@ package sssj.base;
 
 import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
+import it.unimi.dsi.fastutil.ints.Int2DoubleSortedMap.FastSortedEntrySet;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -17,8 +18,9 @@ import java.nio.ByteBuffer;
  * is a single dimension-value pair. Finally, DIMENSION is the id of the dimension and VALUE its value.
  */
 // public class Vector extends Int2DoubleAVLTreeMap {
-public class Vector extends Int2DoubleLinkedOpenHashMap { // entries are returned in the same order they are added
+public class Vector { // entries are returned in the same order they are added
   public static final Vector EMPTY_VECTOR = new Vector(Long.MIN_VALUE);
+  protected Int2DoubleLinkedOpenHashMap data = new Int2DoubleLinkedOpenHashMap();
   protected long timestamp;
   protected double maxValue;
 
@@ -28,6 +30,7 @@ public class Vector extends Int2DoubleLinkedOpenHashMap { // entries are returne
 
   public Vector(long timestamp) {
     this.timestamp = timestamp;
+    this.maxValue = 0;
   }
 
   /**
@@ -37,13 +40,13 @@ public class Vector extends Int2DoubleLinkedOpenHashMap { // entries are returne
    */
   public Vector(Vector other) {
     this.timestamp = other.timestamp;
-    this.putAll(other);
+    this.maxValue = other.maxValue;
+    data.putAll(other.data);
   }
 
-  @Override
   public double put(int k, double v) {
     this.maxValue = Math.max(maxValue, v);
-    return super.put(k, v);
+    return data.put(k, v);
   }
 
   public double maxValue() {
@@ -66,7 +69,8 @@ public class Vector extends Int2DoubleLinkedOpenHashMap { // entries are returne
   @Override
   public int hashCode() {
     final int prime = 31;
-    int result = super.hashCode();
+    int result = 1;
+    result = prime * result + ((data == null) ? 0 : data.hashCode());
     result = prime * result + (int) (timestamp ^ (timestamp >>> 32));
     return result;
   }
@@ -75,11 +79,16 @@ public class Vector extends Int2DoubleLinkedOpenHashMap { // entries are returne
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
-    if (!super.equals(obj))
+    if (obj == null)
       return false;
     if (!(obj instanceof Vector))
       return false;
     Vector other = (Vector) obj;
+    if (data == null) {
+      if (other.data != null)
+        return false;
+    } else if (!data.equals(other.data))
+      return false;
     if (timestamp != other.timestamp)
       return false;
     return true;
@@ -87,19 +96,14 @@ public class Vector extends Int2DoubleLinkedOpenHashMap { // entries are returne
 
   public double magnitude() {
     double magnitude = 0;
-    for (double d : this.values())
+    for (double d : data.values())
       magnitude += d * d;
     magnitude = Math.sqrt(magnitude);
     return magnitude;
   }
 
-  @Override
-  public double remove(int k) {
-    throw new UnsupportedOperationException("Cannot remove from a vector");
-  }
-
   public void read(ByteBuffer in) throws IOException {
-    this.clear();
+    data.clear();
     this.setTimestamp(in.getLong());
     int numElements = in.getInt();
     for (int i = 0; i < numElements; i++) {
@@ -119,7 +123,7 @@ public class Vector extends Int2DoubleLinkedOpenHashMap { // entries are returne
   }
 
   public void read(DataInput in) throws IOException {
-    this.clear();
+    data.clear();
     this.setTimestamp(in.readLong());
     int numElements = in.readInt();
     for (int i = 0; i < numElements; i++) {
@@ -151,25 +155,6 @@ public class Vector extends Int2DoubleLinkedOpenHashMap { // entries are returne
     return result;
   }
 
-  /**
-   * Updates the vector to the max of itself and the vector query.
-   * 
-   * @param query
-   *          the new vector
-   * @return the subset of the new vector that was larger than maxVector (for reindexing)
-   */
-  public Vector updateMaxByDimension(Vector query) {
-    final Vector updates = new Vector(query.timestamp);
-    for (Int2DoubleMap.Entry e : query.int2DoubleEntrySet()) {
-      if (Double.compare(this.get(e.getIntKey()), e.getDoubleValue()) < 0) {
-        this.put(e.getIntKey(), e.getDoubleValue());
-        updates.put(e.getIntKey(), e.getDoubleValue());
-        this.setTimestamp(query.timestamp());
-      }
-    }
-    return updates;
-  }
-
   // FIXME move these static methods to subclass for MaxVector
 
   public static double similarity(Vector query, Vector target) {
@@ -178,6 +163,18 @@ public class Vector extends Int2DoubleLinkedOpenHashMap { // entries are returne
       result += e.getDoubleValue() * target.get(e.getIntKey());
     }
     return result;
+  }
+
+  public double get(int k) {
+    return data.get(k);
+  }
+
+  public FastSortedEntrySet int2DoubleEntrySet() {
+    return data.int2DoubleEntrySet();
+  }
+
+  public int size() {
+    return data.size();
   }
 
 }

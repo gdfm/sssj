@@ -4,6 +4,7 @@ import java.util.ArrayDeque;
 import java.util.Iterator;
 import java.util.Queue;
 
+import sssj.base.MaxVector;
 import sssj.base.Vector;
 
 import com.google.common.base.Preconditions;
@@ -13,8 +14,8 @@ import com.google.common.base.Preconditions;
  * order of timestamp.
  */
 public class VectorWindow {
-  private Vector max1 = new Vector();
-  private Vector max2 = new Vector();
+  private MaxVector max1 = new MaxVector();
+  private MaxVector max2 = new MaxVector();
   private Queue<Vector> q1 = new ArrayDeque<>();
   private Queue<Vector> q2 = new ArrayDeque<>();
   private final double tau;
@@ -56,7 +57,7 @@ public class VectorWindow {
     }
   }
 
-  public Vector getMax() {
+  public MaxVector getMax() {
     if (keepMax)
       return max1;
     throw new UnsupportedOperationException("Window initialized not to track maximum");
@@ -70,10 +71,10 @@ public class VectorWindow {
     q2 = tmpq;
     q2.clear();
     if (keepMax) {
-      // swap the max1 vectors
-      Vector tmpv = max1;
+      // swap the max vectors
+      MaxVector tmpmax = max1;
       max1 = max2;
-      max2 = tmpv;
+      max2 = tmpmax;
       max2.clear();
     }
     return this;

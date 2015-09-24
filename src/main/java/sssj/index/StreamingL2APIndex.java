@@ -16,6 +16,7 @@ import java.util.Map;
 import org.apache.commons.math3.util.FastMath;
 
 import sssj.base.CircularBuffer;
+import sssj.base.MaxVector;
 import sssj.base.ResidualList;
 import sssj.base.Vector;
 import sssj.index.L2APIndex.L2APPostingEntry;
@@ -31,13 +32,13 @@ public class StreamingL2APIndex implements Index {
   private final double theta;
   private final double lambda;
   private final double tau;
-  private final Vector maxVector; // \hat{c_w}
+  private final MaxVector maxVector; // \hat{c_w}
   private int size = 0;
 
   public StreamingL2APIndex(double theta, double lambda) {
     this.theta = theta;
     this.lambda = lambda;
-    this.maxVector = new Vector();
+    this.maxVector = new MaxVector();
     this.tau = tau(theta, lambda);
     System.out.println("Tau = " + tau);
     precomputeFFTable(lambda, (int) Math.ceil(tau));

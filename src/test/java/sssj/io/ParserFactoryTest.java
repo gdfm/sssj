@@ -14,7 +14,7 @@ public class ParserFactoryTest {
   public void testVW() {
     Format f = Format.SVMLIB;
     Vector v = f.getRecordParser().apply(vw_example);
-    assertEquals(0.30226897258187, v.get(v.firstIntKey()), 10e-15);
+    assertEquals(0.30226897258187, v.get(v.int2DoubleEntrySet().first().getIntKey()), 10e-15);
     assertEquals(25, v.size());
     assertEquals(0, v.timestamp());
   }
