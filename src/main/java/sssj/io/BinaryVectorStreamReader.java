@@ -60,7 +60,6 @@ public class BinaryVectorStreamReader implements VectorStream {
 
     @Override
     public Vector next() {
-      current.clear();
       try {
         current.read(bb);
       } catch (IOException e) {

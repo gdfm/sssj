@@ -99,6 +99,7 @@ public class Vector extends Int2DoubleLinkedOpenHashMap { // entries are returne
   }
 
   public void read(ByteBuffer in) throws IOException {
+    this.clear();
     this.setTimestamp(in.getLong());
     int numElements = in.getInt();
     for (int i = 0; i < numElements; i++) {
@@ -118,6 +119,7 @@ public class Vector extends Int2DoubleLinkedOpenHashMap { // entries are returne
   }
 
   public void read(DataInput in) throws IOException {
+    this.clear();
     this.setTimestamp(in.readLong());
     int numElements = in.readInt();
     for (int i = 0; i < numElements; i++) {
