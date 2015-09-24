@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class ResidualList implements Iterable<Vector> {
-  private Queue<Vector> queue = new LinkedList<>();
+  private Queue<Vector> queue = new LinkedList<>(); // TODO use ArrayDequeue?
 
   public void add(Vector residual) {
     queue.add(residual);

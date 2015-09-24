@@ -20,7 +20,7 @@ import java.nio.ByteBuffer;
 public class Vector extends Int2DoubleLinkedOpenHashMap { // entries are returned in the same order they are added
   public static final Vector EMPTY_VECTOR = new Vector(Long.MIN_VALUE);
   protected long timestamp;
-  public double maxValue;
+  protected double maxValue;
 
   public Vector() {
     this(0);
@@ -157,19 +157,19 @@ public class Vector extends Int2DoubleLinkedOpenHashMap { // entries are returne
    * @return the subset of the new vector that was larger than maxVector (for reindexing)
    */
   public Vector updateMaxByDimension(Vector query) {
-    Vector result = new Vector();
+    final Vector updates = new Vector(query.timestamp);
     for (Int2DoubleMap.Entry e : query.int2DoubleEntrySet()) {
       if (Double.compare(this.get(e.getIntKey()), e.getDoubleValue()) < 0) {
         this.put(e.getIntKey(), e.getDoubleValue());
-        result.put(e.getIntKey(), e.getDoubleValue());
+        updates.put(e.getIntKey(), e.getDoubleValue());
         this.setTimestamp(query.timestamp());
       }
     }
-    return result;
+    return updates;
   }
 
   // FIXME move these static methods to subclass for MaxVector
-  
+
   public static double similarity(Vector query, Vector target) {
     double result = 0;
     for (Int2DoubleMap.Entry e : query.int2DoubleEntrySet()) {
