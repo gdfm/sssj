@@ -42,8 +42,10 @@ public class L2APIndex implements Index {
     /* candidate verification */
     Long2DoubleOpenHashMap matches = verifyCandidates(v, accumulator);
     /* index building */
-    if (addToIndex)
-      addToIndex(v);
+    if (addToIndex) {
+      Vector residual = addToIndex(v);
+      resList.add(residual);
+    }
     return matches;
   }
 
@@ -88,17 +90,17 @@ public class L2APIndex implements Index {
     Long2DoubleOpenHashMap matches = new Long2DoubleOpenHashMap();
     for (Long2DoubleMap.Entry e : accumulator.long2DoubleEntrySet()) {
       // TODO possibly use size filtering (sz_3)
-      long candidateID = e.getLongKey();
+      final long candidateID = e.getLongKey();
       if (Double.compare(e.getDoubleValue() + ps.get(candidateID), theta) < 0) // A[y] = dot(x, y'')
         continue; // l2 pruning
       Vector residual = resList.get(candidateID);
       assert (residual != null);
-      double dpscore = e.getDoubleValue() + Math.min(v.maxValue() * residual.size(), residual.maxValue() * v.size());
+      final double dpscore = e.getDoubleValue() + Math.min(v.maxValue() * residual.size(), residual.maxValue() * v.size());
       if (Double.compare(dpscore, theta) < 0)
         continue; // dpscore, eq. (5)
 
+      final long deltaT = v.timestamp() - candidateID;
       double score = e.getDoubleValue() + Vector.similarity(v, residual); // dot(x, y) = A[y] + dot(x, y')
-      long deltaT = v.timestamp() - candidateID;
       score *= forgettingFactor(lambda, deltaT); // apply forgetting factor
       if (Double.compare(score, theta) >= 0) // final check
         matches.put(candidateID, score);
@@ -106,7 +108,7 @@ public class L2APIndex implements Index {
     return matches;
   }
 
-  private final void addToIndex(final Vector v) {
+  private final Vector addToIndex(final Vector v) {
     double b1 = 0, bt = 0, b3 = 0, pscore = 0;
     boolean psSaved = false;
     Vector residual = new Vector(v.timestamp());
@@ -136,8 +138,8 @@ public class L2APIndex implements Index {
         residual.put(dimension, weight);
       }
     }
-    resList.add(residual);
     maxVectorInIndex.updateMaxByDimension(v);
+    return residual;
   }
 
   @Override
