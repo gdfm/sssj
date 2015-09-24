@@ -181,7 +181,6 @@ public class StreamingL2APIndex implements Index {
       }
     }
     resList.add(residual);
-    // maxVector.updateMaxByDimension(v);
   }
 
   @Override
