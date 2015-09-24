@@ -16,8 +16,8 @@ import java.util.Map;
 import org.apache.commons.math3.util.FastMath;
 
 import sssj.base.CircularBuffer;
-import sssj.base.MaxVector;
 import sssj.base.ResidualList;
+import sssj.base.StreamingMaxVector;
 import sssj.base.Vector;
 import sssj.index.L2APIndex.L2APPostingEntry;
 
@@ -32,13 +32,13 @@ public class StreamingL2APIndex implements Index {
   private final double theta;
   private final double lambda;
   private final double tau;
-  private final MaxVector maxVector; // \hat{c_w}
+  private final StreamingMaxVector maxVector; // \hat{c_w}
   private int size = 0;
 
   public StreamingL2APIndex(double theta, double lambda) {
     this.theta = theta;
     this.lambda = lambda;
-    this.maxVector = new MaxVector();
+    this.maxVector = new StreamingMaxVector(lambda);
     this.tau = tau(theta, lambda);
     System.out.println("Tau = " + tau);
     precomputeFFTable(lambda, (int) Math.ceil(tau));
@@ -61,7 +61,6 @@ public class StreamingL2APIndex implements Index {
       Vector residual = addToIndex(v);
       resList.add(residual);
     }
-
     return matches;
   }
 
@@ -84,12 +83,11 @@ public class StreamingL2APIndex implements Index {
   }
 
   private final void generateCandidates(final Vector v) {
-    // upper bound on the forgetting factor w.r.t. the maximum vector
-    // TODO can be tightened with a deltaT per dimension
-    final long maxDeltaT = v.timestamp() - maxVector.timestamp();
-// if (maxDeltaT > tau) // time filtering // FIXME ff
+    // lower bound on the forgetting factor w.r.t. the maximum vector
+    final long minDeltaT = v.timestamp() - maxVector.timestamp();
+// if (Doubles.compare(minDeltaT, tau) > 0) // time filtering // FIXME ff
 // return;
-// final double maxff = forgettingFactor(lambda, maxDeltaT);
+// final double maxff = forgettingFactor(lambda, minDeltaT);
     // rs3, enhanced remscore bound with addded forgetting factor, for Streaming maxVector is the max vector in the index
     double remscore = Vector.similarity(v, maxVector); // rs3, enhanced remscore bound
     double l2remscore = 1, // rs4
@@ -124,7 +122,7 @@ public class StreamingL2APIndex implements Index {
           }
           keepFiltering &= filtered; // keep filtering only if we have just filtered
 
-// final double ff = forgettingFactor(lambda, deltaT);
+          final double ff = forgettingFactor(lambda, deltaT);
           if (accumulator.containsKey(targetID) || Double.compare(rscore, theta) >= 0) {
             final double targetWeight = pe.getWeight(); // y_j
             final double additionalSimilarity = queryWeight * targetWeight; // x_j * y_j
@@ -132,8 +130,7 @@ public class StreamingL2APIndex implements Index {
             final double l2bound = accumulator.get(targetID) + FastMath.sqrt(squaredQueryPrefixMagnitude)
                 * pe.magnitude; // A[y] + ||x'_j|| * ||y'_j||
             // forgetting factor applied directly to the l2bound
-// if (Double.compare(l2bound * ff, theta) < 0) // FIXME ff
-            if (Double.compare(l2bound, theta) < 0)
+            if (Double.compare(l2bound * ff, theta) < 0) // FIXME ff
               accumulator.remove(targetID); // prune this candidate (early verification)
           }
         }

@@ -11,12 +11,14 @@ public class MaxVector extends Vector {
    * @return the subset of the new vector that was larger than maxVector (for reindexing)
    */
   public Vector updateMaxByDimension(Vector query) {
-    final Vector updates = new Vector(query.timestamp);
+    final Vector updates = new Vector(query.timestamp());
     for (Int2DoubleMap.Entry e : query.int2DoubleEntrySet()) {
-      if (Double.compare(this.get(e.getIntKey()), e.getDoubleValue()) < 0) {
-        this.put(e.getIntKey(), e.getDoubleValue());
-        updates.put(e.getIntKey(), e.getDoubleValue());
-        this.setTimestamp(query.timestamp()); // FIXME can have a timestamp per dimension
+      final int dimension = e.getIntKey();
+      final double weight = e.getDoubleValue();
+      if (Double.compare(weight, this.get(dimension)) > 0) {
+        this.setTimestamp(query.timestamp());
+        this.put(dimension, weight);
+        updates.put(dimension, weight);
       }
     }
     return updates;

@@ -1,18 +1,13 @@
 package sssj.base;
 
 import static org.junit.Assert.*;
-
-import java.util.Iterator;
-
 import it.unimi.dsi.fastutil.BidirectionalIterator;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap.Entry;
-import it.unimi.dsi.fastutil.ints.IntIterator;
-import it.unimi.dsi.fastutil.objects.ObjectBidirectionalIterator;
+
+import java.util.Iterator;
 
 import org.junit.Test;
-
-import sssj.base.Vector;
 
 public class VectorTest {
 

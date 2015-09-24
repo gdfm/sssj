@@ -49,6 +49,18 @@ public class Vector { // entries are returned in the same order they are added
     return data.put(k, v);
   }
 
+  public double get(int k) {
+    return data.get(k);
+  }
+
+  public FastSortedEntrySet int2DoubleEntrySet() {
+    return data.int2DoubleEntrySet();
+  }
+
+  public int size() {
+    return data.size();
+  }
+
   public double maxValue() {
     return maxValue;
   }
@@ -155,8 +167,6 @@ public class Vector { // entries are returned in the same order they are added
     return result;
   }
 
-  // FIXME move these static methods to subclass for MaxVector
-
   public static double similarity(Vector query, Vector target) {
     double result = 0;
     for (Int2DoubleMap.Entry e : query.int2DoubleEntrySet()) {
@@ -164,17 +174,4 @@ public class Vector { // entries are returned in the same order they are added
     }
     return result;
   }
-
-  public double get(int k) {
-    return data.get(k);
-  }
-
-  public FastSortedEntrySet int2DoubleEntrySet() {
-    return data.int2DoubleEntrySet();
-  }
-
-  public int size() {
-    return data.size();
-  }
-
 }
