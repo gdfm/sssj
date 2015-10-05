@@ -10,14 +10,14 @@ import it.unimi.dsi.fastutil.longs.Long2DoubleOpenHashMap;
 import java.util.Map;
 
 import sssj.base.Commons;
-import sssj.base.ResidualList;
+import sssj.base.Residuals;
 import sssj.base.Vector;
 import sssj.index.InvertedIndex.PostingEntry;
 import sssj.index.InvertedIndex.PostingList;
 
 public class APIndex implements Index {
   private Int2ReferenceMap<PostingList> idx = new Int2ReferenceOpenHashMap<>();
-  private ResidualList resList = new ResidualList();
+  private Residuals resList = new Residuals();
   private int size = 0;
   private final double theta;
   private final double lambda;

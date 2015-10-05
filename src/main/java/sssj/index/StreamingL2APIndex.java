@@ -16,8 +16,8 @@ import java.util.Map;
 import org.apache.commons.math3.util.FastMath;
 
 import sssj.base.CircularBuffer;
-import sssj.base.ResidualList;
 import sssj.base.StreamingMaxVector;
+import sssj.base.StreamingResiduals;
 import sssj.base.Vector;
 import sssj.index.L2APIndex.L2APPostingEntry;
 
@@ -25,7 +25,7 @@ import com.google.common.primitives.Doubles;
 
 public class StreamingL2APIndex implements Index {
   private final Int2ReferenceMap<StreamingL2APPostingList> idx = new Int2ReferenceOpenHashMap<>();
-  private final ResidualList resList = new ResidualList();
+  private final StreamingResiduals resList = new StreamingResiduals();
   private final Long2DoubleOpenHashMap ps = new Long2DoubleOpenHashMap();
   private final Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap();
   private final Long2DoubleOpenHashMap matches = new Long2DoubleOpenHashMap();

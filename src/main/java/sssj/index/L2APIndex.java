@@ -16,12 +16,12 @@ import java.util.Map;
 import org.apache.commons.math3.util.FastMath;
 
 import sssj.base.MaxVector;
-import sssj.base.ResidualList;
+import sssj.base.Residuals;
 import sssj.base.Vector;
 
 public class L2APIndex implements Index {
   private final Int2ReferenceMap<L2APPostingList> idx = new Int2ReferenceOpenHashMap<>();
-  private final ResidualList resList = new ResidualList();
+  private final Residuals resList = new Residuals();
   private final Long2DoubleOpenHashMap ps = new Long2DoubleOpenHashMap();
   private final double theta;
   private final double lambda;

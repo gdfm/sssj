@@ -1,29 +1,31 @@
 package sssj.base;
 
-import it.unimi.dsi.fastutil.longs.Long2ReferenceLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.longs.Long2ReferenceMap.Entry;
-
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Queue;
 
-public class StreamingResidualList implements Iterable<Vector> {
-  private Long2ReferenceLinkedOpenHashMap<Vector> map = new Long2ReferenceLinkedOpenHashMap<>();
+public class Residuals implements Iterable<Vector> {
+  private Queue<Vector> queue = new LinkedList<>(); // TODO use ArrayDequeue?
 
   public void add(Vector residual) {
-    map.put(residual.timestamp(), residual);
+    queue.add(residual);
   }
 
   @Override
   public Iterator<Vector> iterator() {
-    return map.values().iterator();
+    return queue.iterator();
   }
 
   @Override
   public String toString() {
-    return "ResidualList = [" + map + "]";
+    return "Residuals = [" + queue + "]";
   }
 
   public Vector get(long candidateID) {
-    return map.get(candidateID);
+    for (Vector v : queue)
+      if (candidateID == v.timestamp())
+        return v;
+    return null;
   }
 
   /**
@@ -34,8 +36,8 @@ public class StreamingResidualList implements Iterable<Vector> {
    * @return the residual of the candidate
    */
   public Vector getAndPrune(long candidateID, long lowWatermark) {
-    for (Iterator<Entry<Vector>> it = map.long2ReferenceEntrySet().fastIterator(); it.hasNext();) {
-      final Vector v = it.next().getValue();
+    for (Iterator<Vector> it = queue.iterator(); it.hasNext();) {
+      final Vector v = it.next();
       if (lowWatermark > v.timestamp())
         it.remove();
       if (candidateID == v.timestamp())
