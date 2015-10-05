@@ -51,8 +51,8 @@ public class StreamingL2APIndex implements Index {
     matches.clear();
     Vector updates = maxVector.updateMaxByDimension(v);
     /* reindexing */
-    if (updates.size() > 0)
-      reindex(updates);
+// if (updates.size() > 0)
+// reindex(updates);
     /* candidate generation */
     generateCandidates(v);
     /* candidate verification */
@@ -65,32 +65,30 @@ public class StreamingL2APIndex implements Index {
     return matches;
   }
 
-  private final void reindex(Vector updates) {
-    List<Vector> newRes = new LinkedList<>();
-    for (Iterator<Vector> it = resList.iterator(); it.hasNext();) {
-      final Vector r = it.next();
-      final double simDelta = Vector.similarity(updates, r);
-      if (simDelta > 0) {
-        final double pscore = ps.get(r.timestamp());
-        if (pscore + simDelta > theta) {
-          final Vector newResidual = this.addToIndex(r);
-          it.remove();
-          newRes.add(newResidual);
-        }
-      }
-    }
-    for (Vector r : newRes)
-      resList.add(r);
-  }
+// private final void reindex(Vector updates) {
+// List<Vector> newRes = new LinkedList<>();
+// for (Iterator<Vector> it = resList.iterator(); it.hasNext();) {
+// final Vector r = it.next();
+// final double simDelta = Vector.similarity(updates, r);
+// if (simDelta > 0) {
+// final double pscore = ps.get(r.timestamp());
+// if (pscore + simDelta > theta) {
+// final Vector newResidual = this.addToIndex(r);
+// it.remove();
+// newRes.add(newResidual);
+// }
+// }
+// }
+// for (Vector r : newRes)
+// resList.add(r);
+// }
 
   private final void generateCandidates(final Vector v) {
     // lower bound on the forgetting factor w.r.t. the maximum vector
     final long minDeltaT = v.timestamp() - maxVector.timestamp();
-// if (Doubles.compare(minDeltaT, tau) > 0) // time filtering // FIXME ff
-// return;
-// final double maxff = forgettingFactor(lambda, minDeltaT);
-    // rs3, enhanced remscore bound with addded forgetting factor, for Streaming maxVector is the max vector in the index
-    double remscore = Vector.similarity(v, maxVector); // rs3, enhanced remscore bound
+    if (Doubles.compare(minDeltaT, tau) > 0) // time filtering
+      return;
+    final double maxff = forgettingFactor(lambda, minDeltaT);
     double l2remscore = 1, // rs4
     rst = 1, squaredQueryPrefixMagnitude = 1;
 
@@ -100,9 +98,8 @@ public class StreamingL2APIndex implements Index {
       final Entry e = vecIter.previous();
       final int dimension = e.getIntKey();
       final double queryWeight = e.getDoubleValue(); // x_j
-      // forgetting factor applied directly to the prefix and l2prefix bounds
-// final double rscore = Math.min(remscore, l2remscore) * maxff; // FIXME ff
-      final double rscore = Math.min(remscore, l2remscore);
+      // forgetting factor applied directly to the l2prefix bound
+      final double rscore = l2remscore * maxff;
       squaredQueryPrefixMagnitude -= queryWeight * queryWeight;
 
       StreamingL2APPostingList list;
@@ -133,12 +130,11 @@ public class StreamingL2APIndex implements Index {
             accumulator.addTo(targetID, additionalSimilarity); // A[y] += x_j * y_j
             final double l2bound = accumulator.get(targetID) + FastMath.sqrt(squaredQueryPrefixMagnitude)
                 * pe.magnitude; // A[y] + ||x'_j|| * ||y'_j||
-            // forgetting factor applied directly to the l2bound
-            if (Double.compare(l2bound * ff, theta) < 0) // FIXME ff
+            // forgetting factor applied directly to the l2sum bound
+            if (Double.compare(l2bound * ff, theta) < 0)
               accumulator.remove(targetID); // prune this candidate (early verification)
           }
         }
-        remscore -= queryWeight * maxVector.get(dimension); // rs_3 -= x_j * \hat{c_w}
         rst -= queryWeight * queryWeight; // rs_t -= x_j^2
         l2remscore = FastMath.sqrt(rst); // rs_4 = sqrt(rs_t)
       }
@@ -150,12 +146,10 @@ public class StreamingL2APIndex implements Index {
       // TODO possibly use size filtering (sz_3)
       final long candidateID = e.getLongKey();
       final long deltaT = v.timestamp() - candidateID;
-      if (deltaT > tau) // time filtering // FIXME ff (should not even be needed)
-        continue;
+// if (deltaT > tau) // time pruning // FIXME ff (should not even be needed)
+// continue;
       final double ff = forgettingFactor(lambda, deltaT);
-
-// if (Double.compare((e.getDoubleValue() + ps.get(candidateID)) * ff, theta) < 0) // A[y] = dot(x, y'') // FIXME ff
-      if (Double.compare((e.getDoubleValue() + ps.get(candidateID)), theta) < 0) // A[y] = dot(x, y'')
+      if (Double.compare((e.getDoubleValue() + ps.get(candidateID)) * ff, theta) < 0) // A[y] = dot(x, y")
         continue; // l2 pruning
 
       final long lowWatermark = (long) Math.floor(v.timestamp() - tau);
@@ -163,19 +157,18 @@ public class StreamingL2APIndex implements Index {
       assert (residual != null);
       final double dpscore = e.getDoubleValue()
           + Math.min(v.maxValue() * residual.size(), residual.maxValue() * v.size());
-// if (Double.compare(dpscore * ff, theta) < 0) // FIXME ff
-      if (Double.compare(dpscore, theta) < 0)
+      if (Double.compare(dpscore * ff, theta) < 0)
         continue; // dpscore, eq. (5)
 
       double score = e.getDoubleValue() + Vector.similarity(v, residual); // dot(x, y) = A[y] + dot(x, y')
-      score *= ff; // apply forgetting factor // FIXME ff
+      score *= ff; // apply forgetting factor
       if (Double.compare(score, theta) >= 0) // final check
         matches.put(candidateID, score);
     }
   }
 
   private final Vector addToIndex(final Vector v) {
-    double b1 = 0, bt = 0, b3 = 0, pscore = 0;
+    double bt = 0, b3 = 0, pscore = 0;
     boolean psSaved = false;
     final Vector residual = new Vector(v.timestamp());
     // upper bound on the forgetting factor w.r.t. the maximum vector
@@ -188,14 +181,12 @@ public class StreamingL2APIndex implements Index {
       final int dimension = e.getIntKey();
       final double weight = e.getDoubleValue();
 
-      pscore = Math.min(b1, b3);
-      b1 += weight * maxVector.get(dimension);
+      pscore = b3;
       bt += weight * weight;
       b3 = FastMath.sqrt(bt);
 
       // forgetting factor applied directly bounds
-// if (Double.compare(Math.min(b1, b3) * maxff, theta) >= 0) { // FIXME ff
-      if (Double.compare(Math.min(b1, b3), theta) >= 0) { // bound larger than threshold, start indexing
+      if (Double.compare(b3, theta) >= 0) { // bound larger than threshold, start indexing
         if (!psSaved) {
           ps.put(v.timestamp(), pscore);
           psSaved = true;
