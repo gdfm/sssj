@@ -83,6 +83,10 @@ public class InvertedIndex implements Index {
       weights.add(weight);
     }
 
+    public int size() {
+      return ids.size();
+    }
+
     @Override
     public String toString() {
       return "[ids=" + ids + ", weights=" + weights + "]";

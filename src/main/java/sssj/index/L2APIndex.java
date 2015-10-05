@@ -96,7 +96,8 @@ public class L2APIndex implements Index {
         continue; // l2 pruning
       Vector residual = resList.get(candidateID);
       assert (residual != null);
-      final double dpscore = e.getDoubleValue() + Math.min(v.maxValue() * residual.size(), residual.maxValue() * v.size());
+      final double dpscore = e.getDoubleValue()
+          + Math.min(v.maxValue() * residual.size(), residual.maxValue() * v.size());
       if (Double.compare(dpscore, theta) < 0)
         continue; // dpscore, eq. (5)
 
@@ -162,6 +163,10 @@ public class L2APIndex implements Index {
       ids.add(vectorID);
       weights.add(weight);
       magnitudes.add(magnitude);
+    }
+
+    public int size() {
+      return ids.size();
     }
 
     @Override

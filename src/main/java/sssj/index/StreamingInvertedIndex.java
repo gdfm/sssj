@@ -96,6 +96,10 @@ public class StreamingInvertedIndex implements Index {
       weights.pushDouble(weight);
     }
 
+    public int size() {
+      return ids.size();
+    }
+
     @Override
     public String toString() {
       return "[ids=" + ids + ", weights=" + weights + "]";

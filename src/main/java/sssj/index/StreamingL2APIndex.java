@@ -231,6 +231,10 @@ public class StreamingL2APIndex implements Index {
       magnitudes.pushDouble(magnitude);
     }
 
+    public int size() {
+      return ids.size();
+    }
+
     @Override
     public String toString() {
       return "[ids=" + ids + ", weights=" + weights + ", magnitudes=" + magnitudes + "]";
