@@ -10,14 +10,15 @@ import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.Namespace;
 
+import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import sssj.base.Commons.IndexType;
 import sssj.base.Vector;
 import sssj.index.Index;
-import sssj.index.StreamingL2APIndex;
 import sssj.index.StreamingInvertedIndex;
+import sssj.index.StreamingL2APIndex;
 import sssj.io.Format;
 import sssj.io.VectorStream;
 import sssj.io.VectorStreamFactory;
@@ -80,12 +81,16 @@ public class Streaming {
     }
     assert (index != null);
 
+    Mean mean = new Mean();
     for (Vector v : stream) {
       if (tracker != null)
         tracker.progress();
       Map<Long, Double> results = index.queryWith(v, true);
+      mean.increment(index.size());
       if (!results.isEmpty())
         System.out.println(v.timestamp() + " ~ " + formatMap(results));
     }
+    log.info("Average index size = {}", mean.getResult());
+    System.out.println("Average index size = " + mean.getResult());
   }
 }

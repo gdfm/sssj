@@ -13,6 +13,7 @@ import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.Namespace;
 
+import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,24 +85,39 @@ public class MiniBatch {
     precomputeFFTable(lambda, 2 * (int) Math.ceil(tau));
     VectorWindow window = new VectorWindow(tau, idxType.needsMax());
 
+    Mean mean = new Mean();
     for (Vector v : stream) {
       if (tracker != null)
         tracker.progress();
       boolean inWindow = window.add(v);
       while (!inWindow) {
-        if (window.size() > 0)
-          computeResults(window, theta, lambda, idxType);
-        else
+        if (window.size() > 0) {
+          final int indexSize = computeBatch(window, theta, lambda, idxType);
+          mean.increment(indexSize);
+        } else
           window.slide();
         inWindow = window.add(v);
       }
     }
     // last 2 window slides
-    while (!window.isEmpty())
-      computeResults(window, theta, lambda, idxType);
+    while (!window.isEmpty()) {
+      final int indexSize = computeBatch(window, theta, lambda, idxType);
+      mean.increment(indexSize);
+    }
+    log.info("Average index size = {}", mean.getResult());
+    System.out.println("Average index size = " + mean.getResult());
   }
 
-  private static void computeResults(VectorWindow window, double theta, double lambda, IndexType type) {
+  /**
+   * Compute the similarity self join on the window.
+   * 
+   * @param window the vector window
+   * @param theta the similarity threshold
+   * @param lambda the forgetting factor
+   * @param type which type of index to use
+   * @return the index size
+   */
+  private static int computeBatch(VectorWindow window, double theta, double lambda, IndexType type) {
     // select and initialize index
     Index index = null;
     switch (type) {
@@ -133,6 +149,7 @@ public class MiniBatch {
     for (Entry<Long, Map<Long, Double>> row : res2.rowMap().entrySet()) {
       System.out.println(row.getKey() + " ~ " + formatMap(row.getValue()));
     }
+    return index.size();
   }
 
   private static BatchResult query(Index index, Iterator<Vector> iterator, final boolean addToIndex) {
