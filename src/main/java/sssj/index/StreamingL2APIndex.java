@@ -146,15 +146,15 @@ public class StreamingL2APIndex implements Index {
       // TODO possibly use size filtering (sz_3)
       final long candidateID = e.getLongKey();
       final long deltaT = v.timestamp() - candidateID;
-// if (deltaT > tau) // time pruning // FIXME ff (should not even be needed)
-// continue;
+      if (deltaT > tau) // time pruning
+        continue;
       final double ff = forgettingFactor(lambda, deltaT);
       if (Double.compare((e.getDoubleValue() + ps.get(candidateID)) * ff, theta) < 0) // A[y] = dot(x, y")
         continue; // l2 pruning
 
       final long lowWatermark = (long) Math.floor(v.timestamp() - tau);
       final Vector residual = resList.getAndPrune(candidateID, lowWatermark); // TODO prune also ps?
-      assert (residual != null);
+      assert (residual != null) : "Residual not found. TS=" + v.timestamp() + " candidateID=" + candidateID;
       final double dpscore = e.getDoubleValue()
           + Math.min(v.maxValue() * residual.size(), residual.maxValue() * v.size());
       if (Double.compare(dpscore * ff, theta) < 0)
