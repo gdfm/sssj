@@ -24,9 +24,9 @@ public class StreamingMaxVector extends Vector {
       final int dimension = e.getIntKey();
       final double weight = e.getDoubleValue();
       final long dimDeltaT = query.timestamp() - lastUpdated.get(dimension);
-      final double dimFF = forgettingFactor(lambda, dimDeltaT);
-// if (Double.compare(weight, this.get(dimension)) > 0) {
-      if (Double.compare(weight, this.get(dimension) * dimFF) > 0) { // FIXME the multiplication makes the method too slow
+// final double dimFF = forgettingFactor(lambda, dimDeltaT);
+      if (Double.compare(weight, this.get(dimension)) > 0) {
+// if (Double.compare(weight, this.get(dimension) * dimFF) > 0) { // FIXME the multiplication makes the method too slow
         this.put(dimension, weight);
         this.setTimestamp(query.timestamp());
         this.lastUpdated.put(dimension, query.timestamp());
