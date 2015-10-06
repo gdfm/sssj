@@ -19,10 +19,11 @@ import com.google.common.primitives.Doubles;
 public class StreamingInvertedIndex implements Index {
   private Int2ReferenceMap<StreamingPostingList> idx = new Int2ReferenceOpenHashMap<>();
   private final Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap();
-  private int size = 0;
   private final double theta;
   private final double lambda;
   private final double tau;
+  private int size;
+  private int maxLength;
 
   public StreamingInvertedIndex(double theta, double lambda) {
     this.theta = theta;
@@ -45,6 +46,7 @@ public class StreamingInvertedIndex implements Index {
           final PostingEntry pe = it.next();
           final long targetID = pe.getID();
 
+          final int oldLength = list.size();
           // time filtering
           final long deltaT = v.timestamp() - targetID;
           if (Doubles.compare(deltaT, tau) > 0) {
@@ -52,6 +54,8 @@ public class StreamingInvertedIndex implements Index {
             size--;
             continue;
           }
+          if (oldLength >= maxLength) // heuristic to efficiently maintain the max length
+            maxLength = list.size();
 
           final double targetWeight = pe.getWeight();
           final double additionalSimilarity = queryWeight * targetWeight * forgettingFactor(lambda, deltaT);
@@ -66,6 +70,7 @@ public class StreamingInvertedIndex implements Index {
       if (addToIndex) {
         list.add(v.timestamp(), queryWeight);
         size++;
+        maxLength = Math.max(list.size(), maxLength);
       }
     }
 
@@ -80,6 +85,11 @@ public class StreamingInvertedIndex implements Index {
   @Override
   public int size() {
     return size;
+  }
+
+  @Override
+  public int maxLength() {
+    return maxLength;
   }
 
   @Override

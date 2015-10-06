@@ -18,9 +18,10 @@ import com.google.common.primitives.Doubles;
 
 public class InvertedIndex implements Index {
   private Int2ReferenceMap<PostingList> idx = new Int2ReferenceOpenHashMap<>();
-  private int size = 0;
   private final double theta;
   private final double lambda;
+  private int size;
+  private int maxLength;
 
   public InvertedIndex(double theta, double lambda) {
     this.theta = theta;
@@ -49,6 +50,7 @@ public class InvertedIndex implements Index {
         }
         list.add(v.timestamp(), queryWeight);
         size++;
+        maxLength = Math.max(list.size(), maxLength);
       }
     }
 
@@ -67,6 +69,11 @@ public class InvertedIndex implements Index {
   @Override
   public int size() {
     return size;
+  }
+
+  @Override
+  public int maxLength() {
+    return maxLength;
   }
 
   @Override

@@ -29,11 +29,12 @@ public class StreamingL2APIndex implements Index {
   private final Long2DoubleOpenHashMap ps = new Long2DoubleOpenHashMap();
   private final Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap();
   private final Long2DoubleOpenHashMap matches = new Long2DoubleOpenHashMap();
+  private final StreamingMaxVector maxVector; // \hat{c_w}
   private final double theta;
   private final double lambda;
   private final double tau;
-  private final StreamingMaxVector maxVector; // \hat{c_w}
-  private int size = 0;
+  private int size;
+  private int maxLength;
 
   public StreamingL2APIndex(double theta, double lambda) {
     this.theta = theta;
@@ -111,6 +112,7 @@ public class StreamingL2APIndex implements Index {
           final L2APPostingEntry pe = listIter.next();
           final long targetID = pe.getID(); // y
 
+          final int oldLength = list.size();
           // time filtering
           boolean filtered = false;
           final long deltaT = v.timestamp() - targetID;
@@ -121,6 +123,8 @@ public class StreamingL2APIndex implements Index {
             continue;
           }
           keepFiltering &= filtered; // keep filtering only if we have just filtered
+          if (oldLength >= maxLength) // heuristic to efficiently maintain the max length
+            maxLength = list.size();
 
           final double ff = forgettingFactor(lambda, deltaT);
           if (accumulator.containsKey(targetID) || Double.compare(rscore, theta) >= 0) {
@@ -203,6 +207,7 @@ public class StreamingL2APIndex implements Index {
         }
         list.add(v.timestamp(), weight, b3);
         size++;
+        maxLength = Math.max(list.size(), maxLength);
       } else {
         residual.put(dimension, weight);
       }
@@ -213,6 +218,11 @@ public class StreamingL2APIndex implements Index {
   @Override
   public int size() {
     return size;
+  }
+
+  @Override
+  public int maxLength() {
+    return maxLength;
   }
 
   @Override

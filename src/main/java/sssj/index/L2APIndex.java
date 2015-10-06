@@ -21,13 +21,14 @@ import sssj.base.Vector;
 
 public class L2APIndex implements Index {
   private final Int2ReferenceMap<L2APPostingList> idx = new Int2ReferenceOpenHashMap<>();
-  private final Residuals resList = new Residuals();
+  private final Residuals residuals = new Residuals();
   private final Long2DoubleOpenHashMap ps = new Long2DoubleOpenHashMap();
-  private final double theta;
-  private final double lambda;
   private final MaxVector maxVectorInWindow; // c_w
   private final MaxVector maxVectorInIndex; // \hat{c_w}
-  private int size = 0;
+  private final double theta;
+  private final double lambda;
+  private int size;
+  private int maxLength;
 
   public L2APIndex(double theta, double lambda, MaxVector maxVector) {
     this.theta = theta;
@@ -45,7 +46,7 @@ public class L2APIndex implements Index {
     /* index building */
     if (addToIndex) {
       Vector residual = addToIndex(v);
-      resList.add(residual);
+      residuals.add(residual);
     }
     return matches;
   }
@@ -94,7 +95,7 @@ public class L2APIndex implements Index {
       final long candidateID = e.getLongKey();
       if (Double.compare(e.getDoubleValue() + ps.get(candidateID), theta) < 0) // A[y] = dot(x, y'')
         continue; // l2 pruning
-      Vector residual = resList.get(candidateID);
+      Vector residual = residuals.get(candidateID);
       assert (residual != null);
       final double dpscore = e.getDoubleValue()
           + Math.min(v.maxValue() * residual.size(), residual.maxValue() * v.size());
@@ -136,6 +137,7 @@ public class L2APIndex implements Index {
         }
         list.add(v.timestamp(), weight, b3);
         size++;
+        maxLength = Math.max(list.size(), maxLength);
       } else {
         residual.put(dimension, weight);
       }
@@ -150,8 +152,13 @@ public class L2APIndex implements Index {
   }
 
   @Override
+  public int maxLength() {
+    return maxLength;
+  }
+
+  @Override
   public String toString() {
-    return "L2APIndex [idx=" + idx + ", resList=" + resList + ", ps=" + ps + "]";
+    return "L2APIndex [idx=" + idx + ", residuals=" + residuals + ", ps=" + ps + "]";
   }
 
   public static class L2APPostingList implements Iterable<L2APPostingEntry> {

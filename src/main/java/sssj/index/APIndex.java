@@ -18,7 +18,8 @@ import sssj.index.InvertedIndex.PostingList;
 public class APIndex implements Index {
   private Int2ReferenceMap<PostingList> idx = new Int2ReferenceOpenHashMap<>();
   private Residuals resList = new Residuals();
-  private int size = 0;
+  private int size;
+  private int maxLength;
   private final double theta;
   private final double lambda;
   private final Vector maxVector;
@@ -79,10 +80,14 @@ public class APIndex implements Index {
         double weight = e.getDoubleValue();
         pscore += weight * maxVector.get(dimension);
         if (Double.compare(pscore, theta) >= 0) {
-          if (!idx.containsKey(dimension))
-            idx.put(dimension, new PostingList());
-          idx.get(dimension).add(v.timestamp(), weight);
+          PostingList list;
+          if ((list = idx.get(dimension)) == null) {
+            list = new PostingList();
+            idx.put(dimension, list);
+          }
+          list.add(v.timestamp(), weight);
           size++;
+          maxLength = Math.max(list.size(), maxLength);
           // v.remove(dimension);
         } else {
           residual.put(dimension, weight);
@@ -98,6 +103,11 @@ public class APIndex implements Index {
   public int size() {
     return size;
   }
+
+  @Override
+  public int maxLength() {
+    return maxLength;
+  };
 
   @Override
   public String toString() {

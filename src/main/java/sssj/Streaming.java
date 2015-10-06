@@ -81,16 +81,19 @@ public class Streaming {
     }
     assert (index != null);
 
-    Mean mean = new Mean();
+    Mean avgSize = new Mean(), avgMaxLength = new Mean();
     for (Vector v : stream) {
       if (tracker != null)
         tracker.progress();
       Map<Long, Double> results = index.queryWith(v, true);
-      mean.increment(index.size());
+      avgSize.increment(index.size());
+      avgMaxLength.increment(index.maxLength());
       if (!results.isEmpty())
         System.out.println(v.timestamp() + " ~ " + formatMap(results));
     }
-    log.info("Average index size = {}", mean.getResult());
-    System.out.println("Average index size = " + mean.getResult());
+    final String statsString = String.format("Avg. index size = %.3f, Avg. max posting list length = %.3f",
+        avgSize.getResult(), avgMaxLength.getResult());
+    log.info(statsString);
+    System.out.println(statsString);
   }
 }

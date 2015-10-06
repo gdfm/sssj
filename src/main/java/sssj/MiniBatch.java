@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import sssj.base.Commons;
-import sssj.base.Commons.BatchResult;
 import sssj.base.Commons.IndexType;
 import sssj.base.Vector;
 import sssj.index.APIndex;
@@ -32,6 +31,9 @@ import sssj.io.VectorStreamFactory;
 import sssj.time.Timeline.Sequential;
 
 import com.github.gdfm.shobaidogu.ProgressTracker;
+import com.google.common.collect.ForwardingTable;
+import com.google.common.collect.Table;
+import com.google.common.collect.TreeBasedTable;
 
 /**
  * MiniBatch micro-batch method. Keeps a buffer of vectors of length 2*tau. When the buffer is full, index and query the first half of the vectors with a batch
@@ -85,15 +87,16 @@ public class MiniBatch {
     precomputeFFTable(lambda, 2 * (int) Math.ceil(tau));
     VectorWindow window = new VectorWindow(tau, idxType.needsMax());
 
-    Mean mean = new Mean();
+    Mean avgSize = new Mean(), avgMaxLength = new Mean();
     for (Vector v : stream) {
       if (tracker != null)
         tracker.progress();
       boolean inWindow = window.add(v);
       while (!inWindow) {
         if (window.size() > 0) {
-          final int indexSize = computeBatch(window, theta, lambda, idxType);
-          mean.increment(indexSize);
+          final IndexStats stats = computeBatch(window, theta, lambda, idxType);
+          avgSize.increment(stats.size);
+          avgMaxLength.increment(stats.maxLength);
         } else
           window.slide();
         inWindow = window.add(v);
@@ -101,11 +104,14 @@ public class MiniBatch {
     }
     // last 2 window slides
     while (!window.isEmpty()) {
-      final int indexSize = computeBatch(window, theta, lambda, idxType);
-      mean.increment(indexSize);
+      final IndexStats stats = computeBatch(window, theta, lambda, idxType);
+      avgSize.increment(stats.size);
+      avgMaxLength.increment(stats.maxLength);
     }
-    log.info("Average index size = {}", mean.getResult());
-    System.out.println("Average index size = " + mean.getResult());
+    final String statsString = String.format("Avg. index size = %.3f, Avg. max posting list length = %.3f",
+        avgSize.getResult(), avgMaxLength.getResult());
+    log.info(statsString);
+    System.out.println(statsString);
   }
 
   /**
@@ -117,7 +123,7 @@ public class MiniBatch {
    * @param type which type of index to use
    * @return the index size
    */
-  private static int computeBatch(VectorWindow window, double theta, double lambda, IndexType type) {
+  private static IndexStats computeBatch(VectorWindow window, double theta, double lambda, IndexType type) {
     // select and initialize index
     Index index = null;
     switch (type) {
@@ -149,7 +155,8 @@ public class MiniBatch {
     for (Entry<Long, Map<Long, Double>> row : res2.rowMap().entrySet()) {
       System.out.println(row.getKey() + " ~ " + formatMap(row.getValue()));
     }
-    return index.size();
+    IndexStats stats = new IndexStats(index.size(), index.maxLength());
+    return stats;
   }
 
   private static BatchResult query(Index index, Iterator<Vector> iterator, final boolean addToIndex) {
@@ -162,5 +169,31 @@ public class MiniBatch {
       }
     }
     return result;
+  }
+
+  private static class BatchResult extends ForwardingTable<Long, Long, Double> {
+    private final Table<Long, Long, Double> delegate = TreeBasedTable.create();
+
+    @Override
+    protected Table<Long, Long, Double> delegate() {
+      return delegate;
+    }
+  }
+
+  private static class IndexStats {
+    /**
+     * Number of entries
+     */
+    private final int size;
+
+    /**
+     * Max length of posting list
+     */
+    private final int maxLength;
+
+    public IndexStats(int size, int maxLength) {
+      this.size = size;
+      this.maxLength = maxLength;
+    }
   }
 }

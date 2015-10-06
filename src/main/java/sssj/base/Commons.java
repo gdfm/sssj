@@ -7,9 +7,6 @@ import java.util.Map.Entry;
 import org.apache.commons.math3.util.FastMath;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ForwardingTable;
-import com.google.common.collect.Table;
-import com.google.common.collect.TreeBasedTable;
 
 public class Commons {
   public static final double DEFAULT_THETA = 0.5;
@@ -50,15 +47,6 @@ public class Commons {
     }
     sb.append('}');
     return sb.toString();
-  }
-
-  public static class BatchResult extends ForwardingTable<Long, Long, Double> {
-    private final Table<Long, Long, Double> delegate = TreeBasedTable.create();
-
-    @Override
-    protected Table<Long, Long, Double> delegate() {
-      return delegate;
-    }
   }
 
   public static enum IndexType {
