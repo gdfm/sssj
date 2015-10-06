@@ -17,7 +17,6 @@ import java.nio.ByteBuffer;
  * Where VECTOR_ID is the vector id (which also represents its timestamp), NUM_ELEMENTS is the number of non-zero-valued dimensions in the vector, and ELEMENT
  * is a single dimension-value pair. Finally, DIMENSION is the id of the dimension and VALUE its value.
  */
-// public class Vector extends Int2DoubleAVLTreeMap {
 public class Vector { // entries are returned in the same order they are added
   public static final Vector EMPTY_VECTOR = new Vector(Long.MIN_VALUE);
   protected Int2DoubleLinkedOpenHashMap data = new Int2DoubleLinkedOpenHashMap();

@@ -25,7 +25,7 @@ import com.google.common.primitives.Doubles;
 
 public class StreamingL2APIndex implements Index {
   private final Int2ReferenceMap<StreamingL2APPostingList> idx = new Int2ReferenceOpenHashMap<>();
-  private final StreamingResiduals resList = new StreamingResiduals();
+  private final StreamingResiduals residuals = new StreamingResiduals();
   private final Long2DoubleOpenHashMap ps = new Long2DoubleOpenHashMap();
   private final Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap();
   private final Long2DoubleOpenHashMap matches = new Long2DoubleOpenHashMap();
@@ -59,28 +59,28 @@ public class StreamingL2APIndex implements Index {
     verifyCandidates(v);
     /* index building */
     if (addToIndex) {
-      Vector residual = addToIndex(v);
-      resList.add(residual);
+      Vector residual = addToIndex(v);
+      residuals.add(residual);
     }
     return matches;
   }
 
   private final void reindex(Vector updates) {
     List<Vector> newRes = new LinkedList<>();
-    for (Iterator<Vector> it = resList.iterator(); it.hasNext();) {
+    for (Iterator<Vector> it = residuals.iterator(); it.hasNext();) {
       final Vector r = it.next();
       final double simDelta = Vector.similarity(updates, r);
       if (simDelta > 0) {
         final double pscore = ps.get(r.timestamp());
         if (pscore + simDelta > theta) {
-          final Vector newResidual = this.addToIndex(r);
+          final Vector newResidual = this.addToIndex(r); // TODO incremental update rather than from scratch
           it.remove();
           newRes.add(newResidual);
         }
       }
     }
     for (Vector r : newRes)
-      resList.add(r);
+      residuals.add(r);
   }
 
   private final void generateCandidates(final Vector v) {
@@ -159,7 +159,7 @@ public class StreamingL2APIndex implements Index {
         continue; // l2 pruning
 
       final long lowWatermark = (long) Math.floor(v.timestamp() - tau);
-      final Vector residual = resList.getAndPrune(candidateID, lowWatermark); // TODO prune also ps?
+      final Vector residual = residuals.getAndPrune(candidateID, lowWatermark); // TODO prune also ps?
       assert (residual != null);
       final double dpscore = e.getDoubleValue()
           + Math.min(v.maxValue() * residual.size(), residual.maxValue() * v.size());
@@ -174,7 +174,7 @@ public class StreamingL2APIndex implements Index {
     }
   }
 
-  private final Vector addToIndex(final Vector v) {
+  private final Vector addToIndex(final Vector v) {
     double b1 = 0, bt = 0, b3 = 0, pscore = 0;
     boolean psSaved = false;
     final Vector residual = new Vector(v.timestamp());
@@ -227,7 +227,7 @@ public class StreamingL2APIndex implements Index {
 
   @Override
   public String toString() {
-    return "StreamingL2APIndex [idx=" + idx + ", resList=" + resList + ", ps=" + ps + "]";
+    return "StreamingL2APIndex [idx=" + idx + ", residuals=" + residuals + ", ps=" + ps + "]";
   }
 
   public static class StreamingL2APPostingList implements Iterable<L2APPostingEntry> {
