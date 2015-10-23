@@ -29,7 +29,7 @@ public class StreamingPureL2APIndex implements Index {
   private final Long2DoubleOpenHashMap ps = new Long2DoubleOpenHashMap();
   private final Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap();
   private final Long2DoubleOpenHashMap matches = new Long2DoubleOpenHashMap();
-  private final StreamingMaxVector maxVector; // \hat{c_w}
+  private final LocalStreamingMaxVector maxVector; // \hat{c_w}
   private final double theta;
   private final double lambda;
   private final double tau;
@@ -39,7 +39,7 @@ public class StreamingPureL2APIndex implements Index {
   public StreamingPureL2APIndex(double theta, double lambda) {
     this.theta = theta;
     this.lambda = lambda;
-    this.maxVector = new StreamingMaxVector(lambda);
+    this.maxVector = new LocalStreamingMaxVector();
     this.tau = tau(theta, lambda);
     System.out.println("Tau = " + tau);
     precomputeFFTable(lambda, (int) Math.ceil(tau));
@@ -49,10 +49,7 @@ public class StreamingPureL2APIndex implements Index {
   public Map<Long, Double> queryWith(final Vector v, final boolean addToIndex) {
     accumulator.clear();
     matches.clear();
-    Vector updates = maxVector.updateMaxByDimension(v);
-    /* reindexing */
-// if (updates.size() > 0)
-// reindex(updates);
+    maxVector.updateMaxByDimension(v);
     /* candidate generation */
     generateCandidates(v);
     /* candidate verification */
@@ -219,6 +216,20 @@ public class StreamingPureL2APIndex implements Index {
   @Override
   public String toString() {
     return "StreamingL2APIndex [idx=" + idx + ", resList=" + resList + ", ps=" + ps + "]";
+  }
+
+  private static class LocalStreamingMaxVector extends Vector {
+    /**
+     * Updates the vector to the max of itself and the vector query, taking into account the forgetting factor.
+     * 
+     * @param query the new vector
+     * @return the subset of the new vector that was larger than maxVector (for reindexing)
+     */
+    public Vector updateMaxByDimension(Vector query) {
+      if (query.timestamp() > this.timestamp())
+        this.setTimestamp(query.timestamp());
+      return Vector.EMPTY_VECTOR;
+    }
   }
 
   public static class StreamingL2APPostingList implements Iterable<L2APPostingEntry> {
