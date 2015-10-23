@@ -29,9 +29,10 @@ public class Commons {
   }
 
   public static double forgettingFactor(final double lambda, final long deltaT) {
+    assert (FF != null);
     if (deltaT >= FF.length)
       return FastMath.exp(-lambda * deltaT);
-    assert (FF != null && deltaT >= 0 && deltaT < FF.length);
+    assert (deltaT >= 0 && deltaT < FF.length);
     return FF[(int) deltaT];
   }
 
