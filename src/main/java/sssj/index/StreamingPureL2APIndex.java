@@ -142,11 +142,6 @@ public class StreamingPureL2APIndex implements Index {
     double bt = 0, b3 = 0, pscore = 0;
     boolean psSaved = false;
     final Vector residual = new Vector(v.timestamp());
-    // upper bound on the forgetting factor w.r.t. the maximum vector
-    // TODO can be tightened with a deltaT per dimension
-// final long maxDeltaT = v.timestamp() - maxVector.timestamp();
-// final double maxff = forgettingFactor(lambda, maxDeltaT);
-    // FIXME maxDeltaT can be larger than tau. How do we use it?
 
     for (Entry e : v.int2DoubleEntrySet()) {
       final int dimension = e.getIntKey();
