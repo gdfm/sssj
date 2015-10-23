@@ -29,7 +29,6 @@ public class StreamingPureL2APIndex implements Index {
   private final Long2DoubleOpenHashMap ps = new Long2DoubleOpenHashMap();
   private final Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap();
   private final Long2DoubleOpenHashMap matches = new Long2DoubleOpenHashMap();
-  private final LocalStreamingMaxVector maxVector; // \hat{c_w}
   private final double theta;
   private final double lambda;
   private final double tau;
@@ -39,7 +38,6 @@ public class StreamingPureL2APIndex implements Index {
   public StreamingPureL2APIndex(double theta, double lambda) {
     this.theta = theta;
     this.lambda = lambda;
-    this.maxVector = new LocalStreamingMaxVector();
     this.tau = tau(theta, lambda);
     System.out.println("Tau = " + tau);
     precomputeFFTable(lambda, (int) Math.ceil(tau));
@@ -49,7 +47,6 @@ public class StreamingPureL2APIndex implements Index {
   public Map<Long, Double> queryWith(final Vector v, final boolean addToIndex) {
     accumulator.clear();
     matches.clear();
-    maxVector.updateMaxByDimension(v);
     /* candidate generation */
     generateCandidates(v);
     /* candidate verification */
@@ -62,30 +59,7 @@ public class StreamingPureL2APIndex implements Index {
     return matches;
   }
 
-// private final void reindex(Vector updates) {
-// List<Vector> newRes = new LinkedList<>();
-// for (Iterator<Vector> it = resList.iterator(); it.hasNext();) {
-// final Vector r = it.next();
-// final double simDelta = Vector.similarity(updates, r);
-// if (simDelta > 0) {
-// final double pscore = ps.get(r.timestamp());
-// if (pscore + simDelta > theta) {
-// final Vector newResidual = this.addToIndex(r);
-// it.remove();
-// newRes.add(newResidual);
-// }
-// }
-// }
-// for (Vector r : newRes)
-// resList.add(r);
-// }
-
   private final void generateCandidates(final Vector v) {
-    // lower bound on the forgetting factor w.r.t. the maximum vector
-    final long minDeltaT = v.timestamp() - maxVector.timestamp();
-    if (Doubles.compare(minDeltaT, tau) > 0) // time filtering
-      return;
-    final double maxff = forgettingFactor(lambda, minDeltaT);
     double l2remscore = 1, // rs4
     rst = 1, squaredQueryPrefixMagnitude = 1;
 
@@ -96,7 +70,7 @@ public class StreamingPureL2APIndex implements Index {
       final int dimension = e.getIntKey();
       final double queryWeight = e.getDoubleValue(); // x_j
       // forgetting factor applied directly to the l2prefix bound
-      final double rscore = l2remscore * maxff;
+      final double rscore = l2remscore;
       squaredQueryPrefixMagnitude -= queryWeight * queryWeight;
 
       StreamingL2APPostingList list;
@@ -216,20 +190,6 @@ public class StreamingPureL2APIndex implements Index {
   @Override
   public String toString() {
     return "StreamingL2APIndex [idx=" + idx + ", resList=" + resList + ", ps=" + ps + "]";
-  }
-
-  private static class LocalStreamingMaxVector extends Vector {
-    /**
-     * Updates the vector to the max of itself and the vector query, taking into account the forgetting factor.
-     * 
-     * @param query the new vector
-     * @return the subset of the new vector that was larger than maxVector (for reindexing)
-     */
-    public Vector updateMaxByDimension(Vector query) {
-      if (query.timestamp() > this.timestamp())
-        this.setTimestamp(query.timestamp());
-      return Vector.EMPTY_VECTOR;
-    }
   }
 
   public static class StreamingL2APPostingList implements Iterable<L2APPostingEntry> {
