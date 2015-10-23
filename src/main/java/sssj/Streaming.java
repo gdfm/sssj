@@ -19,6 +19,7 @@ import sssj.base.Vector;
 import sssj.index.Index;
 import sssj.index.StreamingInvertedIndex;
 import sssj.index.StreamingL2APIndex;
+import sssj.index.StreamingPureL2APIndex;
 import sssj.io.Format;
 import sssj.io.VectorStream;
 import sssj.io.VectorStreamFactory;
@@ -39,8 +40,9 @@ public class Streaming {
         .choices(Arguments.range(0.0, Double.MAX_VALUE)).setDefault(DEFAULT_LAMBDA).help("forgetting factor");
     parser.addArgument("-r", "--report").metavar("period").type(Integer.class).setDefault(DEFAULT_REPORT_PERIOD)
         .help("progress report period");
-    parser.addArgument("-i", "--index").type(IndexType.class).choices(IndexType.INVERTED, IndexType.L2AP)
-        .setDefault(IndexType.INVERTED).help("type of indexing");
+    parser.addArgument("-i", "--index").type(IndexType.class)
+        .choices(IndexType.INVERTED, IndexType.L2AP, IndexType.PUREL2AP).setDefault(IndexType.INVERTED)
+        .help("type of indexing");
     parser.addArgument("-f", "--format").type(Format.class).choices(Format.values()).setDefault(Format.BINARY)
         .help("input format");
     parser.addArgument("input").metavar("file")
@@ -75,6 +77,9 @@ public class Streaming {
       break;
     case L2AP:
       index = new StreamingL2APIndex(theta, lambda);
+      break;
+    case PUREL2AP:
+      index = new StreamingPureL2APIndex(theta, lambda);
       break;
     default:
       throw new RuntimeException("Unsupported index type");

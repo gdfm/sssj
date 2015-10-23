@@ -53,8 +53,8 @@ public class MiniBatch {
         .choices(Arguments.range(0.0, Double.MAX_VALUE)).setDefault(DEFAULT_LAMBDA).help("forgetting factor");
     parser.addArgument("-r", "--report").metavar("period").type(Integer.class).setDefault(DEFAULT_REPORT_PERIOD)
         .help("progress report period");
-    parser.addArgument("-i", "--index").type(IndexType.class).choices(IndexType.values()).setDefault(INVERTED)
-        .help("type of indexing");
+    parser.addArgument("-i", "--index").type(IndexType.class)
+        .choices(IndexType.INVERTED, IndexType.L2AP, IndexType.ALLPAIRS).setDefault(INVERTED).help("type of indexing");
     parser.addArgument("-f", "--format").type(Format.class).choices(Format.values()).setDefault(Format.BINARY)
         .help("input format");
     parser.addArgument("input").metavar("file")
