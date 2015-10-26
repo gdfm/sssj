@@ -22,7 +22,7 @@ import com.google.common.primitives.Doubles;
 
 public class StreamingPureL2APIndex extends AbstractIndex {
   private final Int2ReferenceMap<StreamingL2APPostingList> idx = new Int2ReferenceOpenHashMap<>();
-  private final StreamingResiduals resList = new StreamingResiduals();
+  private final StreamingResiduals residuals = new StreamingResiduals();
   private final Long2DoubleOpenHashMap ps = new Long2DoubleOpenHashMap();
   private final Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap();
   private final Long2DoubleOpenHashMap matches = new Long2DoubleOpenHashMap();
@@ -49,7 +49,7 @@ public class StreamingPureL2APIndex extends AbstractIndex {
     /* index building */
     if (addToIndex) {
       Vector residual = addToIndex(v);
-      resList.add(residual);
+      residuals.add(residual);
     }
     return matches;
   }
@@ -122,7 +122,7 @@ public class StreamingPureL2APIndex extends AbstractIndex {
         continue; // l2 pruning
 
       final long lowWatermark = (long) Math.floor(v.timestamp() - tau);
-      final Vector residual = resList.getAndPrune(candidateID, lowWatermark); // TODO prune also ps?
+      final Vector residual = residuals.getAndPrune(candidateID, lowWatermark); // TODO prune also ps?
       assert (residual != null) : "Residual not found. TS=" + v.timestamp() + " candidateID=" + candidateID;
       final double dpscore = e.getDoubleValue()
           + Math.min(v.maxValue() * residual.size(), residual.maxValue() * v.size());
@@ -173,7 +173,7 @@ public class StreamingPureL2APIndex extends AbstractIndex {
 
   @Override
   public String toString() {
-    return "StreamingL2APIndex [idx=" + idx + ", resList=" + resList + ", ps=" + ps + "]";
+    return "StreamingL2APIndex [idx=" + idx + ", residuals=" + residuals + ", ps=" + ps + "]";
   }
 
   public static class StreamingL2APPostingList implements Iterable<L2APPostingEntry> {
