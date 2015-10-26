@@ -100,7 +100,7 @@ public class Streaming {
     }
     final StringBuilder sb = new StringBuilder();
     sb.append("Index Statistics:\n");
-    sb.append(String.format("Avgerage index size          = %.3f\n", avgSize.getResult()));
+    sb.append(String.format("Average index size           = %.3f\n", avgSize.getResult()));
     sb.append(String.format("Avg. max posting list length = %.3f\n", avgMaxLength.getResult()));
     sb.append(String.format("Total number of candidates   = %d\n", index.stats().numCandidates()));
     sb.append(String.format("Total number of similarities = %d\n", index.stats().numSimilarities()));
