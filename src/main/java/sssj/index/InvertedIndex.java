@@ -35,6 +35,7 @@ public class InvertedIndex extends AbstractIndex {
       PostingList list;
       if ((list = idx.get(dimension)) != null) {
         for (PostingEntry pe : list) {
+          numPostingEntries++;
           final long targetID = pe.getID();
           final double targetWeight = pe.getWeight();
           final double additionalSimilarity = queryWeight * targetWeight;

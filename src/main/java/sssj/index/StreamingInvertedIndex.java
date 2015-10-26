@@ -41,6 +41,7 @@ public class StreamingInvertedIndex extends AbstractIndex {
       StreamingPostingList list;
       if ((list = idx.get(dimension)) != null) {
         for (Iterator<PostingEntry> it = list.iterator(); it.hasNext();) {
+          numPostingEntries++;
           final PostingEntry pe = it.next();
           final long targetID = pe.getID();
 

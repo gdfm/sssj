@@ -67,6 +67,7 @@ public class L2APIndex extends AbstractIndex {
       if ((list = idx.get(dimension)) != null) {
         // TODO possibly size filtering: remove entries from the posting list with |y| < minsize (need to save size in the posting list)
         for (L2APPostingEntry pe : list) {
+          numPostingEntries++;
           final long targetID = pe.getID(); // y
           if (accumulator.containsKey(targetID) || Double.compare(rscore, theta) >= 0) {
             final double targetWeight = pe.getWeight(); // y_j

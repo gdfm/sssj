@@ -90,7 +90,7 @@ public class MiniBatch {
     VectorWindow window = new VectorWindow(tau, idxType.needsMax());
 
     Mean avgSize = new Mean(), avgMaxLength = new Mean();
-    Sum numCandidates = new Sum(), numSimilarities = new Sum();
+    Sum numCandidates = new Sum(), numSimilarities = new Sum(), numPostingEntries = new Sum();
     for (Vector v : stream) {
       if (tracker != null)
         tracker.progress();
@@ -102,6 +102,7 @@ public class MiniBatch {
           avgMaxLength.increment(stats.maxLength());
           numCandidates.increment(stats.numCandidates());
           numSimilarities.increment(stats.numSimilarities());
+          numPostingEntries.increment(stats.numPostingEntries());
         } else
           window.slide();
         inWindow = window.add(v);
@@ -114,13 +115,15 @@ public class MiniBatch {
       avgMaxLength.increment(stats.maxLength());
       numCandidates.increment(stats.numCandidates());
       numSimilarities.increment(stats.numSimilarities());
+      numPostingEntries.increment(stats.numPostingEntries());
     }
     final StringBuilder sb = new StringBuilder();
     sb.append("Index Statistics:\n");
     sb.append(String.format("Avgerage index size          = %.3f\n", avgSize.getResult()));
     sb.append(String.format("Avg. max posting list length = %.3f\n", avgMaxLength.getResult()));
     sb.append(String.format("Total number of candidates   = %d\n", (long) numCandidates.getResult()));
-    sb.append(String.format("Total number of similarities = %d", (long) numSimilarities.getResult()));
+    sb.append(String.format("Total number of similarities = %d\n", (long) numSimilarities.getResult()));
+    sb.append(String.format("Total number of entries      = %d", (long) numPostingEntries.getResult()));
     final String statsString = sb.toString();
     log.info(statsString);
     System.out.println(statsString);

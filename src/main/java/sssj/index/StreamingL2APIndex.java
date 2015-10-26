@@ -107,6 +107,7 @@ public class StreamingL2APIndex extends AbstractIndex {
       if ((list = idx.get(dimension)) != null) {
         // TODO possibly size filtering: remove entries from the posting list with |y| < minsize (need to save size in the posting list)
         for (Iterator<L2APPostingEntry> listIter = list.iterator(); listIter.hasNext();) {
+          numPostingEntries++;
           final L2APPostingEntry pe = listIter.next();
           final long targetID = pe.getID(); // y
 

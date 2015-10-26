@@ -14,8 +14,25 @@ public interface IndexStatistics {
    * @return the maximum posting list length
    */
   public int maxLength();
-  
+
+  /**
+   * Returns the total number of posting entries scanned.
+   * 
+   * @return the total number of posting entries scanned
+   */
+  public long numPostingEntries();
+
+  /**
+   * Returns the total number of candidates generated.
+   * 
+   * @return the total number of candidates generated
+   */
   public long numCandidates();
-  
+
+  /**
+   * Returns the total number of full similarities computed.
+   * 
+   * @return the total number of full similarities computed
+   */
   public long numSimilarities();
 }
