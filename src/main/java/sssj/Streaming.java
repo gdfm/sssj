@@ -98,8 +98,13 @@ public class Streaming {
       if (!results.isEmpty())
         System.out.println(v.timestamp() + " ~ " + formatMap(results));
     }
-    final String statsString = String.format("Avg. index size = %.3f, Avg. max posting list length = %.3f",
-        avgSize.getResult(), avgMaxLength.getResult());
+    final StringBuilder sb = new StringBuilder();
+    sb.append("Index Statistics:\n");
+    sb.append(String.format("Avgerage index size          = %.3f\n", avgSize.getResult()));
+    sb.append(String.format("Avg. max posting list length = %.3f\n", avgMaxLength.getResult()));
+    sb.append(String.format("Total number of candidates   = %d\n", index.stats().numCandidates()));
+    sb.append(String.format("Total number of similarities = %d", index.stats().numSimilarities()));
+    final String statsString = sb.toString();
     log.info(statsString);
     System.out.println(statsString);
   }

@@ -14,4 +14,8 @@ public interface IndexStatistics {
    * @return the maximum posting list length
    */
   public int maxLength();
+  
+  public long numCandidates();
+  
+  public long numSimilarities();
 }

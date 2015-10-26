@@ -9,21 +9,18 @@ import it.unimi.dsi.fastutil.longs.Long2DoubleMap;
 import it.unimi.dsi.fastutil.longs.Long2DoubleOpenHashMap;
 
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.math3.util.FastMath;
 
 import sssj.base.CircularBuffer;
-import sssj.base.StreamingMaxVector;
 import sssj.base.StreamingResiduals;
 import sssj.base.Vector;
 import sssj.index.L2APIndex.L2APPostingEntry;
 
 import com.google.common.primitives.Doubles;
 
-public class StreamingPureL2APIndex implements Index {
+public class StreamingPureL2APIndex extends AbstractIndex {
   private final Int2ReferenceMap<StreamingL2APPostingList> idx = new Int2ReferenceOpenHashMap<>();
   private final StreamingResiduals resList = new StreamingResiduals();
   private final Long2DoubleOpenHashMap ps = new Long2DoubleOpenHashMap();
@@ -32,8 +29,6 @@ public class StreamingPureL2APIndex implements Index {
   private final double theta;
   private final double lambda;
   private final double tau;
-  private int size;
-  private int maxLength;
 
   public StreamingPureL2APIndex(double theta, double lambda) {
     this.theta = theta;
@@ -102,14 +97,16 @@ public class StreamingPureL2APIndex implements Index {
             final double l2bound = accumulator.get(targetID) + FastMath.sqrt(squaredQueryPrefixMagnitude)
                 * pe.magnitude; // A[y] + ||x'_j|| * ||y'_j||
             // forgetting factor applied directly to the l2sum bound
-            if (Double.compare(l2bound * ff, theta) < 0)
+            if (Double.compare(l2bound * ff, theta) < 0) {
               accumulator.remove(targetID); // prune this candidate (early verification)
+            }
           }
         }
         rst -= queryWeight * queryWeight; // rs_t -= x_j^2
         l2remscore = FastMath.sqrt(rst); // rs_4 = sqrt(rs_t)
       }
     }
+    numCandidates += accumulator.size();
   }
 
   private final void verifyCandidates(final Vector v) {
@@ -133,6 +130,7 @@ public class StreamingPureL2APIndex implements Index {
 
       double score = e.getDoubleValue() + Vector.similarity(v, residual); // dot(x, y) = A[y] + dot(x, y')
       score *= ff; // apply forgetting factor
+      numSimilarities++;
       if (Double.compare(score, theta) >= 0) // final check
         matches.put(candidateID, score);
     }
@@ -171,30 +169,6 @@ public class StreamingPureL2APIndex implements Index {
     }
     return residual;
   }
-
-  public int size() {
-    return size;
-  }
-
-  public int maxLength() {
-    return maxLength;
-  }
-
-  @Override
-  public IndexStatistics stats() {
-    return new IndexStatistics() {
-
-      @Override
-      public int size() {
-        return size;
-      }
-
-      @Override
-      public int maxLength() {
-        return maxLength;
-      }
-    };
-  };
 
   @Override
   public String toString() {

@@ -16,12 +16,10 @@ import sssj.base.Vector;
 
 import com.google.common.primitives.Doubles;
 
-public class InvertedIndex implements Index {
+public class InvertedIndex extends AbstractIndex {
   private Int2ReferenceMap<PostingList> idx = new Int2ReferenceOpenHashMap<>();
   private final double theta;
   private final double lambda;
-  private int size;
-  private int maxLength;
 
   public InvertedIndex(double theta, double lambda) {
     this.theta = theta;
@@ -62,33 +60,10 @@ public class InvertedIndex implements Index {
       if (Doubles.compare(e.getDoubleValue(), theta) < 0)
         it.remove();
     }
-
+    numCandidates += accumulator.size();
+    numSimilarities = numCandidates;
     return accumulator;
   }
-
-  public int size() {
-    return size;
-  }
-
-  public int maxLength() {
-    return maxLength;
-  }
-
-  @Override
-  public IndexStatistics stats() {
-    return new IndexStatistics() {
-
-      @Override
-      public int size() {
-        return size;
-      }
-
-      @Override
-      public int maxLength() {
-        return maxLength;
-      }
-    };
-  };
 
   @Override
   public String toString() {

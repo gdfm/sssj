@@ -16,14 +16,12 @@ import sssj.index.InvertedIndex.PostingEntry;
 
 import com.google.common.primitives.Doubles;
 
-public class StreamingInvertedIndex implements Index {
+public class StreamingInvertedIndex extends AbstractIndex {
   private Int2ReferenceMap<StreamingPostingList> idx = new Int2ReferenceOpenHashMap<>();
   private final Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap();
   private final double theta;
   private final double lambda;
   private final double tau;
-  private int size;
-  private int maxLength;
 
   public StreamingInvertedIndex(double theta, double lambda) {
     this.theta = theta;
@@ -78,33 +76,10 @@ public class StreamingInvertedIndex implements Index {
     for (Iterator<Long2DoubleMap.Entry> it = accumulator.long2DoubleEntrySet().iterator(); it.hasNext();)
       if (Doubles.compare(it.next().getDoubleValue(), theta) < 0)
         it.remove();
-
+    numCandidates += accumulator.size();
+    numSimilarities = numCandidates;
     return accumulator;
   }
-
-  public int size() {
-    return size;
-  }
-
-  public int maxLength() {
-    return maxLength;
-  }
-  
-  @Override
-  public IndexStatistics stats() {
-    return new IndexStatistics() {
-
-      @Override
-      public int size() {
-        return size;
-      }
-
-      @Override
-      public int maxLength() {
-        return maxLength;
-      }
-    };
-  };
 
   @Override
   public String toString() {

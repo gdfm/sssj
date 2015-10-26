@@ -14,6 +14,7 @@ import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.Namespace;
 
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
+import org.apache.commons.math3.stat.descriptive.summary.Sum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,6 +90,7 @@ public class MiniBatch {
     VectorWindow window = new VectorWindow(tau, idxType.needsMax());
 
     Mean avgSize = new Mean(), avgMaxLength = new Mean();
+    Sum numCandidates = new Sum(), numSimilarities = new Sum();
     for (Vector v : stream) {
       if (tracker != null)
         tracker.progress();
@@ -98,6 +100,8 @@ public class MiniBatch {
           final IndexStatistics stats = computeBatch(window, theta, lambda, idxType);
           avgSize.increment(stats.size());
           avgMaxLength.increment(stats.maxLength());
+          numCandidates.increment(stats.numCandidates());
+          numSimilarities.increment(stats.numSimilarities());
         } else
           window.slide();
         inWindow = window.add(v);
@@ -108,9 +112,16 @@ public class MiniBatch {
       final IndexStatistics stats = computeBatch(window, theta, lambda, idxType);
       avgSize.increment(stats.size());
       avgMaxLength.increment(stats.maxLength());
+      numCandidates.increment(stats.numCandidates());
+      numSimilarities.increment(stats.numSimilarities());
     }
-    final String statsString = String.format("Avg. index size = %.3f, Avg. max posting list length = %.3f",
-        avgSize.getResult(), avgMaxLength.getResult());
+    final StringBuilder sb = new StringBuilder();
+    sb.append("Index Statistics:\n");
+    sb.append(String.format("Avgerage index size          = %.3f\n", avgSize.getResult()));
+    sb.append(String.format("Avg. max posting list length = %.3f\n", avgMaxLength.getResult()));
+    sb.append(String.format("Total number of candidates   = %d\n", (long) numCandidates.getResult()));
+    sb.append(String.format("Total number of similarities = %d", (long) numSimilarities.getResult()));
+    final String statsString = sb.toString();
     log.info(statsString);
     System.out.println(statsString);
   }

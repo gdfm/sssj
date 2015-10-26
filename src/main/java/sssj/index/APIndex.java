@@ -15,11 +15,9 @@ import sssj.base.Vector;
 import sssj.index.InvertedIndex.PostingEntry;
 import sssj.index.InvertedIndex.PostingList;
 
-public class APIndex implements Index {
+public class APIndex extends AbstractIndex {
   private Int2ReferenceMap<PostingList> idx = new Int2ReferenceOpenHashMap<>();
-  private Residuals resList = new Residuals();
-  private int size;
-  private int maxLength;
+  private Residuals residuals = new Residuals();
   private final double theta;
   private final double lambda;
   private final Vector maxVector;
@@ -32,7 +30,19 @@ public class APIndex implements Index {
 
   @Override
   public Map<Long, Double> queryWith(final Vector v, final boolean addToIndex) {
-    Long2DoubleOpenHashMap matches = new Long2DoubleOpenHashMap();
+    /* candidate generation */
+    Long2DoubleOpenHashMap accumulator = generateCandidates(v);
+    /* candidate verification */
+    Long2DoubleOpenHashMap matches = verifyCandidates(v, accumulator);
+    /* index building */
+    if (addToIndex) {
+      Vector residual = addToIndex(v);
+      residuals.add(residual);
+    }
+    return matches;
+  }
+
+  private Long2DoubleOpenHashMap generateCandidates(final Vector v) {
     Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap();
     // int minSize = theta / rw_x; //TODO possibly size filtering (need to sort dataset by max row weight rw_x)
     double remscore = Vector.similarity(v, maxVector);
@@ -58,73 +68,53 @@ public class APIndex implements Index {
       }
       remscore -= queryWeight * maxVector.get(dimension);
     }
+    numCandidates += accumulator.size();
+    return accumulator;
+  }
 
-    /* candidate verification */
+  private Long2DoubleOpenHashMap verifyCandidates(final Vector v, Long2DoubleOpenHashMap accumulator) {
+    Long2DoubleOpenHashMap matches = new Long2DoubleOpenHashMap();
     for (Long2DoubleMap.Entry e : accumulator.long2DoubleEntrySet()) {
       // TODO possibly use size filtering (sz_3)
       long candidateID = e.getLongKey();
-      Vector candidateResidual = resList.get(candidateID);
+      Vector candidateResidual = residuals.get(candidateID);
       assert (candidateResidual != null);
       double score = e.getDoubleValue() + Vector.similarity(v, candidateResidual); // A[y] + dot(y',x)
       long deltaT = v.timestamp() - candidateID;
       score *= Commons.forgettingFactor(lambda, deltaT); // apply forgetting factor
+      numSimilarities++;
       if (Double.compare(score, theta) >= 0) // final check
         matches.put(candidateID, score);
     }
-
-    if (addToIndex) {
-      double pscore = 0;
-      Vector residual = new Vector(v.timestamp());
-      for (Entry e : v.int2DoubleEntrySet()) {
-        int dimension = e.getIntKey();
-        double weight = e.getDoubleValue();
-        pscore += weight * maxVector.get(dimension);
-        if (Double.compare(pscore, theta) >= 0) {
-          PostingList list;
-          if ((list = idx.get(dimension)) == null) {
-            list = new PostingList();
-            idx.put(dimension, list);
-          }
-          list.add(v.timestamp(), weight);
-          size++;
-          maxLength = Math.max(list.size(), maxLength);
-          // v.remove(dimension);
-        } else {
-          residual.put(dimension, weight);
-        }
-      }
-      resList.add(residual);
-    }
-
     return matches;
   }
 
-  public int size() {
-    return size;
+  private Vector addToIndex(final Vector v) {
+    double pscore = 0;
+    Vector residual = new Vector(v.timestamp());
+    for (Entry e : v.int2DoubleEntrySet()) {
+      int dimension = e.getIntKey();
+      double weight = e.getDoubleValue();
+      pscore += weight * maxVector.get(dimension);
+      if (Double.compare(pscore, theta) >= 0) {
+        PostingList list;
+        if ((list = idx.get(dimension)) == null) {
+          list = new PostingList();
+          idx.put(dimension, list);
+        }
+        list.add(v.timestamp(), weight);
+        size++;
+        maxLength = Math.max(list.size(), maxLength);
+        // v.remove(dimension);
+      } else {
+        residual.put(dimension, weight);
+      }
+    }
+    return residual;
   }
-
-  public int maxLength() {
-    return maxLength;
-  };
-
-  @Override
-  public IndexStatistics stats() {
-    return new IndexStatistics() {
-
-      @Override
-      public int size() {
-        return size;
-      }
-
-      @Override
-      public int maxLength() {
-        return maxLength;
-      }
-    };
-  };
 
   @Override
   public String toString() {
-    return "APIndex [idx=" + idx + ", resList=" + resList + "]";
+    return "APIndex [idx=" + idx + ", residuals=" + residuals + "]";
   }
 }

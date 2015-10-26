@@ -19,7 +19,7 @@ import sssj.base.MaxVector;
 import sssj.base.Residuals;
 import sssj.base.Vector;
 
-public class L2APIndex implements Index {
+public class L2APIndex extends AbstractIndex {
   private final Int2ReferenceMap<L2APPostingList> idx = new Int2ReferenceOpenHashMap<>();
   private final Residuals residuals = new Residuals();
   private final Long2DoubleOpenHashMap ps = new Long2DoubleOpenHashMap();
@@ -27,8 +27,6 @@ public class L2APIndex implements Index {
   private final MaxVector maxVectorInIndex; // \hat{c_w}
   private final double theta;
   private final double lambda;
-  private int size;
-  private int maxLength;
 
   public L2APIndex(double theta, double lambda, MaxVector maxVector) {
     this.theta = theta;
@@ -85,6 +83,7 @@ public class L2APIndex implements Index {
         l2remscore = FastMath.sqrt(rst); // rs_4 = sqrt(rs_t)
       }
     }
+    numCandidates += accumulator.size();
     return accumulator;
   }
 
@@ -105,6 +104,7 @@ public class L2APIndex implements Index {
       final long deltaT = v.timestamp() - candidateID;
       double score = e.getDoubleValue() + Vector.similarity(v, residual); // dot(x, y) = A[y] + dot(x, y')
       score *= forgettingFactor(lambda, deltaT); // apply forgetting factor
+      numSimilarities++;
       if (Double.compare(score, theta) >= 0) // final check
         matches.put(candidateID, score);
     }
@@ -145,30 +145,6 @@ public class L2APIndex implements Index {
     maxVectorInIndex.updateMaxByDimension(v);
     return residual;
   }
-
-  public int size() {
-    return size;
-  }
-
-  public int maxLength() {
-    return maxLength;
-  }
-  
-  @Override
-  public IndexStatistics stats() {
-    return new IndexStatistics() {
-      
-      @Override
-      public int size() {
-        return size;
-      }
-      
-      @Override
-      public int maxLength() {
-        return maxLength;
-      }
-    };
-  };
 
   @Override
   public String toString() {

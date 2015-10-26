@@ -23,7 +23,7 @@ import sssj.index.L2APIndex.L2APPostingEntry;
 
 import com.google.common.primitives.Doubles;
 
-public class StreamingL2APIndex implements Index {
+public class StreamingL2APIndex extends AbstractIndex {
   private final Int2ReferenceMap<StreamingL2APPostingList> idx = new Int2ReferenceOpenHashMap<>();
   private final StreamingResiduals residuals = new StreamingResiduals();
   private final Long2DoubleOpenHashMap ps = new Long2DoubleOpenHashMap();
@@ -33,8 +33,6 @@ public class StreamingL2APIndex implements Index {
   private final double theta;
   private final double lambda;
   private final double tau;
-  private int size;
-  private int maxLength;
 
   public StreamingL2APIndex(double theta, double lambda) {
     this.theta = theta;
@@ -85,7 +83,7 @@ public class StreamingL2APIndex implements Index {
 
   private final void generateCandidates(final Vector v) {
     // lower bound on the forgetting factor w.r.t. the maximum vector
-    final long minDeltaT = v.timestamp() - maxVector.timestamp();
+//    final long minDeltaT = v.timestamp() - maxVector.timestamp();
 // if (Doubles.compare(minDeltaT, tau) > 0) // time filtering // FIXME ff
 // return;
 // final double maxff = forgettingFactor(lambda, minDeltaT);
@@ -143,6 +141,7 @@ public class StreamingL2APIndex implements Index {
         l2remscore = FastMath.sqrt(rst); // rs_4 = sqrt(rs_t)
       }
     }
+    numCandidates += accumulator.size();
   }
 
   private final void verifyCandidates(final Vector v) {
@@ -169,6 +168,7 @@ public class StreamingL2APIndex implements Index {
 
       double score = e.getDoubleValue() + Vector.similarity(v, residual); // dot(x, y) = A[y] + dot(x, y')
       score *= ff; // apply forgetting factor // FIXME ff
+      numSimilarities++;
       if (Double.compare(score, theta) >= 0) // final check
         matches.put(candidateID, score);
     }
@@ -214,30 +214,6 @@ public class StreamingL2APIndex implements Index {
     }
     return residual;
   }
-
-  public int size() {
-    return size;
-  }
-
-  public int maxLength() {
-    return maxLength;
-  }
-
-  @Override
-  public IndexStatistics stats() {
-    return new IndexStatistics() {
-
-      @Override
-      public int size() {
-        return size;
-      }
-
-      @Override
-      public int maxLength() {
-        return maxLength;
-      }
-    };
-  };
 
   @Override
   public String toString() {
