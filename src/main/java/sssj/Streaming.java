@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import sssj.base.Commons.IndexType;
 import sssj.base.Vector;
 import sssj.index.Index;
+import sssj.index.IndexStatistics;
 import sssj.index.StreamingInvertedIndex;
 import sssj.index.StreamingL2APIndex;
 import sssj.index.StreamingPureL2APIndex;
@@ -91,8 +92,9 @@ public class Streaming {
       if (tracker != null)
         tracker.progress();
       Map<Long, Double> results = index.queryWith(v, true);
-      avgSize.increment(index.size());
-      avgMaxLength.increment(index.maxLength());
+      IndexStatistics stats = index.stats();
+      avgSize.increment(stats.size());
+      avgMaxLength.increment(stats.maxLength());
       if (!results.isEmpty())
         System.out.println(v.timestamp() + " ~ " + formatMap(results));
     }

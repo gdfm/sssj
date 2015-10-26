@@ -66,15 +66,29 @@ public class InvertedIndex implements Index {
     return accumulator;
   }
 
-  @Override
   public int size() {
     return size;
   }
 
-  @Override
   public int maxLength() {
     return maxLength;
   }
+
+  @Override
+  public IndexStatistics stats() {
+    return new IndexStatistics() {
+
+      @Override
+      public int size() {
+        return size;
+      }
+
+      @Override
+      public int maxLength() {
+        return maxLength;
+      }
+    };
+  };
 
   @Override
   public String toString() {

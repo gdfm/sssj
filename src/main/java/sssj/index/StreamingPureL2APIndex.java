@@ -172,15 +172,29 @@ public class StreamingPureL2APIndex implements Index {
     return residual;
   }
 
-  @Override
   public int size() {
     return size;
   }
 
-  @Override
   public int maxLength() {
     return maxLength;
   }
+
+  @Override
+  public IndexStatistics stats() {
+    return new IndexStatistics() {
+
+      @Override
+      public int size() {
+        return size;
+      }
+
+      @Override
+      public int maxLength() {
+        return maxLength;
+      }
+    };
+  };
 
   @Override
   public String toString() {

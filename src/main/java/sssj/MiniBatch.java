@@ -22,6 +22,7 @@ import sssj.base.Commons.IndexType;
 import sssj.base.Vector;
 import sssj.index.APIndex;
 import sssj.index.Index;
+import sssj.index.IndexStatistics;
 import sssj.index.InvertedIndex;
 import sssj.index.L2APIndex;
 import sssj.index.VectorWindow;
@@ -94,9 +95,9 @@ public class MiniBatch {
       boolean inWindow = window.add(v);
       while (!inWindow) {
         if (window.size() > 0) {
-          final IndexStats stats = computeBatch(window, theta, lambda, idxType);
-          avgSize.increment(stats.size);
-          avgMaxLength.increment(stats.maxLength);
+          final IndexStatistics stats = computeBatch(window, theta, lambda, idxType);
+          avgSize.increment(stats.size());
+          avgMaxLength.increment(stats.maxLength());
         } else
           window.slide();
         inWindow = window.add(v);
@@ -104,9 +105,9 @@ public class MiniBatch {
     }
     // last 2 window slides
     while (!window.isEmpty()) {
-      final IndexStats stats = computeBatch(window, theta, lambda, idxType);
-      avgSize.increment(stats.size);
-      avgMaxLength.increment(stats.maxLength);
+      final IndexStatistics stats = computeBatch(window, theta, lambda, idxType);
+      avgSize.increment(stats.size());
+      avgMaxLength.increment(stats.maxLength());
     }
     final String statsString = String.format("Avg. index size = %.3f, Avg. max posting list length = %.3f",
         avgSize.getResult(), avgMaxLength.getResult());
@@ -121,9 +122,9 @@ public class MiniBatch {
    * @param theta the similarity threshold
    * @param lambda the forgetting factor
    * @param type which type of index to use
-   * @return the index size
+   * @return the index statistics
    */
-  private static IndexStats computeBatch(VectorWindow window, double theta, double lambda, IndexType type) {
+  private static IndexStatistics computeBatch(VectorWindow window, double theta, double lambda, IndexType type) {
     // select and initialize index
     Index index = null;
     switch (type) {
@@ -155,8 +156,7 @@ public class MiniBatch {
     for (Entry<Long, Map<Long, Double>> row : res2.rowMap().entrySet()) {
       System.out.println(row.getKey() + " ~ " + formatMap(row.getValue()));
     }
-    IndexStats stats = new IndexStats(index.size(), index.maxLength());
-    return stats;
+    return index.stats();
   }
 
   private static BatchResult query(Index index, Iterator<Vector> iterator, final boolean addToIndex) {
@@ -177,23 +177,6 @@ public class MiniBatch {
     @Override
     protected Table<Long, Long, Double> delegate() {
       return delegate;
-    }
-  }
-
-  private static class IndexStats {
-    /**
-     * Number of entries
-     */
-    private final int size;
-
-    /**
-     * Max length of posting list
-     */
-    private final int maxLength;
-
-    public IndexStats(int size, int maxLength) {
-      this.size = size;
-      this.maxLength = maxLength;
     }
   }
 }
