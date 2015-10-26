@@ -72,13 +72,13 @@ public class StreamingInvertedIndex extends AbstractIndex {
         maxLength = Math.max(list.size(), maxLength);
       }
     }
+    numCandidates += accumulator.size();
+    numSimilarities = numCandidates;
 
     // filter candidates < theta
     for (Iterator<Long2DoubleMap.Entry> it = accumulator.long2DoubleEntrySet().iterator(); it.hasNext();)
       if (Doubles.compare(it.next().getDoubleValue(), theta) < 0)
         it.remove();
-    numCandidates += accumulator.size();
-    numSimilarities = numCandidates;
     return accumulator;
   }
 
