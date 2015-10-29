@@ -105,7 +105,6 @@ public class APIndex extends AbstractIndex {
         }
         list.add(v.timestamp(), weight);
         size++;
-        maxLength = Math.max(list.size(), maxLength);
         // v.remove(dimension);
       } else {
         residual.put(dimension, weight);

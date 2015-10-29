@@ -45,7 +45,7 @@ public class StreamingInvertedIndex extends AbstractIndex {
           final PostingEntry pe = it.next();
           final long targetID = pe.getID();
 
-          final int oldLength = list.size();
+          // TODO FIXME
           // time filtering
           final long deltaT = v.timestamp() - targetID;
           if (Doubles.compare(deltaT, tau) > 0) {
@@ -53,8 +53,6 @@ public class StreamingInvertedIndex extends AbstractIndex {
             size--;
             continue;
           }
-          if (oldLength >= maxLength) // heuristic to efficiently maintain the max length
-            maxLength = list.size();
 
           final double targetWeight = pe.getWeight();
           final double additionalSimilarity = queryWeight * targetWeight * forgettingFactor(lambda, deltaT);
@@ -69,7 +67,6 @@ public class StreamingInvertedIndex extends AbstractIndex {
       if (addToIndex) {
         list.add(v.timestamp(), queryWeight);
         size++;
-        maxLength = Math.max(list.size(), maxLength);
       }
     }
     numCandidates += accumulator.size();

@@ -9,13 +9,6 @@ public interface IndexStatistics {
   public int size();
 
   /**
-   * Returns the maximum length of the posting lists in the index.
-   * 
-   * @return the maximum posting list length
-   */
-  public int maxLength();
-
-  /**
    * Returns the total number of posting entries scanned.
    * 
    * @return the total number of posting entries scanned

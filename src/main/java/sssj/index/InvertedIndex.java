@@ -49,7 +49,6 @@ public class InvertedIndex extends AbstractIndex {
         }
         list.add(v.timestamp(), queryWeight);
         size++;
-        maxLength = Math.max(list.size(), maxLength);
       }
     }
 

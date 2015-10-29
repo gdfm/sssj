@@ -138,7 +138,6 @@ public class L2APIndex extends AbstractIndex {
         }
         list.add(v.timestamp(), weight, b3);
         size++;
-        maxLength = Math.max(list.size(), maxLength);
       } else {
         residual.put(dimension, weight);
       }

@@ -18,6 +18,7 @@ import sssj.base.CircularBuffer;
 import sssj.base.StreamingResiduals;
 import sssj.base.Vector;
 import sssj.index.L2APIndex.L2APPostingEntry;
+import sssj.index.StreamingPureL2APIndex.StreamingL2APPostingList.L2APPostingListIterator;
 
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Doubles;
@@ -60,7 +61,6 @@ public class StreamingPureL2APIndex extends AbstractIndex {
     double l2remscore = 1, // rs4
     rst = 1, squaredQueryPrefixMagnitude = 1;
 
-    boolean keepFiltering = true;
     for (BidirectionalIterator<Entry> vecIter = v.int2DoubleEntrySet().fastIterator(v.int2DoubleEntrySet().last()); vecIter
         .hasPrevious();) { // iterate over v in reverse order
       final Entry e = vecIter.previous();
@@ -73,24 +73,19 @@ public class StreamingPureL2APIndex extends AbstractIndex {
       StreamingL2APPostingList list;
       if ((list = idx.get(dimension)) != null) {
         // TODO possibly size filtering: remove entries from the posting list with |y| < minsize (need to save size in the posting list)
-        for (Iterator<L2APPostingEntry> listIter = list.iterator(); listIter.hasNext();) {
+        for (L2APPostingListIterator listIter = list.reverseIterator(); listIter.hasPrevious();) {
           numPostingEntries++;
-          final L2APPostingEntry pe = listIter.next();
+          final L2APPostingEntry pe = listIter.previous();
           final long targetID = pe.getID(); // y
 
-          final int oldLength = list.size();
           // time filtering
-          boolean filtered = false;
           final long deltaT = v.timestamp() - targetID;
-          if (Doubles.compare(deltaT, tau) > 0 && keepFiltering) {
-            listIter.remove();
-            size--;
-            filtered = true;
+          if (Doubles.compare(deltaT, tau) > 0) {
+            listIter.next(); // back off one position
+            listIter.cutHead();
+            size -= listIter.nextIndex();
             continue;
           }
-          keepFiltering &= filtered; // keep filtering only if we have just filtered
-          if (oldLength >= maxLength) // heuristic to efficiently maintain the max length
-            maxLength = list.size();
 
           final double ff = forgettingFactor(lambda, deltaT);
           if (accumulator.containsKey(targetID) || Double.compare(rscore, theta) >= 0) {
@@ -165,7 +160,6 @@ public class StreamingPureL2APIndex extends AbstractIndex {
         }
         list.add(v.timestamp(), weight, b3);
         size++;
-        maxLength = Math.max(list.size(), maxLength);
       } else {
         residual.put(dimension, weight);
       }
@@ -203,11 +197,11 @@ public class StreamingPureL2APIndex extends AbstractIndex {
       return new L2APPostingListIterator();
     }
 
-    public ListIterator<L2APPostingEntry> reverseIterator() {
+    public L2APPostingListIterator reverseIterator() {
       return new L2APPostingListIterator(size());
     }
 
-    private class L2APPostingListIterator implements ListIterator<L2APPostingEntry> {
+    class L2APPostingListIterator implements ListIterator<L2APPostingEntry> {
       private final L2APPostingEntry entry = new L2APPostingEntry();
       private int i;
 
@@ -236,12 +230,8 @@ public class StreamingPureL2APIndex extends AbstractIndex {
       }
 
       @Override
-      public void remove() {
-        i--;
-        assert (i == 0); // removal always happens at the head
-        ids.popLong();
-        weights.popDouble();
-        magnitudes.popDouble();
+      public int nextIndex() {
+        return i;
       }
 
       @Override
@@ -259,13 +249,21 @@ public class StreamingPureL2APIndex extends AbstractIndex {
       }
 
       @Override
-      public int nextIndex() {
-        return i;
+      public int previousIndex() {
+        return i - 1;
       }
 
       @Override
-      public int previousIndex() {
-        return i - 1;
+      public void remove() {
+        i--;
+        assert (i == 0); // removal always happens at the head
+        ids.popLong();
+        weights.popDouble();
+        magnitudes.popDouble();
+      }
+
+      public void cutHead() {
+
       }
 
       @Override

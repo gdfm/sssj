@@ -111,7 +111,6 @@ public class StreamingL2APIndex extends AbstractIndex {
           final L2APPostingEntry pe = listIter.next();
           final long targetID = pe.getID(); // y
 
-          final int oldLength = list.size();
           // time filtering
           boolean filtered = false;
           final long deltaT = v.timestamp() - targetID;
@@ -122,8 +121,6 @@ public class StreamingL2APIndex extends AbstractIndex {
             continue;
           }
           keepFiltering &= filtered; // keep filtering only if we have just filtered
-          if (oldLength >= maxLength) // heuristic to efficiently maintain the max length
-            maxLength = list.size();
 
           final double ff = forgettingFactor(lambda, deltaT);
           if (accumulator.containsKey(targetID) || Double.compare(rscore, theta) >= 0) {
@@ -208,7 +205,6 @@ public class StreamingL2APIndex extends AbstractIndex {
         }
         list.add(v.timestamp(), weight, b3);
         size++;
-        maxLength = Math.max(list.size(), maxLength);
       } else {
         residual.put(dimension, weight);
       }
