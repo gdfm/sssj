@@ -90,7 +90,7 @@ public class MiniBatch {
     VectorWindow window = new VectorWindow(tau, idxType.needsMax());
 
     Mean avgSize = new Mean();
-    Sum numCandidates = new Sum(), numSimilarities = new Sum(), numPostingEntries = new Sum();
+    Sum numPostingEntries = new Sum(), numCandidates = new Sum(), numSimilarities = new Sum(), numMatches = new Sum();
     for (Vector v : stream) {
       if (tracker != null)
         tracker.progress();
@@ -99,9 +99,10 @@ public class MiniBatch {
         if (window.size() > 0) {
           final IndexStatistics stats = computeBatch(window, theta, lambda, idxType);
           avgSize.increment(stats.size());
+          numPostingEntries.increment(stats.numPostingEntries());
           numCandidates.increment(stats.numCandidates());
           numSimilarities.increment(stats.numSimilarities());
-          numPostingEntries.increment(stats.numPostingEntries());
+          numMatches.increment(stats.numMatches());
         } else
           window.slide();
         inWindow = window.add(v);
@@ -111,16 +112,18 @@ public class MiniBatch {
     while (!window.isEmpty()) {
       final IndexStatistics stats = computeBatch(window, theta, lambda, idxType);
       avgSize.increment(stats.size());
+      numPostingEntries.increment(stats.numPostingEntries());
       numCandidates.increment(stats.numCandidates());
       numSimilarities.increment(stats.numSimilarities());
-      numPostingEntries.increment(stats.numPostingEntries());
+      numMatches.increment(stats.numMatches());
     }
     final StringBuilder sb = new StringBuilder();
     sb.append("Index Statistics:\n");
-    sb.append(String.format("Average index size           = %.3f\n", avgSize.getResult()));
+    sb.append(String.format("Average index size           = %.3f\n",      avgSize.getResult()));
+    sb.append(String.format("Total number of entries      = %d"  , (long) numPostingEntries.getResult()));
     sb.append(String.format("Total number of candidates   = %d\n", (long) numCandidates.getResult()));
     sb.append(String.format("Total number of similarities = %d\n", (long) numSimilarities.getResult()));
-    sb.append(String.format("Total number of entries      = %d", (long) numPostingEntries.getResult()));
+    sb.append(String.format("Total number of matches      = %d\n", (long) numMatches.getResult()));
     final String statsString = sb.toString();
     log.info(statsString);
     System.out.println(statsString);

@@ -5,7 +5,6 @@ import java.util.ListIterator;
 
 import sssj.base.CircularBuffer;
 import sssj.index.PostingEntry;
-import sssj.index.minibatch.InvertedIndex;
 
 import com.google.common.base.Preconditions;
 
@@ -30,6 +29,10 @@ public class StreamingPostingList implements Iterable<PostingEntry> {
   @Override
   public Iterator<PostingEntry> iterator() {
     return new StreamingPostingListIterator();
+  }
+
+  public StreamingPostingListIterator reverseIterator() {
+    return new StreamingPostingListIterator(size());
   }
 
   class StreamingPostingListIterator implements ListIterator<PostingEntry> {

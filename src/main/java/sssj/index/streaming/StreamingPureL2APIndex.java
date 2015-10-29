@@ -81,7 +81,7 @@ public class StreamingPureL2APIndex extends AbstractIndex {
             numPostingEntries--; // do not count the last entry
             size -= listIter.nextIndex(); // update size before cutting
             listIter.cutHead();
-            continue;
+            break;
           }
 
           final double ff = forgettingFactor(lambda, deltaT);
@@ -117,7 +117,7 @@ public class StreamingPureL2APIndex extends AbstractIndex {
 
       final long lowWatermark = (long) Math.floor(v.timestamp() - tau);
       final Vector residual = residuals.getAndPrune(candidateID, lowWatermark); // TODO prune also ps?
-      assert (residual != null) : "Residual not found. TS=" + v.timestamp() + " candidateID=" + candidateID;
+      assert (residual != null) : "Residual not found. ID=" + v.timestamp() + " candidateID=" + candidateID;
       final double dpscore = e.getDoubleValue()
           + Math.min(v.maxValue() * residual.size(), residual.maxValue() * v.size());
       if (Double.compare(dpscore * ff, theta) < 0)
@@ -129,6 +129,7 @@ public class StreamingPureL2APIndex extends AbstractIndex {
       if (Double.compare(score, theta) >= 0) // final check
         matches.put(candidateID, score);
     }
+    numMatches += matches.size();
   }
 
   private final Vector addToIndex(final Vector v) {

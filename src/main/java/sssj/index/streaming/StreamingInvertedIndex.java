@@ -13,6 +13,7 @@ import java.util.Map;
 import sssj.base.Vector;
 import sssj.index.AbstractIndex;
 import sssj.index.PostingEntry;
+import sssj.index.streaming.StreamingPostingList.StreamingPostingListIterator;
 
 import com.google.common.primitives.Doubles;
 
@@ -40,18 +41,19 @@ public class StreamingInvertedIndex extends AbstractIndex {
       final double queryWeight = e.getDoubleValue();
       StreamingPostingList list;
       if ((list = idx.get(dimension)) != null) {
-        for (Iterator<PostingEntry> it = list.iterator(); it.hasNext();) {
+        for (StreamingPostingListIterator listIter = list.reverseIterator(); listIter.hasPrevious();) {
           numPostingEntries++;
-          final PostingEntry pe = it.next();
+          final PostingEntry pe = listIter.previous();
           final long targetID = pe.getID();
 
-          // TODO FIXME
           // time filtering
           final long deltaT = v.timestamp() - targetID;
           if (Doubles.compare(deltaT, tau) > 0) {
-            it.remove();
-            size--;
-            continue;
+            listIter.next(); // back off one position
+            numPostingEntries--; // do not count the last entry
+            size -= listIter.nextIndex(); // update size before cutting
+            listIter.cutHead();
+            break;
           }
 
           final double targetWeight = pe.getWeight();
@@ -76,7 +78,7 @@ public class StreamingInvertedIndex extends AbstractIndex {
     for (Iterator<Long2DoubleMap.Entry> it = accumulator.long2DoubleEntrySet().iterator(); it.hasNext();)
       if (Doubles.compare(it.next().getDoubleValue(), theta) < 0)
         it.remove();
-    
+
     numMatches += accumulator.size();
     return accumulator;
   }
