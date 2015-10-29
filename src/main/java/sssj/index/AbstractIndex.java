@@ -5,6 +5,7 @@ public abstract class AbstractIndex implements Index {
   protected long numCandidates;
   protected long numSimilarities;
   protected long numPostingEntries;
+  protected int numMatches;
 
   @Override
   public IndexStatistics stats() {
@@ -28,6 +29,11 @@ public abstract class AbstractIndex implements Index {
       @Override
       public long numPostingEntries() {
         return numPostingEntries;
+      }
+      
+      @Override
+      public int numMatches() {
+        return numMatches;
       }
     };
   }

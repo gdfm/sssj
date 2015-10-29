@@ -28,4 +28,12 @@ public interface IndexStatistics {
    * @return the total number of full similarities computed
    */
   public long numSimilarities();
+  
+  
+  /**
+   * Returns the total number matching pairs found.
+   * 
+   * @return the total number matching pairs found
+   */
+  public int numMatches();
 }

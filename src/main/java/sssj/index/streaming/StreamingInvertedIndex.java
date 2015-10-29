@@ -76,6 +76,8 @@ public class StreamingInvertedIndex extends AbstractIndex {
     for (Iterator<Long2DoubleMap.Entry> it = accumulator.long2DoubleEntrySet().iterator(); it.hasNext();)
       if (Doubles.compare(it.next().getDoubleValue(), theta) < 0)
         it.remove();
+    
+    numMatches += accumulator.size();
     return accumulator;
   }
 

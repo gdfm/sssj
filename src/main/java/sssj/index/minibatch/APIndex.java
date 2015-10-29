@@ -13,7 +13,6 @@ import sssj.base.Commons;
 import sssj.base.Vector;
 import sssj.index.AbstractIndex;
 import sssj.index.PostingEntry;
-import sssj.index.minibatch.InvertedIndex.PostingList;
 
 public class APIndex extends AbstractIndex {
   private Int2ReferenceMap<PostingList> idx = new Int2ReferenceOpenHashMap<>();
@@ -87,6 +86,7 @@ public class APIndex extends AbstractIndex {
       if (Double.compare(score, theta) >= 0) // final check
         matches.put(candidateID, score);
     }
+    numMatches += matches.size();
     return matches;
   }
 
