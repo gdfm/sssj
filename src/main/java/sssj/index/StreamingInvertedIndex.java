@@ -107,7 +107,7 @@ public class StreamingInvertedIndex extends AbstractIndex {
       return new StreamingPostingListIterator();
     }
 
-    class StreamingPostingListIterator implements Iterator<PostingEntry> {
+    class StreamingPostingListIterator implements ListIterator<PostingEntry> {
       private final PostingEntry entry = new PostingEntry();
       private int i = 0;
 

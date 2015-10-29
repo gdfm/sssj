@@ -20,6 +20,7 @@ import sssj.base.StreamingResiduals;
 import sssj.base.Vector;
 import sssj.index.L2APIndex.L2APPostingEntry;
 import sssj.index.StreamingPureL2APIndex.StreamingL2APPostingList;
+import sssj.index.StreamingPureL2APIndex.StreamingL2APPostingList.StreamingL2APPostingListIterator;
 
 import com.google.common.primitives.Doubles;
 
@@ -106,21 +107,19 @@ public class StreamingL2APIndex extends AbstractIndex {
       StreamingL2APPostingList list;
       if ((list = idx.get(dimension)) != null) {
         // TODO possibly size filtering: remove entries from the posting list with |y| < minsize (need to save size in the posting list)
-        for (Iterator<L2APPostingEntry> listIter = list.iterator(); listIter.hasNext();) {
+        for (StreamingL2APPostingListIterator listIter = list.reverseIterator(); listIter.hasPrevious();) {
           numPostingEntries++;
-          final L2APPostingEntry pe = listIter.next();
+          final L2APPostingEntry pe = listIter.previous();
           final long targetID = pe.getID(); // y
 
           // time filtering
-          boolean filtered = false;
           final long deltaT = v.timestamp() - targetID;
-          if (Doubles.compare(deltaT, tau) > 0 && keepFiltering) {
-            listIter.remove();
-            size--;
-            filtered = true;
+          if (Doubles.compare(deltaT, tau) > 0) {
+            listIter.next(); // back off one position
+            size -= listIter.nextIndex(); // update size before cutting
+            listIter.cutHead();
             continue;
           }
-          keepFiltering &= filtered; // keep filtering only if we have just filtered
 
           final double ff = forgettingFactor(lambda, deltaT);
           if (accumulator.containsKey(targetID) || Double.compare(rscore, theta) >= 0) {

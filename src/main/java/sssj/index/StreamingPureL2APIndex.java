@@ -18,7 +18,7 @@ import sssj.base.CircularBuffer;
 import sssj.base.StreamingResiduals;
 import sssj.base.Vector;
 import sssj.index.L2APIndex.L2APPostingEntry;
-import sssj.index.StreamingPureL2APIndex.StreamingL2APPostingList.L2APPostingListIterator;
+import sssj.index.StreamingPureL2APIndex.StreamingL2APPostingList.StreamingL2APPostingListIterator;
 
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Doubles;
@@ -73,7 +73,7 @@ public class StreamingPureL2APIndex extends AbstractIndex {
       StreamingL2APPostingList list;
       if ((list = idx.get(dimension)) != null) {
         // TODO possibly size filtering: remove entries from the posting list with |y| < minsize (need to save size in the posting list)
-        for (L2APPostingListIterator listIter = list.reverseIterator(); listIter.hasPrevious();) {
+        for (StreamingL2APPostingListIterator listIter = list.reverseIterator(); listIter.hasPrevious();) {
           numPostingEntries++;
           final L2APPostingEntry pe = listIter.previous();
           final long targetID = pe.getID(); // y
@@ -82,8 +82,9 @@ public class StreamingPureL2APIndex extends AbstractIndex {
           final long deltaT = v.timestamp() - targetID;
           if (Doubles.compare(deltaT, tau) > 0) {
             listIter.next(); // back off one position
+            numPostingEntries--; // do not count the last entry
+            size -= listIter.nextIndex(); // update size before cutting
             listIter.cutHead();
-            size -= listIter.nextIndex();
             continue;
           }
 
@@ -194,22 +195,22 @@ public class StreamingPureL2APIndex extends AbstractIndex {
 
     @Override
     public Iterator<L2APPostingEntry> iterator() {
-      return new L2APPostingListIterator();
+      return new StreamingL2APPostingListIterator();
     }
 
-    public L2APPostingListIterator reverseIterator() {
-      return new L2APPostingListIterator(size());
+    public StreamingL2APPostingListIterator reverseIterator() {
+      return new StreamingL2APPostingListIterator(size());
     }
 
-    class L2APPostingListIterator implements ListIterator<L2APPostingEntry> {
+    class StreamingL2APPostingListIterator implements ListIterator<L2APPostingEntry> {
       private final L2APPostingEntry entry = new L2APPostingEntry();
       private int i;
 
-      public L2APPostingListIterator() {
+      public StreamingL2APPostingListIterator() {
         this(0);
       }
 
-      public L2APPostingListIterator(int start) {
+      public StreamingL2APPostingListIterator(int start) {
         Preconditions.checkArgument(i >= 0);
         Preconditions.checkArgument(i <= size());
         this.i = start;
