@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.longs.Long2DoubleMap;
 import it.unimi.dsi.fastutil.longs.Long2DoubleOpenHashMap;
 
 import java.util.Iterator;
+import java.util.ListIterator;
 import java.util.Map;
 
 import org.apache.commons.math3.util.FastMath;
@@ -18,6 +19,7 @@ import sssj.base.StreamingResiduals;
 import sssj.base.Vector;
 import sssj.index.L2APIndex.L2APPostingEntry;
 
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.Doubles;
 
 public class StreamingPureL2APIndex extends AbstractIndex {
@@ -173,7 +175,7 @@ public class StreamingPureL2APIndex extends AbstractIndex {
 
   @Override
   public String toString() {
-    return "StreamingL2APIndex [idx=" + idx + ", residuals=" + residuals + ", ps=" + ps + "]";
+    return "StreamingPureL2APIndex [idx=" + idx + ", residuals=" + residuals + ", ps=" + ps + "]";
   }
 
   public static class StreamingL2APPostingList implements Iterable<L2APPostingEntry> {
@@ -198,33 +200,83 @@ public class StreamingPureL2APIndex extends AbstractIndex {
 
     @Override
     public Iterator<L2APPostingEntry> iterator() {
-      return new Iterator<L2APPostingEntry>() {
-        private final L2APPostingEntry entry = new L2APPostingEntry();
-        private int i = 0;
-
-        @Override
-        public boolean hasNext() {
-          return i < ids.size();
-        }
-
-        @Override
-        public L2APPostingEntry next() {
-          entry.setID(ids.peekLong(i));
-          entry.setWeight(weights.peekDouble(i));
-          entry.setMagnitude(magnitudes.peekDouble(i));
-          i++;
-          return entry;
-        }
-
-        @Override
-        public void remove() {
-          i--;
-          assert (i == 0); // removal always happens at the head
-          ids.popLong();
-          weights.popDouble();
-          magnitudes.popDouble();
-        }
-      };
+      return new L2APPostingListIterator();
     }
+
+    public ListIterator<L2APPostingEntry> reverseIterator() {
+      return new L2APPostingListIterator(size());
+    }
+
+    private class L2APPostingListIterator implements ListIterator<L2APPostingEntry> {
+      private final L2APPostingEntry entry = new L2APPostingEntry();
+      private int i;
+
+      public L2APPostingListIterator() {
+        this(0);
+      }
+
+      public L2APPostingListIterator(int start) {
+        Preconditions.checkArgument(i >= 0);
+        Preconditions.checkArgument(i <= size());
+        this.i = start;
+      }
+
+      @Override
+      public boolean hasNext() {
+        return i < ids.size();
+      }
+
+      @Override
+      public L2APPostingEntry next() {
+        entry.setID(ids.peekLong(i));
+        entry.setWeight(weights.peekDouble(i));
+        entry.setMagnitude(magnitudes.peekDouble(i));
+        i++;
+        return entry;
+      }
+
+      @Override
+      public void remove() {
+        i--;
+        assert (i == 0); // removal always happens at the head
+        ids.popLong();
+        weights.popDouble();
+        magnitudes.popDouble();
+      }
+
+      @Override
+      public boolean hasPrevious() {
+        return i > 0;
+      }
+
+      @Override
+      public L2APPostingEntry previous() {
+        i--;
+        entry.setID(ids.peekLong(i));
+        entry.setWeight(weights.peekDouble(i));
+        entry.setMagnitude(magnitudes.peekDouble(i));
+        return entry;
+      }
+
+      @Override
+      public int nextIndex() {
+        return i;
+      }
+
+      @Override
+      public int previousIndex() {
+        return i - 1;
+      }
+
+      @Override
+      public void set(L2APPostingEntry e) {
+        throw new UnsupportedOperationException("Entries in the list are immutable");
+      }
+
+      @Override
+      public void add(L2APPostingEntry e) {
+        throw new UnsupportedOperationException("Entries can only be added at the end of the list");
+      }
+    };
   }
 }

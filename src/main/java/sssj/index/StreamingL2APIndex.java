@@ -15,11 +15,11 @@ import java.util.Map;
 
 import org.apache.commons.math3.util.FastMath;
 
-import sssj.base.CircularBuffer;
 import sssj.base.StreamingMaxVector;
 import sssj.base.StreamingResiduals;
 import sssj.base.Vector;
 import sssj.index.L2APIndex.L2APPostingEntry;
+import sssj.index.StreamingPureL2APIndex.StreamingL2APPostingList;
 
 import com.google.common.primitives.Doubles;
 
@@ -83,7 +83,7 @@ public class StreamingL2APIndex extends AbstractIndex {
 
   private final void generateCandidates(final Vector v) {
     // lower bound on the forgetting factor w.r.t. the maximum vector
-//    final long minDeltaT = v.timestamp() - maxVector.timestamp();
+// final long minDeltaT = v.timestamp() - maxVector.timestamp();
 // if (Doubles.compare(minDeltaT, tau) > 0) // time filtering // FIXME ff
 // return;
 // final double maxff = forgettingFactor(lambda, minDeltaT);
@@ -219,57 +219,5 @@ public class StreamingL2APIndex extends AbstractIndex {
   @Override
   public String toString() {
     return "StreamingL2APIndex [idx=" + idx + ", residuals=" + residuals + ", ps=" + ps + "]";
-  }
-
-  public static class StreamingL2APPostingList implements Iterable<L2APPostingEntry> {
-    private final CircularBuffer ids = new CircularBuffer(); // longs
-    private final CircularBuffer weights = new CircularBuffer(); // doubles
-    private final CircularBuffer magnitudes = new CircularBuffer(); // doubles
-
-    public void add(long vectorID, double weight, double magnitude) {
-      ids.pushLong(vectorID);
-      weights.pushDouble(weight);
-      magnitudes.pushDouble(magnitude);
-    }
-
-    public int size() {
-      return ids.size();
-    }
-
-    @Override
-    public String toString() {
-      return "[ids=" + ids + ", weights=" + weights + ", magnitudes=" + magnitudes + "]";
-    }
-
-    @Override
-    public Iterator<L2APPostingEntry> iterator() {
-      return new Iterator<L2APPostingEntry>() {
-        private final L2APPostingEntry entry = new L2APPostingEntry();
-        private int i = 0;
-
-        @Override
-        public boolean hasNext() {
-          return i < ids.size();
-        }
-
-        @Override
-        public L2APPostingEntry next() {
-          entry.setID(ids.peekLong(i));
-          entry.setWeight(weights.peekDouble(i));
-          entry.setMagnitude(magnitudes.peekDouble(i));
-          i++;
-          return entry;
-        }
-
-        @Override
-        public void remove() {
-          i--;
-          assert (i == 0); // removal always happens at the head
-          ids.popLong();
-          weights.popDouble();
-          magnitudes.popDouble();
-        }
-      };
-    }
   }
 }
