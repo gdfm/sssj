@@ -1,6 +1,7 @@
-package sssj.base;
+package sssj.index.streaming;
 
 import static sssj.base.Commons.forgettingFactor;
+import sssj.base.Vector;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
 

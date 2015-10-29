@@ -1,4 +1,4 @@
-package sssj.index;
+package sssj.index.streaming;
 
 import static sssj.base.Commons.*;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
@@ -10,9 +10,9 @@ import it.unimi.dsi.fastutil.longs.Long2DoubleOpenHashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import sssj.base.CircularBuffer;
 import sssj.base.Vector;
-import sssj.index.InvertedIndex.PostingEntry;
+import sssj.index.AbstractIndex;
+import sssj.index.PostingEntry;
 
 import com.google.common.primitives.Doubles;
 
@@ -82,55 +82,5 @@ public class StreamingInvertedIndex extends AbstractIndex {
   @Override
   public String toString() {
     return "StreamingInvertedIndex [idx=" + idx + "]";
-  }
-
-  static class StreamingPostingList implements Iterable<PostingEntry> {
-    private CircularBuffer ids = new CircularBuffer(); // longs
-    private CircularBuffer weights = new CircularBuffer(); // doubles
-
-    public void add(long vectorID, double weight) {
-      ids.pushLong(vectorID);
-      weights.pushDouble(weight);
-    }
-
-    public int size() {
-      return ids.size();
-    }
-
-    @Override
-    public String toString() {
-      return "[ids=" + ids + ", weights=" + weights + "]";
-    }
-
-    @Override
-    public Iterator<PostingEntry> iterator() {
-      return new StreamingPostingListIterator();
-    }
-
-    class StreamingPostingListIterator implements ListIterator<PostingEntry> {
-      private final PostingEntry entry = new PostingEntry();
-      private int i = 0;
-
-      @Override
-      public boolean hasNext() {
-        return i < ids.size();
-      }
-
-      @Override
-      public PostingEntry next() {
-        entry.setID(ids.peekLong(i));
-        entry.setWeight(weights.peekDouble(i));
-        i++;
-        return entry;
-      }
-
-      @Override
-      public void remove() {
-        i--;
-        assert (i == 0); // removals always happen at the head
-        ids.popLong();
-        weights.popDouble();
-      }
-    }
   }
 }

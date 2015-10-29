@@ -1,4 +1,4 @@
-package sssj.index;
+package sssj.index.minibatch;
 
 import static sssj.base.Commons.forgettingFactor;
 import it.unimi.dsi.fastutil.BidirectionalIterator;
@@ -15,9 +15,9 @@ import java.util.Map;
 
 import org.apache.commons.math3.util.FastMath;
 
-import sssj.base.MaxVector;
-import sssj.base.Residuals;
 import sssj.base.Vector;
+import sssj.index.AbstractIndex;
+import sssj.index.L2APPostingEntry;
 
 public class L2APIndex extends AbstractIndex {
   private final Int2ReferenceMap<L2APPostingList> idx = new Int2ReferenceOpenHashMap<>();
@@ -68,13 +68,13 @@ public class L2APIndex extends AbstractIndex {
         // TODO possibly size filtering: remove entries from the posting list with |y| < minsize (need to save size in the posting list)
         for (L2APPostingEntry pe : list) {
           numPostingEntries++;
-          final long targetID = pe.getID(); // y
+          final long targetID = pe.id(); // y
           if (accumulator.containsKey(targetID) || Double.compare(rscore, theta) >= 0) {
-            final double targetWeight = pe.getWeight(); // y_j
+            final double targetWeight = pe.weight(); // y_j
             final double additionalSimilarity = queryWeight * targetWeight; // x_j * y_j
             accumulator.addTo(targetID, additionalSimilarity); // A[y] += x_j * y_j
             final double l2bound = accumulator.get(targetID) + FastMath.sqrt(squaredQueryPrefixMagnitude)
-                * pe.magnitude; // A[y] + ||x'_j|| * ||y'_j||
+                * pe.magnitude(); // A[y] + ||x'_j|| * ||y'_j||
             if (Double.compare(l2bound, theta) < 0)
               accumulator.remove(targetID); // prune this candidate (early verification)
           }
@@ -199,51 +199,6 @@ public class L2APIndex extends AbstractIndex {
           magnitudes.removeDouble(i);
         }
       };
-    }
-  }
-
-  public static class L2APPostingEntry {
-    protected long id;
-    protected double weight;
-    protected double magnitude;
-
-    public L2APPostingEntry() {
-      this(0, 0, 0);
-    }
-
-    public L2APPostingEntry(long id, double weight, double magnitude) {
-      this.id = id;
-      this.weight = weight;
-      this.magnitude = magnitude;
-    }
-
-    public void setID(long id) {
-      this.id = id;
-    }
-
-    public void setWeight(double weight) {
-      this.weight = weight;
-    }
-
-    public void setMagnitude(double magnitude) {
-      this.magnitude = magnitude;
-    }
-
-    public long getID() {
-      return id;
-    }
-
-    public double getWeight() {
-      return weight;
-    }
-
-    public double getMagnitude() {
-      return magnitude;
-    }
-
-    @Override
-    public String toString() {
-      return "[" + id + " -> " + weight + " (" + magnitude + ")]";
     }
   }
 

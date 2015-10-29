@@ -1,4 +1,4 @@
-package sssj.index;
+package sssj.index.minibatch;
 
 import static sssj.base.Commons.forgettingFactor;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
@@ -13,6 +13,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 import sssj.base.Vector;
+import sssj.index.AbstractIndex;
+import sssj.index.PostingEntry;
 
 import com.google.common.primitives.Doubles;
 
@@ -114,41 +116,6 @@ public class InvertedIndex extends AbstractIndex {
           weights.removeDouble(i);
         }
       };
-    }
-  }
-
-  static class PostingEntry {
-    protected long id;
-    protected double weight;
-
-    public PostingEntry() {
-      this(0, 0);
-    }
-
-    public PostingEntry(long key, double value) {
-      this.id = key;
-      this.weight = value;
-    }
-
-    public void setID(long id) {
-      this.id = id;
-    }
-
-    public void setWeight(double weight) {
-      this.weight = weight;
-    }
-
-    public long getID() {
-      return id;
-    }
-
-    public double getWeight() {
-      return weight;
-    }
-
-    @Override
-    public String toString() {
-      return "[" + id + " -> " + weight + "]";
     }
   }
 }

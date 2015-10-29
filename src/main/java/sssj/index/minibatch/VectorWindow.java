@@ -1,10 +1,9 @@
-package sssj.index;
+package sssj.index.minibatch;
 
 import java.util.ArrayDeque;
 import java.util.Iterator;
 import java.util.Queue;
 
-import sssj.base.MaxVector;
 import sssj.base.Vector;
 
 import com.google.common.base.Preconditions;

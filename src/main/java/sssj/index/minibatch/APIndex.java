@@ -1,4 +1,4 @@
-package sssj.index;
+package sssj.index.minibatch;
 
 import it.unimi.dsi.fastutil.BidirectionalIterator;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap.Entry;
@@ -10,10 +10,10 @@ import it.unimi.dsi.fastutil.longs.Long2DoubleOpenHashMap;
 import java.util.Map;
 
 import sssj.base.Commons;
-import sssj.base.Residuals;
 import sssj.base.Vector;
-import sssj.index.InvertedIndex.PostingEntry;
-import sssj.index.InvertedIndex.PostingList;
+import sssj.index.AbstractIndex;
+import sssj.index.PostingEntry;
+import sssj.index.minibatch.InvertedIndex.PostingList;
 
 public class APIndex extends AbstractIndex {
   private Int2ReferenceMap<PostingList> idx = new Int2ReferenceOpenHashMap<>();
