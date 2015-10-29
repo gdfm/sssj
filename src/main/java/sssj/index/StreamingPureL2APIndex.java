@@ -263,7 +263,10 @@ public class StreamingPureL2APIndex extends AbstractIndex {
       }
 
       public void cutHead() {
-
+        ids.trimHead(i);
+        weights.trimHead(i);
+        magnitudes.trimHead(i);
+        i = 0;
       }
 
       @Override
