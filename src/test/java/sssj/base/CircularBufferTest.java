@@ -68,4 +68,19 @@ public class CircularBufferTest {
     assertEquals(5, b.popLong());
     assertEquals(6, b.popLong());
   }
+
+  @Test
+  public void testTrimHead() {
+    CircularBuffer b = new CircularBuffer(4);
+    for (int i = 0; i < 10; i++) {
+      b.pushLong(i);
+    }
+    assertEquals(10, b.size());
+    b.trimHead(5);
+    assertEquals(5, b.size());
+    for (int i = 5; i < 10; i++) {
+      assertEquals(i, b.popLong());
+    }
+    assertEquals(16, b.capacity()); // internal detail
+  }
 }

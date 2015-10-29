@@ -12,10 +12,18 @@ public final class CircularBuffer {
   private int head, tail, size;
   private ByteBuffer buffer;
 
+  /**
+   * Create a CircularBuffer of default initial size (1024 elements).
+   */
   public CircularBuffer() {
     this(DEFAULT_SIZE);
   }
 
+  /**
+   * Create a CircularBuffer of the specified initial size.
+   * 
+   * @param the initial number of elements to hold in the circular buffer
+   */
   public CircularBuffer(int size) {
     this.buffer = ByteBuffer.allocate(size * Longs.BYTES);
   }
@@ -64,6 +72,18 @@ public final class CircularBuffer {
     buffer.putDouble(tail, d);
     tail = (tail + Longs.BYTES) % buffer.capacity();
     return this;
+  }
+
+  /**
+   * Drop elements from the front (head) of the buffer.
+   * 
+   * @param n how many elements to drop.
+   */
+  public void trimHead(int n) {
+    if (this.size() < n)
+      throw new BufferUnderflowException();
+    size -= n;
+    head = (head + n * Longs.BYTES) % buffer.capacity();
   }
 
   public final boolean isEmpty() {
