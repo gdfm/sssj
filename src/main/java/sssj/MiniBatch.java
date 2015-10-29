@@ -120,10 +120,10 @@ public class MiniBatch {
     final StringBuilder sb = new StringBuilder();
     sb.append("Index Statistics:\n");
     sb.append(String.format("Average index size           = %.3f\n",      avgSize.getResult()));
-    sb.append(String.format("Total number of entries      = %d"  , (long) numPostingEntries.getResult()));
+    sb.append(String.format("Total number of entries      = %d\n", (long) numPostingEntries.getResult()));
     sb.append(String.format("Total number of candidates   = %d\n", (long) numCandidates.getResult()));
     sb.append(String.format("Total number of similarities = %d\n", (long) numSimilarities.getResult()));
-    sb.append(String.format("Total number of matches      = %d\n", (long) numMatches.getResult()));
+    sb.append(String.format("Total number of matches      = %d"  , (long) numMatches.getResult()));
     final String statsString = sb.toString();
     log.info(statsString);
     System.out.println(statsString);
