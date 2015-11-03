@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 import json
 import gzip
@@ -9,7 +10,6 @@ from collections import Counter
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
-from __future__ import print_function
 
 def clean_text(text):
   words = text.encode("utf-8","ignore") # remove weird characters
@@ -59,4 +59,4 @@ print("Dataset statistics: {} x {} sparse matrix with {} non-zero elements".form
 for (ts, vec) in sorted(dataset, key=lambda tup: tup[0]):
   vec.sort_indices()
   out = str(ts)  + " " + " ".join( [":".join([str(k),str(v)]) for k,v in zip(vec.indices, vec.data) ])
-  print out
+  print(out)

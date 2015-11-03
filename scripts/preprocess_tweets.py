@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 import gzip
 import re
@@ -8,6 +9,7 @@ from collections import Counter
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import HashingVectorizer
 
 def clean_text(text):
   words = text.decode("utf-8", "ignore") # remove weird characters
@@ -52,7 +54,8 @@ for ts in timestamps:
 timestamps = newts # ignore collisions (no collision unless there are >1000 pages with identical timestamp), check the output after!
 
 # feature extraction
-vectorizer = TfidfVectorizer(analyzer="word", max_features=100000, min_df=50, norm="l2")
+#vectorizer = TfidfVectorizer(analyzer="word", max_features=100000, min_df=50, norm="l2")
+vectorizer = HashingVectorizer(analyzer="word", n_features=100000, non_negative=True, min_df=50, norm="l2")
 features = vectorizer.fit_transform(corpus)
 dataset = zip(timestamps, features)
 print("Dataset statistics: {} x {} sparse matrix with {} non-zero elements".format(features.shape[0], features.shape[1], features.nnz), file=sys.stderr)
@@ -61,4 +64,4 @@ print("Dataset statistics: {} x {} sparse matrix with {} non-zero elements".form
 for (ts, vec) in sorted(dataset, key=lambda tup: tup[0]):
   vec.sort_indices()
   out = str(ts)  + " " + " ".join( [":".join([str(k),str(v)]) for k,v in zip(vec.indices, vec.data) ])
-  print out
+  print(out)
