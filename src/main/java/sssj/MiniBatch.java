@@ -26,6 +26,7 @@ import sssj.index.IndexStatistics;
 import sssj.index.minibatch.APIndex;
 import sssj.index.minibatch.InvertedIndex;
 import sssj.index.minibatch.L2APIndex;
+import sssj.index.minibatch.PureL2APIndex;
 import sssj.index.minibatch.components.VectorWindow;
 import sssj.io.Format;
 import sssj.io.VectorStream;
@@ -56,7 +57,8 @@ public class MiniBatch {
     parser.addArgument("-r", "--report").metavar("period").type(Integer.class).setDefault(DEFAULT_REPORT_PERIOD)
         .help("progress report period");
     parser.addArgument("-i", "--index").type(IndexType.class)
-        .choices(IndexType.INVERTED, IndexType.L2AP, IndexType.ALLPAIRS).setDefault(INVERTED).help("type of indexing");
+        .choices(IndexType.INVERTED, IndexType.ALLPAIRS, IndexType.L2AP, IndexType.PUREL2AP).setDefault(INVERTED)
+        .help("type of indexing");
     parser.addArgument("-f", "--format").type(Format.class).choices(Format.values()).setDefault(Format.BINARY)
         .help("input format");
     parser.addArgument("input").metavar("file")
@@ -119,11 +121,11 @@ public class MiniBatch {
     }
     final StringBuilder sb = new StringBuilder();
     sb.append("Index Statistics:\n");
-    sb.append(String.format("Average index size           = %.3f\n",      avgSize.getResult()));
+    sb.append(String.format("Average index size           = %.3f\n", avgSize.getResult()));
     sb.append(String.format("Total number of entries      = %d\n", (long) numPostingEntries.getResult()));
     sb.append(String.format("Total number of candidates   = %d\n", (long) numCandidates.getResult()));
     sb.append(String.format("Total number of similarities = %d\n", (long) numSimilarities.getResult()));
-    sb.append(String.format("Total number of matches      = %d"  , (long) numMatches.getResult()));
+    sb.append(String.format("Total number of matches      = %d", (long) numMatches.getResult()));
     final String statsString = sb.toString();
     log.info(statsString);
     System.out.println(statsString);
@@ -150,6 +152,9 @@ public class MiniBatch {
       break;
     case L2AP:
       index = new L2APIndex(theta, lambda, window.getMax());
+      break;
+    case PUREL2AP:
+      index = new PureL2APIndex(theta, lambda);
       break;
     default:
       throw new RuntimeException("Unsupported index type");

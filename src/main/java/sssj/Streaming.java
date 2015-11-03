@@ -29,8 +29,8 @@ import sssj.time.Timeline.Sequential;
 import com.github.gdfm.shobaidogu.ProgressTracker;
 
 public class Streaming {
-  private static final Logger log = LoggerFactory.getLogger(Streaming.class);
   private static final String ALGO = "Streaming";
+  private static final Logger log = LoggerFactory.getLogger(Streaming.class);
 
   public static void main(String[] args) throws Exception {
     ArgumentParser parser = ArgumentParsers.newArgumentParser(ALGO).description("SSSJ in " + ALGO + " mode.")
@@ -100,10 +100,10 @@ public class Streaming {
     final StringBuilder sb = new StringBuilder();
     sb.append("Index Statistics:\n");
     sb.append(String.format("Average index size           = %.3f\n", avgSize.getResult()));
-    sb.append(String.format("Total number of entries      = %d\n"  , index.stats().numPostingEntries()));
-    sb.append(String.format("Total number of candidates   = %d\n"  , index.stats().numCandidates()));
-    sb.append(String.format("Total number of similarities = %d\n"  , index.stats().numSimilarities()));
-    sb.append(String.format("Total number of matches      = %d"    , index.stats().numMatches()));
+    sb.append(String.format("Total number of entries      = %d\n", index.stats().numPostingEntries()));
+    sb.append(String.format("Total number of candidates   = %d\n", index.stats().numCandidates()));
+    sb.append(String.format("Total number of similarities = %d\n", index.stats().numSimilarities()));
+    sb.append(String.format("Total number of matches      = %d", index.stats().numMatches()));
     final String statsString = sb.toString();
     log.info(statsString);
     System.out.println(statsString);
