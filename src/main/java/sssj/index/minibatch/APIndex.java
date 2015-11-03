@@ -13,6 +13,8 @@ import sssj.base.Commons;
 import sssj.base.Vector;
 import sssj.index.AbstractIndex;
 import sssj.index.PostingEntry;
+import sssj.index.minibatch.components.PostingList;
+import sssj.index.minibatch.components.Residuals;
 
 public class APIndex extends AbstractIndex {
   private Int2ReferenceMap<PostingList> idx = new Int2ReferenceOpenHashMap<>();

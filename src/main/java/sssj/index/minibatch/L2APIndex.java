@@ -15,6 +15,9 @@ import org.apache.commons.math3.util.FastMath;
 import sssj.base.Vector;
 import sssj.index.AbstractIndex;
 import sssj.index.L2APPostingEntry;
+import sssj.index.minibatch.components.L2APPostingList;
+import sssj.index.minibatch.components.MaxVector;
+import sssj.index.minibatch.components.Residuals;
 
 public class L2APIndex extends AbstractIndex {
   private final Int2ReferenceMap<L2APPostingList> idx = new Int2ReferenceOpenHashMap<>();
@@ -53,16 +56,16 @@ public class L2APIndex extends AbstractIndex {
     double l2remscore = 1, // rs4
     rst = 1, squaredQueryPrefixMagnitude = 1;
 
-    for (BidirectionalIterator<Entry> it = v.int2DoubleEntrySet().fastIterator(v.int2DoubleEntrySet().last()); it
+    for (BidirectionalIterator<Entry> vecIter = v.int2DoubleEntrySet().fastIterator(v.int2DoubleEntrySet().last()); vecIter
         .hasPrevious();) { // iterate over v in reverse order
-      final Entry e = it.previous();
+      final Entry e = vecIter.previous();
       final int dimension = e.getIntKey();
       final double queryWeight = e.getDoubleValue(); // x_j
       final double rscore = Math.min(remscore, l2remscore);
       squaredQueryPrefixMagnitude -= queryWeight * queryWeight;
+
       L2APPostingList list;
       if ((list = idx.get(dimension)) != null) {
-        // TODO possibly size filtering: remove entries from the posting list with |y| < minsize (need to save size in the posting list)
         for (L2APPostingEntry pe : list) {
           numPostingEntries++;
           final long targetID = pe.id(); // y

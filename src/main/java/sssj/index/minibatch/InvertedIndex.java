@@ -13,6 +13,7 @@ import java.util.Map;
 import sssj.base.Vector;
 import sssj.index.AbstractIndex;
 import sssj.index.PostingEntry;
+import sssj.index.minibatch.components.PostingList;
 
 import com.google.common.primitives.Doubles;
 

@@ -26,7 +26,7 @@ import sssj.index.IndexStatistics;
 import sssj.index.minibatch.APIndex;
 import sssj.index.minibatch.InvertedIndex;
 import sssj.index.minibatch.L2APIndex;
-import sssj.index.minibatch.VectorWindow;
+import sssj.index.minibatch.components.VectorWindow;
 import sssj.io.Format;
 import sssj.io.VectorStream;
 import sssj.io.VectorStreamFactory;

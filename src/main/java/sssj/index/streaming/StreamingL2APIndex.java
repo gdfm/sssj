@@ -18,7 +18,10 @@ import org.apache.commons.math3.util.FastMath;
 import sssj.base.Vector;
 import sssj.index.AbstractIndex;
 import sssj.index.L2APPostingEntry;
-import sssj.index.streaming.StreamingL2APPostingList.StreamingL2APPostingListIterator;
+import sssj.index.streaming.components.StreamingL2APPostingList;
+import sssj.index.streaming.components.StreamingMaxVector;
+import sssj.index.streaming.components.StreamingResiduals;
+import sssj.index.streaming.components.StreamingL2APPostingList.StreamingL2APPostingListIterator;
 
 import com.google.common.primitives.Doubles;
 
@@ -103,7 +106,6 @@ public class StreamingL2APIndex extends AbstractIndex {
 
       StreamingL2APPostingList list;
       if ((list = idx.get(dimension)) != null) {
-        // TODO possibly size filtering: remove entries from the posting list with |y| < minsize (need to save size in the posting list)
         for (StreamingL2APPostingListIterator listIter = list.reverseIterator(); listIter.hasPrevious();) {
           numPostingEntries++;
           final L2APPostingEntry pe = listIter.previous();
@@ -115,7 +117,7 @@ public class StreamingL2APIndex extends AbstractIndex {
             listIter.next(); // back off one position
             numPostingEntries--; // do not count the last entry
             size -= listIter.nextIndex(); // update size before cutting
-            listIter.cutHead();
+            listIter.cutHead(); // prune the head
             break;
           }
 
@@ -141,7 +143,6 @@ public class StreamingL2APIndex extends AbstractIndex {
 
   private final void verifyCandidates(final Vector v) {
     for (Long2DoubleMap.Entry e : accumulator.long2DoubleEntrySet()) {
-      // TODO possibly use size filtering (sz_3)
       final long candidateID = e.getLongKey();
       final long deltaT = v.timestamp() - candidateID;
       if (deltaT > tau) // time filtering // FIXME ff (should not even be needed)

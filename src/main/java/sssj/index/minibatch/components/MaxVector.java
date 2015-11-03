@@ -1,4 +1,4 @@
-package sssj.index.minibatch;
+package sssj.index.minibatch.components;
 
 import sssj.base.Vector;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;

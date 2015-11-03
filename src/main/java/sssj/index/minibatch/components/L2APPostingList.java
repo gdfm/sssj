@@ -1,4 +1,4 @@
-package sssj.index.minibatch;
+package sssj.index.minibatch.components;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.longs.LongArrayList;

@@ -1,4 +1,4 @@
-package sssj.index.streaming;
+package sssj.index.streaming.components;
 
 import java.util.Iterator;
 import java.util.ListIterator;
@@ -35,7 +35,7 @@ public class StreamingPostingList implements Iterable<PostingEntry> {
     return new StreamingPostingListIterator(size());
   }
 
-  class StreamingPostingListIterator implements ListIterator<PostingEntry> {
+  public class StreamingPostingListIterator implements ListIterator<PostingEntry> {
     private final PostingEntry entry = new PostingEntry();
     private int i = 0;
 

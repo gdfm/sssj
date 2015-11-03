@@ -15,7 +15,9 @@ import org.apache.commons.math3.util.FastMath;
 import sssj.base.Vector;
 import sssj.index.AbstractIndex;
 import sssj.index.L2APPostingEntry;
-import sssj.index.streaming.StreamingL2APPostingList.StreamingL2APPostingListIterator;
+import sssj.index.streaming.components.StreamingL2APPostingList;
+import sssj.index.streaming.components.StreamingResiduals;
+import sssj.index.streaming.components.StreamingL2APPostingList.StreamingL2APPostingListIterator;
 
 import com.google.common.primitives.Doubles;
 
@@ -62,13 +64,11 @@ public class StreamingPureL2APIndex extends AbstractIndex {
       final Entry e = vecIter.previous();
       final int dimension = e.getIntKey();
       final double queryWeight = e.getDoubleValue(); // x_j
-      // forgetting factor applied directly to the l2prefix bound
-      final double rscore = l2remscore;
+      final double rscore = l2remscore; // forgetting factor applied directly to the l2prefix bound
       squaredQueryPrefixMagnitude -= queryWeight * queryWeight;
 
       StreamingL2APPostingList list;
       if ((list = idx.get(dimension)) != null) {
-        // TODO possibly size filtering: remove entries from the posting list with |y| < minsize (need to save size in the posting list)
         for (StreamingL2APPostingListIterator listIter = list.reverseIterator(); listIter.hasPrevious();) {
           numPostingEntries++;
           final L2APPostingEntry pe = listIter.previous();
@@ -80,7 +80,7 @@ public class StreamingPureL2APIndex extends AbstractIndex {
             listIter.next(); // back off one position
             numPostingEntries--; // do not count the last entry
             size -= listIter.nextIndex(); // update size before cutting
-            listIter.cutHead();
+            listIter.cutHead(); // prune the head
             break;
           }
 

@@ -1,4 +1,4 @@
-package sssj.index.minibatch;
+package sssj.index.minibatch.components;
 
 import java.util.Iterator;
 import java.util.LinkedList;

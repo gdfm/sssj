@@ -1,4 +1,4 @@
-package sssj.index.streaming;
+package sssj.index.streaming.components;
 
 import static sssj.base.Commons.forgettingFactor;
 import sssj.base.Vector;

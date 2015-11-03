@@ -1,4 +1,4 @@
-package sssj.index.streaming;
+package sssj.index.streaming.components;
 
 import it.unimi.dsi.fastutil.longs.Long2ReferenceLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceMap.Entry;
@@ -40,6 +40,7 @@ public class StreamingResiduals implements Iterable<Vector> {
       final Vector v = it.next().getValue();
       if (lowWatermark > v.timestamp())
         it.remove();
+      // FIXME optimize pruning
       if (candidateID == v.timestamp())
         return v;
     }

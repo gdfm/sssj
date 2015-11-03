@@ -13,7 +13,8 @@ import java.util.Map;
 import sssj.base.Vector;
 import sssj.index.AbstractIndex;
 import sssj.index.PostingEntry;
-import sssj.index.streaming.StreamingPostingList.StreamingPostingListIterator;
+import sssj.index.streaming.components.StreamingPostingList;
+import sssj.index.streaming.components.StreamingPostingList.StreamingPostingListIterator;
 
 import com.google.common.primitives.Doubles;
 
@@ -52,7 +53,7 @@ public class StreamingInvertedIndex extends AbstractIndex {
             listIter.next(); // back off one position
             numPostingEntries--; // do not count the last entry
             size -= listIter.nextIndex(); // update size before cutting
-            listIter.cutHead();
+            listIter.cutHead(); // prune the head
             break;
           }
 
