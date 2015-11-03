@@ -1,6 +1,6 @@
 package sssj.index.minibatch;
 
-import static sssj.base.Commons.forgettingFactor;
+import static sssj.util.Commons.forgettingFactor;
 import it.unimi.dsi.fastutil.BidirectionalIterator;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap.Entry;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
@@ -12,11 +12,11 @@ import java.util.Map;
 
 import org.apache.commons.math3.util.FastMath;
 
-import sssj.base.Vector;
 import sssj.index.AbstractIndex;
 import sssj.index.L2APPostingEntry;
-import sssj.index.minibatch.components.L2APPostingList;
-import sssj.index.minibatch.components.Residuals;
+import sssj.index.minibatch.component.L2APPostingList;
+import sssj.index.minibatch.component.Residuals;
+import sssj.io.Vector;
 
 public class PureL2APIndex extends AbstractIndex {
   private final Int2ReferenceMap<L2APPostingList> idx = new Int2ReferenceOpenHashMap<>();

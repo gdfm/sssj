@@ -1,6 +1,6 @@
-package sssj.index.minibatch.components;
+package sssj.index.minibatch.component;
 
-import sssj.base.Vector;
+import sssj.io.Vector;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 
 public class MaxVector extends Vector {

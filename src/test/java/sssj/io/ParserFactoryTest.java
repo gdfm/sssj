@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import sssj.base.Vector;
 import sssj.io.Format;
 
 public class ParserFactoryTest {

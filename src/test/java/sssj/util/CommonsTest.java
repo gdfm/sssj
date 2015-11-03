@@ -1,7 +1,9 @@
-package sssj.base;
+package sssj.util;
 
 import org.apache.commons.math3.util.FastMath;
 import org.junit.Test;
+
+import sssj.util.Commons;
 
 @SuppressWarnings("unused")
 public class CommonsTest {

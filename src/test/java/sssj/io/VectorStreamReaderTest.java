@@ -7,7 +7,6 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import sssj.base.Vector;
 import sssj.io.Format;
 import sssj.io.VectorStreamReader;
 

@@ -9,12 +9,12 @@ import it.unimi.dsi.fastutil.longs.Long2DoubleOpenHashMap;
 
 import java.util.Map;
 
-import sssj.base.Commons;
-import sssj.base.Vector;
 import sssj.index.AbstractIndex;
 import sssj.index.PostingEntry;
-import sssj.index.minibatch.components.PostingList;
-import sssj.index.minibatch.components.Residuals;
+import sssj.index.minibatch.component.PostingList;
+import sssj.index.minibatch.component.Residuals;
+import sssj.io.Vector;
+import sssj.util.Commons;
 
 public class APIndex extends AbstractIndex {
   private Int2ReferenceMap<PostingList> idx = new Int2ReferenceOpenHashMap<>();

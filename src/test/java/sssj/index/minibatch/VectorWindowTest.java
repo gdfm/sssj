@@ -4,8 +4,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import sssj.base.Vector;
-import sssj.index.minibatch.components.VectorWindow;
+import sssj.index.minibatch.component.VectorWindow;
+import sssj.io.Vector;
 
 import com.google.common.collect.Iterators;
 

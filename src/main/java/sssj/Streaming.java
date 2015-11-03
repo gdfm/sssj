@@ -1,6 +1,6 @@
 package sssj;
 
-import static sssj.base.Commons.*;
+import static sssj.util.Commons.*;
 
 import java.io.File;
 import java.util.Map;
@@ -14,14 +14,14 @@ import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import sssj.base.Commons.IndexType;
-import sssj.base.Vector;
 import sssj.index.Index;
 import sssj.index.IndexStatistics;
+import sssj.index.IndexType;
 import sssj.index.streaming.StreamingInvertedIndex;
 import sssj.index.streaming.StreamingL2APIndex;
 import sssj.index.streaming.StreamingPureL2APIndex;
 import sssj.io.Format;
+import sssj.io.Vector;
 import sssj.io.VectorStream;
 import sssj.io.VectorStreamFactory;
 import sssj.time.Timeline.Sequential;

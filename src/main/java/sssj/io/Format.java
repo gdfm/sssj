@@ -1,7 +1,5 @@
 package sssj.io;
 
-import sssj.base.Vector;
-
 import com.google.common.base.Function;
 
 public enum Format {

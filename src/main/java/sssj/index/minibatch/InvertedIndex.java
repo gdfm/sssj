@@ -1,6 +1,6 @@
 package sssj.index.minibatch;
 
-import static sssj.base.Commons.forgettingFactor;
+import static sssj.util.Commons.forgettingFactor;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap.Entry;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
@@ -10,10 +10,10 @@ import it.unimi.dsi.fastutil.longs.Long2DoubleOpenHashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import sssj.base.Vector;
 import sssj.index.AbstractIndex;
 import sssj.index.PostingEntry;
-import sssj.index.minibatch.components.PostingList;
+import sssj.index.minibatch.component.PostingList;
+import sssj.io.Vector;
 
 import com.google.common.primitives.Doubles;
 

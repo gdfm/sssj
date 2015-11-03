@@ -1,4 +1,4 @@
-package sssj.base;
+package sssj.io;
 
 import it.unimi.dsi.fastutil.ints.Int2DoubleLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;

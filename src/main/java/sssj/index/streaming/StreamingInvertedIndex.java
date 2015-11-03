@@ -1,6 +1,6 @@
 package sssj.index.streaming;
 
-import static sssj.base.Commons.*;
+import static sssj.util.Commons.*;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
@@ -10,11 +10,11 @@ import it.unimi.dsi.fastutil.longs.Long2DoubleOpenHashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import sssj.base.Vector;
 import sssj.index.AbstractIndex;
 import sssj.index.PostingEntry;
-import sssj.index.streaming.components.StreamingPostingList;
-import sssj.index.streaming.components.StreamingPostingList.StreamingPostingListIterator;
+import sssj.index.streaming.component.StreamingPostingList;
+import sssj.index.streaming.component.StreamingPostingList.StreamingPostingListIterator;
+import sssj.io.Vector;
 
 import com.google.common.primitives.Doubles;
 

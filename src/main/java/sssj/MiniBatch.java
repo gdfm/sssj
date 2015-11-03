@@ -1,7 +1,6 @@
 package sssj;
 
-import static sssj.base.Commons.*;
-import static sssj.base.Commons.IndexType.INVERTED;
+import static sssj.util.Commons.*;
 
 import java.io.File;
 import java.util.Iterator;
@@ -18,20 +17,20 @@ import org.apache.commons.math3.stat.descriptive.summary.Sum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import sssj.base.Commons;
-import sssj.base.Commons.IndexType;
-import sssj.base.Vector;
 import sssj.index.Index;
 import sssj.index.IndexStatistics;
+import sssj.index.IndexType;
 import sssj.index.minibatch.APIndex;
 import sssj.index.minibatch.InvertedIndex;
 import sssj.index.minibatch.L2APIndex;
 import sssj.index.minibatch.PureL2APIndex;
-import sssj.index.minibatch.components.VectorWindow;
+import sssj.index.minibatch.component.VectorWindow;
 import sssj.io.Format;
+import sssj.io.Vector;
 import sssj.io.VectorStream;
 import sssj.io.VectorStreamFactory;
 import sssj.time.Timeline.Sequential;
+import sssj.util.Commons;
 
 import com.github.gdfm.shobaidogu.ProgressTracker;
 import com.google.common.collect.ForwardingTable;
@@ -57,8 +56,8 @@ public class MiniBatch {
     parser.addArgument("-r", "--report").metavar("period").type(Integer.class).setDefault(DEFAULT_REPORT_PERIOD)
         .help("progress report period");
     parser.addArgument("-i", "--index").type(IndexType.class)
-        .choices(IndexType.INVERTED, IndexType.ALLPAIRS, IndexType.L2AP, IndexType.PUREL2AP).setDefault(INVERTED)
-        .help("type of indexing");
+        .choices(IndexType.INVERTED, IndexType.ALLPAIRS, IndexType.L2AP, IndexType.PUREL2AP)
+        .setDefault(IndexType.INVERTED).help("type of indexing");
     parser.addArgument("-f", "--format").type(Format.class).choices(Format.values()).setDefault(Format.BINARY)
         .help("input format");
     parser.addArgument("input").metavar("file")

@@ -1,16 +1,16 @@
-package sssj.index.minibatch.components;
+package sssj.index.minibatch.component;
 
 import java.util.ArrayDeque;
 import java.util.Iterator;
 import java.util.Queue;
 
-import sssj.base.Vector;
+import sssj.io.Vector;
 
 import com.google.common.base.Preconditions;
 
 /**
- * A buffer for Vectors. The buffer keeps the order of the vectors as they are added, and maintains the maximum vector. Assumes vectors are added in increasing
- * order of timestamp.
+ * A buffer for Vectors. The buffer keeps the order of the vectors as they are added, and optionally maintains the maximum vector. Assumes vectors are added in
+ * increasing order of timestamp.
  */
 public class VectorWindow {
   private MaxVector max1 = new MaxVector();

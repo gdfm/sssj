@@ -1,6 +1,6 @@
 package sssj.time;
 
-import sssj.base.Vector;
+import sssj.io.Vector;
 
 import com.google.common.base.Function;
 

@@ -13,8 +13,8 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import sssj.base.Vector;
 import sssj.io.Format;
+import sssj.io.Vector;
 import sssj.io.VectorStream;
 import sssj.io.VectorStreamReader;
 import sssj.time.Timeline;

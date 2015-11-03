@@ -1,4 +1,4 @@
-package sssj.base;
+package sssj.util;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -48,19 +48,5 @@ public class Commons {
     }
     sb.append('}');
     return sb.toString();
-  }
-
-  public static enum IndexType {
-    INVERTED(false), ALLPAIRS(true), L2AP(true), PUREL2AP(false);
-
-    IndexType(boolean needsMax) {
-      this.needsMax = needsMax;
-    }
-
-    public boolean needsMax() {
-      return needsMax;
-    }
-
-    private final boolean needsMax;
   }
 }

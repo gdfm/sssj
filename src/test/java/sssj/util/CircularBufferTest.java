@@ -1,8 +1,10 @@
-package sssj.base;
+package sssj.util;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+
+import sssj.util.CircularBuffer;
 
 public class CircularBufferTest {
 

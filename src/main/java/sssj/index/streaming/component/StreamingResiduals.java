@@ -1,11 +1,11 @@
-package sssj.index.streaming.components;
+package sssj.index.streaming.component;
 
 import it.unimi.dsi.fastutil.longs.Long2ReferenceLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceMap.Entry;
 
 import java.util.Iterator;
 
-import sssj.base.Vector;
+import sssj.io.Vector;
 
 public class StreamingResiduals implements Iterable<Vector> {
   private Long2ReferenceLinkedOpenHashMap<Vector> map = new Long2ReferenceLinkedOpenHashMap<>();

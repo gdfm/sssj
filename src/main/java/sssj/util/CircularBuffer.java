@@ -1,4 +1,4 @@
-package sssj.base;
+package sssj.util;
 
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;

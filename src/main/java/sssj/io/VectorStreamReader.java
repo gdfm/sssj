@@ -6,7 +6,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Iterator;
 
-import sssj.base.Vector;
 import sssj.time.TimeStamper;
 import sssj.time.Timeline;
 

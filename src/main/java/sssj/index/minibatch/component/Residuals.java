@@ -1,7 +1,7 @@
-package sssj.index.minibatch.components;
+package sssj.index.minibatch.component;
 
 import it.unimi.dsi.fastutil.longs.Long2ReferenceOpenHashMap;
-import sssj.base.Vector;
+import sssj.io.Vector;
 
 public class Residuals {
   private final Long2ReferenceOpenHashMap<Vector> map = new Long2ReferenceOpenHashMap<>();

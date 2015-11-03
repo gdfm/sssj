@@ -9,8 +9,6 @@ import java.util.Iterator;
 
 import org.apache.commons.lang.SerializationException;
 
-import sssj.base.Vector;
-
 /**
  * A Vector reader for binary serialized data. The binary format is described next.
  * FILE := NUM_VECTORS(int) [VECTOR]+

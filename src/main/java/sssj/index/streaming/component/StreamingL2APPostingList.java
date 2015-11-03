@@ -1,10 +1,10 @@
-package sssj.index.streaming.components;
+package sssj.index.streaming.component;
 
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import sssj.base.CircularBuffer;
 import sssj.index.L2APPostingEntry;
+import sssj.util.CircularBuffer;
 
 import com.google.common.base.Preconditions;
 

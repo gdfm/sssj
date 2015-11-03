@@ -1,7 +1,7 @@
-package sssj.index.streaming.components;
+package sssj.index.streaming.component;
 
-import static sssj.base.Commons.forgettingFactor;
-import sssj.base.Vector;
+import static sssj.util.Commons.forgettingFactor;
+import sssj.io.Vector;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
 
@@ -25,9 +25,10 @@ public class StreamingMaxVector extends Vector {
       final int dimension = e.getIntKey();
       final double weight = e.getDoubleValue();
       final long dimDeltaT = query.timestamp() - lastUpdated.get(dimension);
-// final double dimFF = forgettingFactor(lambda, dimDeltaT);
+      // final double dimFF = forgettingFactor(lambda, dimDeltaT);
       if (Double.compare(weight, this.get(dimension)) > 0) {
-// if (Double.compare(weight, this.get(dimension) * dimFF) > 0) { // FIXME the multiplication makes the method too slow
+        // FIXME the discount generates too many updates, and so too many reindexings
+        // if (Double.compare(weight, this.get(dimension) * dimFF) > 0) {
         this.put(dimension, weight);
         this.setTimestamp(query.timestamp());
         this.lastUpdated.put(dimension, query.timestamp());
