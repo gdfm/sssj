@@ -1,50 +1,21 @@
 package sssj.index.minibatch.components;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Queue;
-
+import it.unimi.dsi.fastutil.longs.Long2ReferenceOpenHashMap;
 import sssj.base.Vector;
 
-public class Residuals implements Iterable<Vector> {
-  private Queue<Vector> queue = new LinkedList<>(); // TODO use ArrayDequeue?
+public class Residuals {
+  private final Long2ReferenceOpenHashMap<Vector> map = new Long2ReferenceOpenHashMap<>();
 
   public void add(Vector residual) {
-    queue.add(residual);
+    map.put(residual.timestamp(), residual);
   }
 
-  @Override
-  public Iterator<Vector> iterator() {
-    return queue.iterator();
+  public Vector get(long candidateID) {
+    return map.get(candidateID);
   }
 
   @Override
   public String toString() {
-    return "Residuals = [" + queue + "]";
-  }
-
-  public Vector get(long candidateID) {
-    for (Vector v : queue)
-      if (candidateID == v.timestamp())
-        return v;
-    return null;
-  }
-
-  /**
-   * Get the residual of the vector with id {@code candidateID}, while at the same time pruning all the residuals with timestamp less than {@code lowWatermark}.
-   *
-   * @param candidateID the id of the candidate vector
-   * @param lowWatermark the minimum id of the vector to be retained
-   * @return the residual of the candidate
-   */
-  public Vector getAndPrune(long candidateID, long lowWatermark) {
-    for (Iterator<Vector> it = queue.iterator(); it.hasNext();) {
-      final Vector v = it.next();
-      if (lowWatermark > v.timestamp())
-        it.remove();
-      if (candidateID == v.timestamp())
-        return v;
-    }
-    return null;
+    return "Residuals = [" + map + "]";
   }
 }
