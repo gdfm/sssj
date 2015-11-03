@@ -28,6 +28,10 @@ import sssj.time.Timeline.Sequential;
 
 import com.github.gdfm.shobaidogu.ProgressTracker;
 
+/**
+ * Streaming method. Fully incremental, online (zero latency). Keeps the index pruned via time filtering.
+ * Efficient pruning supported via circular buffers. Supports three types of index (Inverted, L2AP, PureL2AP).
+ */
 public class Streaming {
   private static final String ALGO = "Streaming";
   private static final Logger log = LoggerFactory.getLogger(Streaming.class);

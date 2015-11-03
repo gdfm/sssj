@@ -38,9 +38,9 @@ import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
 
 /**
- * MiniBatch micro-batch method. Keeps a buffer of vectors of length 2*tau. When the buffer is full, index and query the first half of the vectors with a batch
- * index (Inverted, AP, L2AP), and query the index built so far with the second half of the buffer. Discard the first half of the buffer, retain the second half
- * as the new first half, and repeat the process.
+ * MiniBatch method. Keeps a buffer of vectors of length 2*tau. When the buffer is full, index and query the first half of the vectors with a batch
+ * index (Inverted, AP, L2AP, PureL2AP), and query the index built so far with the second half of the buffer. Discard the first half of the buffer, retain the
+ * second half as the new first half, and repeat the process.
  */
 public class MiniBatch {
   private static final String ALGO = "MiniBatch";
