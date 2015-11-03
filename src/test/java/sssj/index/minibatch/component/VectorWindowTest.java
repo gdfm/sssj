@@ -1,4 +1,4 @@
-package sssj.index.minibatch;
+package sssj.index.minibatch.component;
 
 import static org.junit.Assert.*;
 

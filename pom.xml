@@ -81,7 +81,7 @@
                             <id>streaming</id>
                         </program>
                         <program>
-                            <mainClass>sssj.BinaryConverter</mainClass>
+                            <mainClass>sssj.io.BinaryConverter</mainClass>
                             <id>convert</id>
                         </program>
                     </programs>
