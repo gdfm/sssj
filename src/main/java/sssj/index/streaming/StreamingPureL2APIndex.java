@@ -49,7 +49,7 @@ public class StreamingPureL2APIndex extends AbstractIndex {
     verifyCandidates(v);
     /* index building */
     if (addToIndex) {
-      Vector residual = addToIndex(v);
+      Vector residual = addToIndex(v);
       residuals.add(residual);
     }
     return matches;
@@ -132,7 +132,7 @@ public class StreamingPureL2APIndex extends AbstractIndex {
     numMatches += matches.size();
   }
 
-  private final Vector addToIndex(final Vector v) {
+  private final Vector addToIndex(final Vector v) {
     double bt = 0, b3 = 0, pscore = 0;
     boolean psSaved = false;
     final Vector residual = new Vector(v.timestamp());
