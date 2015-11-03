@@ -10,7 +10,7 @@ import com.google.common.base.Preconditions;
 
 public class Commons {
   public static final double DEFAULT_THETA = 0.5;
-  public static final double DEFAULT_LAMBDA = 0.1;
+  public static final double DEFAULT_LAMBDA = 0.01;
   public static final int DEFAULT_REPORT_PERIOD = 10_000;
 
   private static double[] FF; // precomputed values for the forgetting factor
