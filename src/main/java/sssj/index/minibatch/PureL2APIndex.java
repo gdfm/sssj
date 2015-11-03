@@ -83,7 +83,6 @@ public class PureL2APIndex extends AbstractIndex {
   private final Long2DoubleOpenHashMap verifyCandidates(final Vector v, Long2DoubleOpenHashMap accumulator) {
     Long2DoubleOpenHashMap matches = new Long2DoubleOpenHashMap();
     for (Long2DoubleMap.Entry e : accumulator.long2DoubleEntrySet()) {
-      // TODO possibly use size filtering (sz_3)
       final long candidateID = e.getLongKey();
       if (Double.compare(e.getDoubleValue() + ps.get(candidateID), theta) < 0) // A[y] = dot(x, y'')
         continue; // l2 pruning
@@ -109,7 +108,7 @@ public class PureL2APIndex extends AbstractIndex {
     double bt = 0, b3 = 0, pscore = 0;
     boolean psSaved = false;
     Vector residual = new Vector(v.timestamp());
-    
+
     for (Entry e : v.int2DoubleEntrySet()) {
       int dimension = e.getIntKey();
       double weight = e.getDoubleValue();

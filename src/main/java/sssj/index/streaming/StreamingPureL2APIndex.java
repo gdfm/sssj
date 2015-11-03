@@ -15,8 +15,8 @@ import org.apache.commons.math3.util.FastMath;
 import sssj.index.AbstractIndex;
 import sssj.index.L2APPostingEntry;
 import sssj.index.streaming.component.StreamingL2APPostingList;
-import sssj.index.streaming.component.StreamingResiduals;
 import sssj.index.streaming.component.StreamingL2APPostingList.StreamingL2APPostingListIterator;
+import sssj.index.streaming.component.StreamingResiduals;
 import sssj.io.Vector;
 
 import com.google.common.primitives.Doubles;
@@ -106,7 +106,6 @@ public class StreamingPureL2APIndex extends AbstractIndex {
 
   private final void verifyCandidates(final Vector v) {
     for (Long2DoubleMap.Entry e : accumulator.long2DoubleEntrySet()) {
-      // TODO possibly use size filtering (sz_3)
       final long candidateID = e.getLongKey();
       final long deltaT = v.timestamp() - candidateID;
       if (deltaT > tau) // time pruning

@@ -50,7 +50,6 @@ public class L2APIndex extends AbstractIndex {
   }
 
   private final Long2DoubleOpenHashMap generateCandidates(final Vector v) {
-    // int minSize = theta / rw_x; //TODO possibly size filtering (need to sort dataset by max row weight rw_x)
     final Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap();
     double remscore = Vector.similarity(v, maxVectorInIndex); // rs3, enhanced remscore bound
     double l2remscore = 1, // rs4
@@ -91,7 +90,6 @@ public class L2APIndex extends AbstractIndex {
   private final Long2DoubleOpenHashMap verifyCandidates(final Vector v, Long2DoubleOpenHashMap accumulator) {
     Long2DoubleOpenHashMap matches = new Long2DoubleOpenHashMap();
     for (Long2DoubleMap.Entry e : accumulator.long2DoubleEntrySet()) {
-      // TODO possibly use size filtering (sz_3)
       final long candidateID = e.getLongKey();
       if (Double.compare(e.getDoubleValue() + ps.get(candidateID), theta) < 0) // A[y] = dot(x, y'')
         continue; // l2 pruning

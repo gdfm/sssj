@@ -45,7 +45,6 @@ public class APIndex extends AbstractIndex {
 
   private Long2DoubleOpenHashMap generateCandidates(final Vector v) {
     Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap();
-    // int minSize = theta / rw_x; //TODO possibly size filtering (need to sort dataset by max row weight rw_x)
     double remscore = Vector.similarity(v, maxVector);
 
     /* candidate generation */
@@ -57,7 +56,6 @@ public class APIndex extends AbstractIndex {
 
       PostingList list;
       if ((list = idx.get(dimension)) != null) {
-        // TODO possibly size filtering: remove entries from the posting list with |y| < minsize (need to save size in the posting list)
         for (PostingEntry pe : list) {
           numPostingEntries++;
           final long targetID = pe.getID(); // y
@@ -77,7 +75,6 @@ public class APIndex extends AbstractIndex {
   private Long2DoubleOpenHashMap verifyCandidates(final Vector v, Long2DoubleOpenHashMap accumulator) {
     Long2DoubleOpenHashMap matches = new Long2DoubleOpenHashMap();
     for (Long2DoubleMap.Entry e : accumulator.long2DoubleEntrySet()) {
-      // TODO possibly use size filtering (sz_3)
       long candidateID = e.getLongKey();
       Vector candidateResidual = residuals.get(candidateID);
       assert (candidateResidual != null);
