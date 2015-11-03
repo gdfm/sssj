@@ -55,6 +55,7 @@ timestamps = newts # ignore collisions (no collision unless there are >1000 page
 vectorizer = TfidfVectorizer(analyzer="word", max_features=100000, min_df=50, norm="l2")
 features = vectorizer.fit_transform(corpus)
 dataset = zip(timestamps, features)
+print("Dataset statistics: {} x {} sparse matrix with {} non-zero elements".format(features.shape[0], features.shape[1], features.nnz), file=sys.stderr)
 
 # print dataset
 for (ts, vec) in sorted(dataset, key=lambda tup: tup[0]):
