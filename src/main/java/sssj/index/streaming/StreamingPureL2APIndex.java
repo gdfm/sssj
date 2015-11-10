@@ -147,7 +147,6 @@ public class StreamingPureL2APIndex extends AbstractIndex {
       bt += weight * weight;
       b3 = FastMath.sqrt(bt);
 
-      // forgetting factor applied directly bounds
       if (Double.compare(b3, theta) >= 0) { // bound larger than threshold, start indexing
         if (!psSaved) {
           ps.put(v.timestamp(), pscore);
