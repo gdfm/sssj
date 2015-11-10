@@ -87,7 +87,7 @@ public class StreamingPureL2APIndex extends AbstractIndex {
           }
 
           final double ff = forgettingFactor(lambda, deltaT);
-          if (accumulator.containsKey(targetID) || Double.compare(rscore, theta) >= 0) {
+          if (accumulator.containsKey(targetID) || Double.compare(rscore * ff, theta) >= 0) {
             final double targetWeight = pe.weight(); // y_j
             final double additionalSimilarity = queryWeight * targetWeight; // x_j * y_j
             accumulator.addTo(targetID, additionalSimilarity); // A[y] += x_j * y_j
