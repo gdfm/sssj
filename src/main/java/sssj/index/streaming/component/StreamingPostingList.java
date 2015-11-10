@@ -1,6 +1,5 @@
 package sssj.index.streaming.component;
 
-import java.util.Iterator;
 import java.util.ListIterator;
 
 import sssj.index.PostingEntry;
@@ -27,7 +26,7 @@ public class StreamingPostingList implements Iterable<PostingEntry> {
   }
 
   @Override
-  public Iterator<PostingEntry> iterator() {
+  public StreamingPostingListIterator iterator() {
     return new StreamingPostingListIterator();
   }
 

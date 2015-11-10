@@ -1,6 +1,5 @@
 package sssj.index.streaming.component;
 
-import java.util.Iterator;
 import java.util.ListIterator;
 
 import sssj.index.L2APPostingEntry;
@@ -29,7 +28,7 @@ public class StreamingL2APPostingList implements Iterable<L2APPostingEntry> {
   }
 
   @Override
-  public Iterator<L2APPostingEntry> iterator() {
+  public StreamingL2APPostingListIterator iterator() {
     return new StreamingL2APPostingListIterator();
   }
 
