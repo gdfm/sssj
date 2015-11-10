@@ -6,7 +6,7 @@ import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 public class MaxVector extends Vector {
 
   /**
-   * Updates the vector to the max of itself and the vector query.
+   * Updates the vector to the max of itself and the vector query. The timestamp of the MaxVector reflects the time it was last updated.
    * 
    * @param query the new vector
    * @return the subset of the new vector that was larger than maxVector (for reindexing)
