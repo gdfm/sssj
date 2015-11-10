@@ -28,7 +28,7 @@ public class StreamingResiduals implements Iterable<Vector> {
    */
   public Vector getAndPrune(long candidateID, long lowWatermark) {
     Iterator<Entry<Vector>> it = map.long2ReferenceEntrySet().fastIterator();
-    while (it.hasNext() && it.next().getValue().timestamp() < lowWatermark) {
+    while (it.hasNext() && it.next().getLongKey() < lowWatermark) {
       it.remove();
     }
     return map.get(candidateID);

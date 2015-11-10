@@ -5,8 +5,10 @@ import it.unimi.dsi.fastutil.BidirectionalIterator;
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap.Entry;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2DoubleLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2DoubleMap;
 import it.unimi.dsi.fastutil.longs.Long2DoubleOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectIterator;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -28,7 +30,7 @@ import com.google.common.primitives.Doubles;
 public class StreamingL2APIndex extends AbstractIndex {
   private final Int2ReferenceMap<StreamingL2APPostingList> idx = new Int2ReferenceOpenHashMap<>();
   private final StreamingResiduals residuals = new StreamingResiduals();
-  private final Long2DoubleOpenHashMap ps = new Long2DoubleOpenHashMap();
+  private final Long2DoubleLinkedOpenHashMap ps = new Long2DoubleLinkedOpenHashMap();
   private final Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap();
   private final Long2DoubleOpenHashMap matches = new Long2DoubleOpenHashMap();
   private final StreamingMaxVector maxVector; // \hat{c_w}
@@ -155,6 +157,7 @@ public class StreamingL2APIndex extends AbstractIndex {
 
       final long lowWatermark = (long) Math.floor(v.timestamp() - tau);
       final Vector residual = residuals.getAndPrune(candidateID, lowWatermark); // TODO prune also ps?
+      prunePS(lowWatermark);
       assert (residual != null) : "Residual not found. ID=" + v.timestamp() + " candidateID=" + candidateID;
       final double dpscore = e.getDoubleValue()
           + Math.min(v.maxValue() * residual.size(), residual.maxValue() * v.size());
@@ -209,6 +212,13 @@ public class StreamingL2APIndex extends AbstractIndex {
       }
     }
     return residual;
+  }
+
+  private void prunePS(long lowWatermark) {
+    ObjectIterator<Long2DoubleMap.Entry> it = ps.long2DoubleEntrySet().fastIterator();
+    while (it.hasNext() && it.next().getLongKey() < lowWatermark) {
+      it.remove();
+    }
   }
 
   @Override
