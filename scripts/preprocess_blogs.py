@@ -23,6 +23,7 @@ corpus = []
 timestamps = []
 stops = set(stopwords.words("english"))
 
+#for file in glob.glob("201506*"):
 for file in sys.argv[1:]:
   gfile = gzip.open(file)
   jsonobj = json.load(gfile)
@@ -47,13 +48,17 @@ newts = []
 for ts in timestamps:
   newts.append(ts * 1000 + tscounts[ts]) # convert to ms
   tscounts[ts] += 1 # add 1 ms of delay to each identical timestamp
+
 timestamps = newts # ignore collisions (no collision unless there are >1000 pages with identical timestamp), check the output after!
 
 # feature extraction
 vectorizer = TfidfVectorizer(analyzer="word", max_features=100000, min_df=5, norm="l2")
 features = vectorizer.fit_transform(corpus)
 dataset = zip(timestamps, features)
-print("Dataset statistics: {} x {} sparse matrix with {} non-zero elements".format(features.shape[0], features.shape[1], features.nnz), file=sys.stderr)
+# deduplication
+seen = set()
+dataset = [seen.add(obj[0]) or obj for obj in dataset if obj[0] not in seen]
+print("Dataset statistics: {} x {} sparse matrix with {} non-zero elements".format(len(dataset), features.shape[1], features.nnz), file=sys.stderr)
 
 # print dataset
 for (ts, vec) in sorted(dataset, key=lambda tup: tup[0]):
