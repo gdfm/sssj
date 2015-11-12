@@ -49,13 +49,13 @@ public class BinaryConverter {
 
     final File file = opts.<File>get("input");
     final VectorStream stream = new VectorStreamReader(file, fmt, tml);
-    final int numVectors = stream.numVectors();
+    final long numVectors = stream.numVectors();
     final DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(
         opts.<File>get("output"))));
 
     log.info("Converting input file {} in format {} with {} vectors to binary output file {} with timeline {}",
         opts.getString("input"), fmt, numVectors, opts.getString("output"), tml);
-    dos.writeInt(numVectors);
+    dos.writeLong(numVectors);
     for (Vector v : stream) {
       v.write(dos);
     }

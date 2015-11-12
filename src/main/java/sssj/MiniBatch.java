@@ -72,7 +72,7 @@ public class MiniBatch {
     final Format fmt = opts.<Format>get("format");
     final File file = opts.<File>get("input");
     final VectorStream stream = VectorStreamFactory.getVectorStream(file, fmt, new Sequential());
-    final int numVectors = stream.numVectors();
+    final long numVectors = stream.numVectors();
     final ProgressTracker tracker = new ProgressTracker(numVectors, reportPeriod);
 
     final String header = String.format(ALGO + " [d=%s, t=%f, l=%f, i=%s]", file.getName(), theta, lambda,
@@ -94,9 +94,9 @@ public class MiniBatch {
     final double tau = Commons.tau(theta, lambda);
     System.out.println("Tau = " + tau);
     precomputeFFTable(lambda, 2 * (int) Math.ceil(tau));
-    VectorWindow window = new VectorWindow(tau, idxType.needsMax());
+    final VectorWindow window = new VectorWindow(tau, idxType.needsMax());
 
-    Mean avgSize = new Mean();
+    final Mean avgSize = new Mean();
     long numPostingEntries = 0, numCandidates = 0, numSimilarities = 0;
     int numMatches = 0;
     for (Vector v : stream) {

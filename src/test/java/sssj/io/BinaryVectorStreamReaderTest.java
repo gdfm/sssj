@@ -23,7 +23,7 @@ public class BinaryVectorStreamReaderTest {
   public void test() throws IOException {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     DataOutputStream out = new DataOutputStream(baos);
-    out.writeInt(1); // writing one vector
+    out.writeLong(1); // writing one vector
     Vector v = new Vector(111);
     v.put(1, 1.0);
     v.put(2, 2.0);

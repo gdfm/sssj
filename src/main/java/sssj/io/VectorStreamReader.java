@@ -36,7 +36,7 @@ public class VectorStreamReader implements VectorStream {
   }
 
   @Override
-  public int numVectors() {
+  public long numVectors() {
     return numVectors;
   }
 

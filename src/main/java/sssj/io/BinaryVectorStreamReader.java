@@ -11,7 +11,7 @@ import org.apache.commons.lang.SerializationException;
 
 /**
  * A Vector reader for binary serialized data. The binary format is described next.
- * FILE := NUM_VECTORS(int) [VECTOR]+
+ * FILE := NUM_VECTORS(long) [VECTOR]+
  *
  * Here, NUM_VECTORS is the number of vectors in the input, and VECTOR is the serialization of a single {@link Vector}.
  * For performance reasons, the Vector returned by the reader is reused, so you need to copy it if you want to save it.
@@ -22,7 +22,7 @@ import org.apache.commons.lang.SerializationException;
 
 public class BinaryVectorStreamReader implements VectorStream {
   private final ByteBuffer bb;
-  private final int numVectors;
+  private final long numVectors;
 
   public BinaryVectorStreamReader(File file) throws IOException {
     this(new FileInputStream(file));
@@ -34,11 +34,11 @@ public class BinaryVectorStreamReader implements VectorStream {
 
   public BinaryVectorStreamReader(ByteBuffer buffer) { // mostly for testing purposes
     bb = buffer;
-    numVectors = bb.getInt();
+    numVectors = bb.getLong();
   }
 
   @Override
-  public int numVectors() {
+  public long numVectors() {
     return numVectors;
   }
 

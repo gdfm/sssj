@@ -62,7 +62,7 @@ public class Streaming {
     final Format fmt = opts.<Format>get("format");
     final File file = opts.<File>get("input");
     final VectorStream stream = VectorStreamFactory.getVectorStream(file, fmt, new Sequential());
-    final int numVectors = stream.numVectors();
+    final long numVectors = stream.numVectors();
     final ProgressTracker tracker = new ProgressTracker(numVectors, reportPeriod);
 
     final String header = String.format(ALGO + " [d=%s, t=%f, l=%f, i=%s]", file.getName(), theta, lambda,
