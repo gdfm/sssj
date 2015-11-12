@@ -26,7 +26,7 @@ public class BinaryConverter {
     parser.addArgument("-f", "--format").type(Format.class).choices(Format.values()).setDefault(Format.SSSJ)
         .help("input format");
     parser.addArgument("-t", "--timeline").choices("sequential", "poisson").help("timeline to apply");
-    parser.addArgument("-r", "--rate").type(Double.class).setDefault(1.0).help("rate for the Poisson timeline");
+    parser.addArgument("-r", "--rate").type(Double.class).setDefault(0.01).help("rate for the Poisson timeline (events/ms)");
     parser.addArgument("input").metavar("input")
         .type(Arguments.fileType().verifyExists().verifyIsFile().verifyCanRead()).help("input file");
     parser.addArgument("output").metavar("output").type(Arguments.fileType().verifyCanCreate()).help("output file");
