@@ -27,6 +27,7 @@ import sssj.io.VectorStreamFactory;
 import sssj.time.Timeline.Sequential;
 
 import com.github.gdfm.shobaidogu.ProgressTracker;
+import com.google.common.base.Joiner;
 
 /**
  * Streaming method. Fully incremental, online (zero latency). Keeps the index pruned via time filtering.
@@ -64,16 +65,21 @@ public class Streaming {
     final int numVectors = stream.numVectors();
     final ProgressTracker tracker = new ProgressTracker(numVectors, reportPeriod);
 
-    System.out.println(String.format(ALGO + " [t=%f, l=%f, i=%s]", theta, lambda, idxType.toString()));
-    log.info(String.format(ALGO + " [t=%f, l=%f, i=%s]", theta, lambda, idxType.toString()));
-    long start = System.currentTimeMillis();
-    compute(stream, theta, lambda, idxType, tracker);
-    long elapsed = System.currentTimeMillis() - start;
-    System.out.println(String.format(ALGO + "-%s, %f, %f, %d", idxType.toString(), theta, lambda, elapsed));
-    log.info(String.format(ALGO + " [t=%f, l=%f, i=%s, time=%d]", theta, lambda, idxType.toString(), elapsed));
+    final String header = String.format(ALGO + " [d=%s, t=%f, l=%f, i=%s]", file.getName(), theta, lambda,
+        idxType.toString());
+    System.out.println(header);
+    log.info(header);
+    final long start = System.currentTimeMillis();
+    final IndexStatistics stats = compute(stream, theta, lambda, idxType, tracker);
+    final long elapsed = System.currentTimeMillis() - start;
+    final String csvLine = Joiner.on(",").join(ALGO, file.getName(), theta, lambda, idxType.toString(), elapsed,
+        stats.numPostingEntries(), stats.numCandidates(), stats.numSimilarities(), stats.numMatches());
+    System.out.println(csvLine);
+    log.info(String.format(ALGO + " [d=%s, t=%f, l=%f, i=%s, time=%d]", file.getName(), theta, lambda,
+        idxType.toString(), elapsed));
   }
 
-  public static void compute(Iterable<Vector> stream, double theta, double lambda, IndexType type,
+  public static IndexStatistics compute(Iterable<Vector> stream, double theta, double lambda, IndexType type,
       ProgressTracker tracker) {
     Index index = null;
     switch (type) {
@@ -108,8 +114,7 @@ public class Streaming {
     sb.append(String.format("Total number of candidates   = %d\n", index.stats().numCandidates()));
     sb.append(String.format("Total number of similarities = %d\n", index.stats().numSimilarities()));
     sb.append(String.format("Total number of matches      = %d", index.stats().numMatches()));
-    final String statsString = sb.toString();
-    log.info(statsString);
-    System.out.println(statsString);
+    log.info(sb.toString());
+    return index.stats();
   }
 }

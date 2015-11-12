@@ -13,10 +13,10 @@ import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.Namespace;
 
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
-import org.apache.commons.math3.stat.descriptive.summary.Sum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import sssj.index.AbstractIndex.SimpleIndexStatistics;
 import sssj.index.Index;
 import sssj.index.IndexStatistics;
 import sssj.index.IndexType;
@@ -33,6 +33,7 @@ import sssj.time.Timeline.Sequential;
 import sssj.util.Commons;
 
 import com.github.gdfm.shobaidogu.ProgressTracker;
+import com.google.common.base.Joiner;
 import com.google.common.collect.ForwardingTable;
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
@@ -74,16 +75,21 @@ public class MiniBatch {
     final int numVectors = stream.numVectors();
     final ProgressTracker tracker = new ProgressTracker(numVectors, reportPeriod);
 
-    System.out.println(String.format(ALGO + " [t=%f, l=%f, i=%s]", theta, lambda, idxType.toString()));
-    log.info(String.format(ALGO + " [t=%f, l=%f, i=%s]", theta, lambda, idxType.toString()));
-    long start = System.currentTimeMillis();
-    compute(stream, theta, lambda, idxType, tracker);
-    long elapsed = System.currentTimeMillis() - start;
-    System.out.println(String.format(ALGO + "-%s, %f, %f, %d", idxType.toString(), theta, lambda, elapsed));
-    log.info(String.format(ALGO + " [t=%f, l=%f, i=%s, time=%d]", theta, lambda, idxType.toString(), elapsed));
+    final String header = String.format(ALGO + " [d=%s, t=%f, l=%f, i=%s]", file.getName(), theta, lambda,
+        idxType.toString());
+    System.out.println(header);
+    log.info(header);
+    final long start = System.currentTimeMillis();
+    final IndexStatistics stats = compute(stream, theta, lambda, idxType, tracker);
+    final long elapsed = System.currentTimeMillis() - start;
+    final String csvLine = Joiner.on(",").join(ALGO, file.getName(), theta, lambda, idxType.toString(), elapsed,
+        stats.numPostingEntries(), stats.numCandidates(), stats.numSimilarities(), stats.numMatches());
+    System.out.println(csvLine);
+    log.info(String.format(ALGO + " [d=%s, t=%f, l=%f, i=%s, time=%d]", file.getName(), theta, lambda,
+        idxType.toString(), elapsed));
   }
 
-  public static void compute(Iterable<Vector> stream, double theta, double lambda, IndexType idxType,
+  public static IndexStatistics compute(Iterable<Vector> stream, double theta, double lambda, IndexType idxType,
       ProgressTracker tracker) {
     final double tau = Commons.tau(theta, lambda);
     System.out.println("Tau = " + tau);
@@ -91,7 +97,8 @@ public class MiniBatch {
     VectorWindow window = new VectorWindow(tau, idxType.needsMax());
 
     Mean avgSize = new Mean();
-    Sum numPostingEntries = new Sum(), numCandidates = new Sum(), numSimilarities = new Sum(), numMatches = new Sum();
+    long numPostingEntries = 0, numCandidates = 0, numSimilarities = 0;
+    int numMatches = 0;
     for (Vector v : stream) {
       if (tracker != null)
         tracker.progress();
@@ -100,12 +107,13 @@ public class MiniBatch {
         if (window.size() > 0) {
           final IndexStatistics stats = computeBatch(window, theta, lambda, idxType);
           avgSize.increment(stats.size());
-          numPostingEntries.increment(stats.numPostingEntries());
-          numCandidates.increment(stats.numCandidates());
-          numSimilarities.increment(stats.numSimilarities());
-          numMatches.increment(stats.numMatches());
-        } else
+          numPostingEntries += stats.numPostingEntries();
+          numCandidates += stats.numCandidates();
+          numSimilarities += stats.numSimilarities();
+          numMatches += stats.numMatches();
+        } else {
           window.slide();
+        }
         inWindow = window.add(v);
       }
     }
@@ -113,21 +121,21 @@ public class MiniBatch {
     while (!window.isEmpty()) {
       final IndexStatistics stats = computeBatch(window, theta, lambda, idxType);
       avgSize.increment(stats.size());
-      numPostingEntries.increment(stats.numPostingEntries());
-      numCandidates.increment(stats.numCandidates());
-      numSimilarities.increment(stats.numSimilarities());
-      numMatches.increment(stats.numMatches());
+      numPostingEntries += stats.numPostingEntries();
+      numCandidates += stats.numCandidates();
+      numSimilarities += stats.numSimilarities();
+      numMatches += stats.numMatches();
     }
     final StringBuilder sb = new StringBuilder();
     sb.append("Index Statistics:\n");
     sb.append(String.format("Average index size           = %.3f\n", avgSize.getResult()));
-    sb.append(String.format("Total number of entries      = %d\n", (long) numPostingEntries.getResult()));
-    sb.append(String.format("Total number of candidates   = %d\n", (long) numCandidates.getResult()));
-    sb.append(String.format("Total number of similarities = %d\n", (long) numSimilarities.getResult()));
-    sb.append(String.format("Total number of matches      = %d", (long) numMatches.getResult()));
-    final String statsString = sb.toString();
-    log.info(statsString);
-    System.out.println(statsString);
+    sb.append(String.format("Total number of entries      = %d\n", numPostingEntries));
+    sb.append(String.format("Total number of candidates   = %d\n", numCandidates));
+    sb.append(String.format("Total number of similarities = %d\n", numSimilarities));
+    sb.append(String.format("Total number of matches      = %d", numMatches));
+    log.info(sb.toString());
+    return new SimpleIndexStatistics((int) avgSize.getResult(), numPostingEntries, numCandidates, numSimilarities,
+        numMatches);
   }
 
   /**
@@ -178,9 +186,9 @@ public class MiniBatch {
   }
 
   private static BatchResult query(Index index, Iterator<Vector> iterator, final boolean addToIndex) {
-    BatchResult result = new BatchResult();
+    final BatchResult result = new BatchResult();
     while (iterator.hasNext()) {
-      Vector v = iterator.next();
+      final Vector v = iterator.next();
       Map<Long, Double> matches = index.queryWith(v, addToIndex);
       for (Entry<Long, Double> e : matches.entrySet()) {
         result.put(v.timestamp(), e.getKey(), e.getValue());
