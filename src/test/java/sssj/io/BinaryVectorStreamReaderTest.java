@@ -5,9 +5,11 @@ import static org.junit.Assert.*;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
@@ -47,33 +49,59 @@ public class BinaryVectorStreamReaderTest {
     assertEquals(r, v);
   }
 
-// @Test
+  @Test
   public void testSpeed() throws IOException {
     File file;
     VectorStream reader;
-    int nzf;
+    int nnz;
     long start, finish;
 
-    file = new File("data/RCV1_seq.bin");
+    file = new File("data/RCV1-seq.bin");
     reader = new BinaryVectorStreamReader(file);
-    nzf = 0;
+    nnz = 0;
     start = System.currentTimeMillis();
     for (Vector v : reader) {
-      nzf += v.size();
+      nnz += v.size();
     }
     finish = System.currentTimeMillis();
-    System.out.println(nzf);
+    System.out.println("nnz=" + nnz);
     System.out.println("BINARY READER - Total time taken: " + TimeUnit.MILLISECONDS.toMillis(finish - start) + " ms.");
 
     file = new File("data/RCV1.vw");
     reader = new VectorStreamReader(file, Format.VW, new Timeline.Sequential());
-    nzf = 0;
     start = System.currentTimeMillis();
     for (Vector v : reader) {
-      nzf += v.size();
+      nnz -= v.size();
     }
+    assertEquals(0, nnz);
     finish = System.currentTimeMillis();
-    System.out.println(nzf);
+    System.out.println("nnz=" + nnz);
     System.out.println("TEXT READER - Total time taken: " + TimeUnit.MILLISECONDS.toMillis(finish - start) + " ms.");
+  }
+
+  // @Test
+  @SuppressWarnings("resource")
+  public void testBB() throws IOException {
+    File file = new File(this.getClass().getResource(EXAMPLE_FILENAME).getPath());
+    ByteBuffer bb = ByteBuffer.allocate(8);
+    FileChannel channel = new FileInputStream(file).getChannel();
+    System.out.println("read bytes=" + channel.read(bb));
+    bb.flip();
+    System.out.println("read value=" + bb.getLong() + " remaining bytes=" + bb.remaining());
+    refill(bb, channel);
+    bb.mark();
+    System.out.println("read value=" + bb.getInt() + " remaining bytes=" + bb.remaining());
+    bb.reset();
+    System.out.println("read value=" + bb.getInt() + " remaining bytes=" + bb.remaining());
+    refill(bb, channel);
+    System.out.println("read value=" + bb.getLong() + " remaining bytes=" + bb.remaining());
+    refill(bb, channel);
+    System.out.println("read value=" + bb.getInt() + " remaining bytes=" + bb.remaining());
+  }
+
+  private static void refill(ByteBuffer bb, FileChannel channel) throws IOException {
+    bb.compact();
+    System.out.println("read bytes=" + channel.read(bb));
+    bb.flip();
   }
 }

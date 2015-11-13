@@ -12,7 +12,7 @@ import java.nio.ByteBuffer;
 /**
  * A sparse vector in a multidimensional Euclidean space. The vector is identified by a unique timestamp.
  * Each vector has the following serialization format.
- * VECTOR := VECTOR_ID(long) NUM_ELEMENTS(int) [ELEMENT]+
+ * VECTOR := NUM_ELEMENTS(int) VECTOR_ID(long) [ELEMENT]+
  * ELEMENT := DIMENSION(int) VALUE(double)
  * Where VECTOR_ID is the vector id (which also represents its timestamp), NUM_ELEMENTS is the number of non-zero-valued dimensions in the vector, and ELEMENT
  * is a single dimension-value pair. Finally, DIMENSION is the id of the dimension and VALUE its value.
@@ -115,8 +115,8 @@ public class Vector { // entries are returned in the same order they are added
 
   public void read(ByteBuffer in) throws IOException {
     data.clear();
-    this.setTimestamp(in.getLong());
     int numElements = in.getInt();
+    this.setTimestamp(in.getLong());
     for (int i = 0; i < numElements; i++) {
       int dim = in.getInt();
       double val = in.getDouble();
@@ -125,8 +125,8 @@ public class Vector { // entries are returned in the same order they are added
   }
 
   public void write(ByteBuffer out) throws IOException {
-    out.putLong(this.timestamp());
     out.putInt(this.size());
+    out.putLong(this.timestamp());
     for (Int2DoubleMap.Entry e : this.int2DoubleEntrySet()) {
       out.putInt(e.getIntKey());
       out.putDouble(e.getDoubleValue());
@@ -135,8 +135,8 @@ public class Vector { // entries are returned in the same order they are added
 
   public void read(DataInput in) throws IOException {
     data.clear();
-    this.setTimestamp(in.readLong());
     int numElements = in.readInt();
+    this.setTimestamp(in.readLong());
     for (int i = 0; i < numElements; i++) {
       int dim = in.readInt();
       double val = in.readDouble();
@@ -145,8 +145,8 @@ public class Vector { // entries are returned in the same order they are added
   }
 
   public void write(DataOutput out) throws IOException {
-    out.writeLong(this.timestamp());
     out.writeInt(this.size());
+    out.writeLong(this.timestamp());
     for (Int2DoubleMap.Entry e : this.int2DoubleEntrySet()) {
       out.writeInt(e.getIntKey());
       out.writeDouble(e.getDoubleValue());

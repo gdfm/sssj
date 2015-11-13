@@ -4,10 +4,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel.MapMode;
+import java.nio.channels.FileChannel;
 import java.util.Iterator;
 
 import org.apache.commons.lang.SerializationException;
+
+import com.google.common.primitives.Doubles;
+import com.google.common.primitives.Ints;
 
 /**
  * A Vector reader for binary serialized data. The binary format is described next.
@@ -22,6 +25,7 @@ import org.apache.commons.lang.SerializationException;
 
 public class BinaryVectorStreamReader implements VectorStream {
   private final ByteBuffer bb;
+  private final FileChannel channel;
   private final long numVectors;
 
   public BinaryVectorStreamReader(File file) throws IOException {
@@ -29,12 +33,24 @@ public class BinaryVectorStreamReader implements VectorStream {
   }
 
   public BinaryVectorStreamReader(FileInputStream input) throws IOException {
-    this(input.getChannel().map(MapMode.READ_ONLY, 0L, input.getChannel().size()));
+    channel = input.getChannel();
+    bb = ByteBuffer.allocateDirect(10 * 1024 * 1024); // buffer needs to be large enough for a single vector
+    channel.read(bb);
+    bb.flip();
+    numVectors = bb.getLong();
   }
 
-  public BinaryVectorStreamReader(ByteBuffer buffer) { // mostly for testing purposes
+  BinaryVectorStreamReader(ByteBuffer buffer) { // for testing purposes
+    channel = null;
     bb = buffer;
     numVectors = bb.getLong();
+  }
+
+  private int refill() throws IOException {
+    bb.compact();
+    final int nread = channel.read(bb);
+    bb.flip();
+    return nread;
   }
 
   @Override
@@ -59,6 +75,19 @@ public class BinaryVectorStreamReader implements VectorStream {
     @Override
     public Vector next() {
       try {
+        // refill the ByteBuffer if not enough bytes left to read
+        if (bb.remaining() < Ints.BYTES)
+          if (refill() < Ints.BYTES)
+            throw new IllegalStateException("Could not read from input file");
+        // peek the size of the vector
+        bb.mark();
+        // vector size in bytes = int + long + size * (int + double)
+        final int vectorBytes = (bb.getInt() + 1) * (Ints.BYTES + Doubles.BYTES);
+        bb.reset();
+        if (bb.remaining() < vectorBytes)
+          if (refill() < vectorBytes)
+            throw new IllegalStateException("Internal vector buffer too small");
+        // now we are sure that the ByteBuffer contains the whole next vector
         current.read(bb);
       } catch (IOException e) {
         e.printStackTrace();
