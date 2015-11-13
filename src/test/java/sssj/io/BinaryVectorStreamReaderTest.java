@@ -49,7 +49,7 @@ public class BinaryVectorStreamReaderTest {
     assertEquals(r, v);
   }
 
-  @Test
+  // @Test
   public void testSpeed() throws IOException {
     File file;
     VectorStream reader;
