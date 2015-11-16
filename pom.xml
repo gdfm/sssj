@@ -71,7 +71,7 @@
                 <artifactId>appassembler-maven-plugin</artifactId>
                 <version>1.10</version>
                 <configuration>
-                    <extraJvmArguments>-Xmx4G</extraJvmArguments>
+                    <extraJvmArguments>-Xmx8G</extraJvmArguments>
                     <programs>
                         <program>
                             <mainClass>sssj.MiniBatch</mainClass>
