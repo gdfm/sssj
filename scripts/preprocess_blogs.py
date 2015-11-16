@@ -7,7 +7,7 @@ import nltk
 import time
 import dateutil.parser
 from collections import Counter
-from bs4 import BeautifulSoup
+#from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 

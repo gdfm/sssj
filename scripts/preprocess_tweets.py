@@ -6,7 +6,7 @@ import nltk
 import time
 import dateutil.parser
 from collections import Counter
-from bs4 import BeautifulSoup
+#from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import HashingVectorizer
@@ -71,3 +71,4 @@ for file in sys.argv[1:]:
         corpus = []
         timestamps = []
 
+# remember to sort tweets and check for duplicates in postprocessing!
