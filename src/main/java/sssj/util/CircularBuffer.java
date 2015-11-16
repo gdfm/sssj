@@ -7,7 +7,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.Longs;
 
 public final class CircularBuffer {
-  private static final int DEFAULT_SIZE = 1024;
+  private static final int DEFAULT_CAPACITY = 16;
   private static final int LOG2_LONG_BYETS = 63 - Long.numberOfLeadingZeros(Longs.BYTES); // log2(Long.BYTES)
   private int head, tail, size;
   private ByteBuffer buffer;
@@ -16,16 +16,16 @@ public final class CircularBuffer {
    * Create a CircularBuffer of default initial size (1024 elements).
    */
   public CircularBuffer() {
-    this(DEFAULT_SIZE);
+    this(DEFAULT_CAPACITY);
   }
 
   /**
-   * Create a CircularBuffer of the specified initial size.
+   * Create a CircularBuffer of the specified initial capacity.
    * 
-   * @param the initial number of elements to hold in the circular buffer
+   * @param the initial capacity in number of elements
    */
-  public CircularBuffer(int size) {
-    this.buffer = ByteBuffer.allocate(size * Longs.BYTES);
+  public CircularBuffer(int capacity) {
+    this.buffer = ByteBuffer.allocate(capacity * Longs.BYTES);
   }
 
   public long popLong() {
@@ -34,6 +34,8 @@ public final class CircularBuffer {
     size--;
     long l = buffer.getLong(head);
     head = (head + Longs.BYTES) % buffer.capacity();
+    if (size() < capacity() / 4) // buffer is at most 25% full
+      resize(capacity() / 2); // now it is at most 50% full
     return l;
   }
 
@@ -44,7 +46,7 @@ public final class CircularBuffer {
 
   public CircularBuffer pushLong(long l) {
     if (isFull())
-      grow(2 * buffer.capacity());
+      resize(2 * capacity());
     size++;
     buffer.putLong(tail, l);
     tail = (tail + Longs.BYTES) % buffer.capacity();
@@ -57,6 +59,8 @@ public final class CircularBuffer {
     size--;
     double d = buffer.getDouble(head);
     head = (head + Longs.BYTES) % buffer.capacity();
+    if (size() < capacity() / 4) // buffer is at most 25% full
+      resize(capacity() / 2); // now it is at most 50% full
     return d;
   }
 
@@ -67,7 +71,7 @@ public final class CircularBuffer {
 
   public CircularBuffer pushDouble(double d) {
     if (isFull())
-      grow(2 * buffer.capacity());
+      resize(2 * capacity());
     size++;
     buffer.putDouble(tail, d);
     tail = (tail + Longs.BYTES) % buffer.capacity();
@@ -80,18 +84,20 @@ public final class CircularBuffer {
    * @param n how many elements to drop.
    */
   public void trimHead(int n) {
-    if (this.size() < n)
+    if (size() < n)
       throw new BufferUnderflowException();
     size -= n;
     head = (head + n * Longs.BYTES) % buffer.capacity();
+    if (size() < capacity() / 4) // buffer is at most 25% full
+      resize(capacity() / 2); // now it is at most 50% full
   }
 
   public final boolean isEmpty() {
-    return size == 0;
+    return size() == 0;
   }
 
   public final boolean isFull() {
-    return size * Longs.BYTES == buffer.capacity();
+    return size() == capacity();
   }
 
   public final int size() {
@@ -104,15 +110,17 @@ public final class CircularBuffer {
 
   private final int cycleIndex(int index) {
     Preconditions.checkArgument(index < size());
-    int i = (head + index * Longs.BYTES) % buffer.capacity();
-    return i;
+    final int idx = (head + index * Longs.BYTES) % buffer.capacity();
+    return idx;
   }
 
-  private final void grow(int newSize) {
-    ByteBuffer newBuffer = ByteBuffer.allocate(newSize);
-    if (tail > head)
+  private final void resize(int newCapacity) { // size in number of long elements
+    ByteBuffer newBuffer = ByteBuffer.allocate(newCapacity * Longs.BYTES);
+    if (size() == 0) { // empty buffer, nothing to do
+      assert (head == tail);
+    } else if (head < tail) { // straight buffer
       newBuffer.put(buffer.array(), head, tail - head);
-    else {
+    } else { // (head >= tail) wrapped buffer
       newBuffer.put(buffer.array(), head, buffer.capacity() - head);
       newBuffer.put(buffer.array(), 0, tail);
     }

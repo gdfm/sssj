@@ -1,10 +1,8 @@
 package sssj.util;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-
-import sssj.util.CircularBuffer;
 
 public class CircularBufferTest {
 
@@ -18,7 +16,7 @@ public class CircularBufferTest {
     assertEquals(1, b.popLong());
     assertEquals(2, b.popLong());
     assertEquals(0, b.size());
-    assertEquals(4, b.capacity());
+//    assertEquals(4, b.capacity()); // internal detail
   }
 
   @Test
@@ -45,7 +43,7 @@ public class CircularBufferTest {
     }
     assertEquals(7, b.popLong());
     assertEquals(0, b.size());
-    assertEquals(4, b.capacity());
+//    assertEquals(4, b.capacity()); // internal detail
   }
 
   @Test
@@ -83,6 +81,21 @@ public class CircularBufferTest {
     for (int i = 5; i < 10; i++) {
       assertEquals(i, b.popLong());
     }
-    assertEquals(16, b.capacity()); // internal detail
+//    assertEquals(16, b.capacity()); // internal detail
+
+    for (int i = 0; i < 10; i++) {
+      b.pushLong(i);
+    }
+    b.trimHead(7); // force shrinking
+    for (int i = 7; i < 10; i++) {
+      assertEquals(i, b.popLong());
+    }
+//    assertEquals(8, b.capacity()); // internal detail
+
+    for (int i = 0; i < 10; i++) {
+      b.pushLong(i);
+    }
+    b.trimHead(b.size()); // empty the buffer
+    assertEquals(0, b.size());
   }
 }

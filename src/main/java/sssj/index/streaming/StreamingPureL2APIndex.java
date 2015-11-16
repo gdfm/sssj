@@ -81,7 +81,11 @@ public class StreamingPureL2APIndex extends AbstractIndex {
           if (Doubles.compare(deltaT, tau) > 0) {
             listIter.next(); // back off one position
             numPostingEntries--; // do not count the last entry
-            size -= listIter.nextIndex(); // update size before cutting
+            final int toCut = listIter.nextIndex();
+            size -= toCut; // update index size before cutting
+            // if (list.size() == toCut)
+            // idx.remove(dimension); // prune the whole list
+            // else
             listIter.cutHead(); // prune the head
             break;
           }
