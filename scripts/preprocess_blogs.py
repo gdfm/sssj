@@ -5,6 +5,7 @@ import gzip
 import re
 import nltk
 import time
+import glob
 import dateutil.parser
 from collections import Counter
 #from bs4 import BeautifulSoup
@@ -57,7 +58,9 @@ features = vectorizer.fit_transform(corpus)
 dataset = zip(timestamps, features)
 # deduplication
 seen = set()
-dataset = [seen.add(obj[0]) or obj for obj in dataset if obj[0] not in seen]
+dataset = [seen.add(x[0]) or x for x in dataset if x[0] not in seen]
+# filter empty vectors
+dataset = [x for x in dataset if x[1].nnz > 0]
 print("Dataset statistics: {} x {} sparse matrix with {} non-zero elements".format(len(dataset), features.shape[1], features.nnz), file=sys.stderr)
 
 # print dataset
