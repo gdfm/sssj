@@ -36,8 +36,6 @@ for file in sys.argv[1:]:
     datestring = post.get("publishDate") # publish date goes back to 2000 (maybe too old)
     date = dateutil.parser.parse(datestring) # datestring to datetime
     ts = long(time.mktime(date.timetuple())) # datetime to Unix timestamp
-#    date = post.get("fetchTime") # fetch time in ms (divide by 1000 to get the actual Unix time)
-#    ts = long(date) / 1000 # Unix time (in seconds)
     text = post.get("text-en") # text of the blog post
     clean_post = clean_text(text)
     timestamps.append(ts)
@@ -50,10 +48,10 @@ for ts in timestamps:
   newts.append(ts * 1000 + tscounts[ts]) # convert to ms
   tscounts[ts] += 1 # add 1 ms of delay to each identical timestamp
 
-timestamps = newts # ignore collisions (no collision unless there are >1000 pages with identical timestamp), check the output after!
+timestamps = newts # ignore collisions (no collision unless there are >1000 pages with identical timestamp)
 
 # feature extraction
-vectorizer = TfidfVectorizer(analyzer="word", max_features=100000, min_df=5, norm="l2")
+vectorizer = TfidfVectorizer(analyzer="word", min_df=10, norm="l2")
 features = vectorizer.fit_transform(corpus)
 dataset = zip(timestamps, features)
 # deduplication
