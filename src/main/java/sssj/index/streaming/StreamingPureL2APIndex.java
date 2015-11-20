@@ -66,13 +66,12 @@ public class StreamingPureL2APIndex extends AbstractIndex {
       final Entry e = vecIter.previous();
       final int dimension = e.getIntKey();
       final double queryWeight = e.getDoubleValue(); // x_j
-      final double rscore = l2remscore; // forgetting factor applied directly to the l2prefix bound
+      final double rscore = l2remscore;
       squaredQueryPrefixMagnitude -= queryWeight * queryWeight;
 
       StreamingL2APPostingList list;
       if ((list = idx.get(dimension)) != null) {
         for (StreamingL2APPostingListIterator listIter = list.reverseIterator(); listIter.hasPrevious();) {
-          numPostingEntries++;
           final L2APPostingEntry pe = listIter.previous();
           final long targetID = pe.id(); // y
 
@@ -80,17 +79,14 @@ public class StreamingPureL2APIndex extends AbstractIndex {
           final long deltaT = v.timestamp() - targetID;
           if (Doubles.compare(deltaT, tau) > 0) {
             listIter.next(); // back off one position
-            numPostingEntries--; // do not count the last entry
-            final int toCut = listIter.nextIndex();
-            size -= toCut; // update index size before cutting
-            // if (list.size() == toCut)
-            // idx.remove(dimension); // prune the whole list
-            // else
+            size -= listIter.nextIndex(); // update index size before cutting
             listIter.cutHead(); // prune the head
             break;
           }
+          numPostingEntries++;
 
           final double ff = forgettingFactor(lambda, deltaT);
+          // forgetting factor applied directly to the l2prefix bound
           if (accumulator.containsKey(targetID) || Double.compare(rscore * ff, theta) >= 0) {
             final double targetWeight = pe.weight(); // y_j
             final double additionalSimilarity = queryWeight * targetWeight; // x_j * y_j

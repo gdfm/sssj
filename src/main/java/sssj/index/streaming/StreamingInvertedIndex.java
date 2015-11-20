@@ -43,7 +43,6 @@ public class StreamingInvertedIndex extends AbstractIndex {
       StreamingPostingList list;
       if ((list = idx.get(dimension)) != null) {
         for (StreamingPostingListIterator listIter = list.reverseIterator(); listIter.hasPrevious();) {
-          numPostingEntries++;
           final PostingEntry pe = listIter.previous();
           final long targetID = pe.getID();
 
@@ -51,11 +50,11 @@ public class StreamingInvertedIndex extends AbstractIndex {
           final long deltaT = v.timestamp() - targetID;
           if (Doubles.compare(deltaT, tau) > 0) {
             listIter.next(); // back off one position
-            numPostingEntries--; // do not count the last entry
-            size -= listIter.nextIndex(); // update size before cutting
+            size -= listIter.nextIndex(); // update index size before cutting
             listIter.cutHead(); // prune the head
             break;
           }
+          numPostingEntries++;
 
           final double targetWeight = pe.getWeight();
           final double additionalSimilarity = queryWeight * targetWeight * forgettingFactor(lambda, deltaT);
