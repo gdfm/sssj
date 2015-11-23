@@ -9,7 +9,7 @@ public class MaxVector extends Vector {
    * Updates the vector to the max of itself and the vector query. The timestamp of the MaxVector reflects the time it was last updated.
    * 
    * @param query the new vector
-   * @return the subset of the new vector that was larger than maxVector (for reindexing)
+   * @return the subset of the new vector that was larger than the MaxVector (for reindexing)
    */
   public Vector updateMaxByDimension(Vector query) {
     final Vector updates = new Vector(query.timestamp());

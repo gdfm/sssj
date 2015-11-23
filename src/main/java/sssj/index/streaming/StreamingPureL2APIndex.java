@@ -142,7 +142,6 @@ public class StreamingPureL2APIndex extends AbstractIndex {
     for (Entry e : v.int2DoubleEntrySet()) {
       final int dimension = e.getIntKey();
       final double weight = e.getDoubleValue();
-
       pscore = b3;
       bt += weight * weight;
       b3 = FastMath.sqrt(bt);
