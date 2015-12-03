@@ -77,9 +77,6 @@ public class StreamingL2APIndex extends AbstractIndex {
   }
 
   private final void reindex(Vector updates) {
-    maxUpdates++;
-    if (maxUpdates % 100_000 == 0)
-      log.info("Max Updates: " + maxUpdates);
     List<Vector> newRes = new LinkedList<>();
     for (Iterator<Vector> it = residuals.iterator(); it.hasNext();) {
       final Vector r = it.next();
@@ -87,10 +84,7 @@ public class StreamingL2APIndex extends AbstractIndex {
       if (simDelta > 0) {
         final double pscore = ps.get(r.timestamp());
         if (Doubles.compare(pscore + simDelta, theta) >= 0) {
-          numReindexing++;
-          if (numReindexing % 100_000 == 0)
-            log.info("Reindexings: " + numReindexing);
-          final Vector newResidual = addToIndex(r); // TODO incremental update rather than from scratch
+          final Vector newResidual = addToIndex(r);
           newRes.add(newResidual);
         }
       }

@@ -88,7 +88,7 @@ public final class CircularBuffer {
       throw new BufferUnderflowException();
     size -= n;
     head = (head + n * Longs.BYTES) % buffer.capacity();
-    if (size() < capacity() / 4) // buffer is at most 25% full
+    if (size() < capacity() / 4 && capacity() > DEFAULT_CAPACITY) // buffer is at most 25% full
       resize(capacity() / 2); // now it is at most 50% full
   }
 

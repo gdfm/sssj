@@ -93,7 +93,7 @@ public class L2APIndex extends AbstractIndex {
       final long candidateID = e.getLongKey();
       if (Double.compare(e.getDoubleValue() + ps.get(candidateID), theta) < 0) // A[y] = dot(x, y'')
         continue; // l2 pruning
-      Vector residual = residuals.get(candidateID);
+      final Vector residual = residuals.get(candidateID);
       assert (residual != null);
       final double dpscore = e.getDoubleValue()
           + Math.min(v.maxValue() * residual.size(), residual.maxValue() * v.size());
