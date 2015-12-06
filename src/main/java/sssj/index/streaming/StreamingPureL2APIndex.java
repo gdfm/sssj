@@ -156,7 +156,7 @@ public class StreamingPureL2APIndex extends AbstractIndex {
           list = new StreamingL2APPostingList();
           idx.put(dimension, list);
         }
-        list.add(v.timestamp(), weight, b3);
+        list.add(v.timestamp(), weight, pscore);
         size++;
       } else {
         residual.put(dimension, weight);
