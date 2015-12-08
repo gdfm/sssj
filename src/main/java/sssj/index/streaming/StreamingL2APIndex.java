@@ -43,8 +43,6 @@ public class StreamingL2APIndex extends AbstractIndex {
   private final double lambda;
   private final double tau;
 
-  private long numReindexing, maxUpdates;
-
   public StreamingL2APIndex(double theta, double lambda) {
     this.theta = theta;
     this.lambda = lambda;
