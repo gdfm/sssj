@@ -18,14 +18,14 @@ import sssj.index.minibatch.component.L2APPostingList;
 import sssj.index.minibatch.component.Residuals;
 import sssj.io.Vector;
 
-public class PureL2APIndex extends AbstractIndex {
+public class L2Index extends AbstractIndex {
   private final Int2ReferenceMap<L2APPostingList> idx = new Int2ReferenceOpenHashMap<>();
   private final Residuals residuals = new Residuals();
   private final Long2DoubleOpenHashMap ps = new Long2DoubleOpenHashMap();
   private final double theta;
   private final double lambda;
 
-  public PureL2APIndex(double theta, double lambda) {
+  public L2Index(double theta, double lambda) {
     this.theta = theta;
     this.lambda = lambda;
   }
@@ -139,6 +139,6 @@ public class PureL2APIndex extends AbstractIndex {
 
   @Override
   public String toString() {
-    return "PureL2APIndex [idx=" + idx + ", residuals=" + residuals + ", ps=" + ps + "]";
+    return "L2Index [idx=" + idx + ", residuals=" + residuals + ", ps=" + ps + "]";
   }
 }

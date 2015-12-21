@@ -1,7 +1,7 @@
 package sssj.index;
 
 public enum IndexType {
-  INVERTED(false), ALLPAIRS(true), L2AP(true), PUREL2AP(false);
+  INV(false), AP(true), L2AP(true), L2(false);
 
   IndexType(boolean needsMax) {
     this.needsMax = needsMax;

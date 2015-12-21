@@ -17,9 +17,9 @@ import org.slf4j.LoggerFactory;
 import sssj.index.Index;
 import sssj.index.IndexStatistics;
 import sssj.index.IndexType;
-import sssj.index.streaming.StreamingInvertedIndex;
+import sssj.index.streaming.StreamingINVIndex;
 import sssj.index.streaming.StreamingL2APIndex;
-import sssj.index.streaming.StreamingPureL2APIndex;
+import sssj.index.streaming.StreamingL2Index;
 import sssj.io.Format;
 import sssj.io.Vector;
 import sssj.io.VectorStream;
@@ -31,7 +31,7 @@ import com.google.common.base.Joiner;
 
 /**
  * Streaming method. Fully incremental, online (zero latency). Keeps the index pruned via time filtering.
- * Efficient pruning supported via circular buffers. Supports three types of index (Inverted, L2AP, PureL2AP).
+ * Efficient pruning supported via circular buffers. Supports three types of index (INV, L2AP, L2).
  */
 public class Streaming {
   private static final String ALGO = "Streaming";
@@ -47,7 +47,7 @@ public class Streaming {
     parser.addArgument("-r", "--report").metavar("period").type(Integer.class).setDefault(DEFAULT_REPORT_PERIOD)
         .help("progress report period");
     parser.addArgument("-i", "--index").type(IndexType.class)
-        .choices(IndexType.INVERTED, IndexType.L2AP, IndexType.PUREL2AP).setDefault(IndexType.INVERTED)
+        .choices(IndexType.INV, IndexType.L2AP, IndexType.L2).setDefault(IndexType.INV)
         .help("type of indexing");
     parser.addArgument("-f", "--format").type(Format.class).choices(Format.values()).setDefault(Format.BINARY)
         .help("input format");
@@ -83,14 +83,14 @@ public class Streaming {
       ProgressTracker tracker) {
     Index index = null;
     switch (type) {
-    case INVERTED:
-      index = new StreamingInvertedIndex(theta, lambda);
+    case INV:
+      index = new StreamingINVIndex(theta, lambda);
       break;
     case L2AP:
       index = new StreamingL2APIndex(theta, lambda);
       break;
-    case PUREL2AP:
-      index = new StreamingPureL2APIndex(theta, lambda);
+    case L2:
+      index = new StreamingL2Index(theta, lambda);
       break;
     default:
       throw new RuntimeException("Unsupported index type");

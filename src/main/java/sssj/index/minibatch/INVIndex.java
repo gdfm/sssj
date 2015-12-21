@@ -17,12 +17,12 @@ import sssj.io.Vector;
 
 import com.google.common.primitives.Doubles;
 
-public class InvertedIndex extends AbstractIndex {
+public class INVIndex extends AbstractIndex {
   private Int2ReferenceMap<PostingList> idx = new Int2ReferenceOpenHashMap<>();
   private final double theta;
   private final double lambda;
 
-  public InvertedIndex(double theta, double lambda) {
+  public INVIndex(double theta, double lambda) {
     this.theta = theta;
     this.lambda = lambda;
   }
@@ -70,6 +70,6 @@ public class InvertedIndex extends AbstractIndex {
 
   @Override
   public String toString() {
-    return "InvertedIndex [idx=" + idx + "]";
+    return "INVIndex [idx=" + idx + "]";
   }
 }

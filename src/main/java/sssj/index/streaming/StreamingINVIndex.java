@@ -18,14 +18,14 @@ import sssj.io.Vector;
 
 import com.google.common.primitives.Doubles;
 
-public class StreamingInvertedIndex extends AbstractIndex {
+public class StreamingINVIndex extends AbstractIndex {
   private Int2ReferenceMap<StreamingPostingList> idx = new Int2ReferenceOpenHashMap<>();
   private final Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap();
   private final double theta;
   private final double lambda;
   private final double tau;
 
-  public StreamingInvertedIndex(double theta, double lambda) {
+  public StreamingINVIndex(double theta, double lambda) {
     this.theta = theta;
     this.lambda = lambda;
     this.tau = tau(theta, lambda);
@@ -85,6 +85,6 @@ public class StreamingInvertedIndex extends AbstractIndex {
 
   @Override
   public String toString() {
-    return "StreamingInvertedIndex [idx=" + idx + "]";
+    return "StreamingINVIndex [idx=" + idx + "]";
   }
 }

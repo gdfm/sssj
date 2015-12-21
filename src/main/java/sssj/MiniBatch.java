@@ -21,9 +21,9 @@ import sssj.index.Index;
 import sssj.index.IndexStatistics;
 import sssj.index.IndexType;
 import sssj.index.minibatch.APIndex;
-import sssj.index.minibatch.InvertedIndex;
+import sssj.index.minibatch.INVIndex;
 import sssj.index.minibatch.L2APIndex;
-import sssj.index.minibatch.PureL2APIndex;
+import sssj.index.minibatch.L2Index;
 import sssj.index.minibatch.component.VectorWindow;
 import sssj.io.Format;
 import sssj.io.Vector;
@@ -40,7 +40,7 @@ import com.google.common.collect.TreeBasedTable;
 
 /**
  * MiniBatch method. Keeps a buffer of vectors of length 2*tau. When the buffer is full, index and query the first half of the vectors with a batch
- * index (Inverted, AP, L2AP, PureL2AP), and query the index built so far with the second half of the buffer. Discard the first half of the buffer, retain the
+ * index (INV, AP, L2AP, L2), and query the index built so far with the second half of the buffer. Discard the first half of the buffer, retain the
  * second half as the new first half, and repeat the process.
  */
 public class MiniBatch {
@@ -57,8 +57,8 @@ public class MiniBatch {
     parser.addArgument("-r", "--report").metavar("period").type(Integer.class).setDefault(DEFAULT_REPORT_PERIOD)
         .help("progress report period");
     parser.addArgument("-i", "--index").type(IndexType.class)
-        .choices(IndexType.INVERTED, IndexType.ALLPAIRS, IndexType.L2AP, IndexType.PUREL2AP)
-        .setDefault(IndexType.INVERTED).help("type of indexing");
+        .choices(IndexType.INV, IndexType.AP, IndexType.L2AP, IndexType.L2)
+        .setDefault(IndexType.INV).help("type of indexing");
     parser.addArgument("-f", "--format").type(Format.class).choices(Format.values()).setDefault(Format.BINARY)
         .help("input format");
     parser.addArgument("input").metavar("file")
@@ -151,17 +151,17 @@ public class MiniBatch {
     // select and initialize index
     Index index = null;
     switch (type) {
-    case INVERTED:
-      index = new InvertedIndex(theta, lambda);
+    case INV:
+      index = new INVIndex(theta, lambda);
       break;
-    case ALLPAIRS:
+    case AP:
       index = new APIndex(theta, lambda, window.getMax());
       break;
     case L2AP:
       index = new L2APIndex(theta, lambda, window.getMax());
       break;
-    case PUREL2AP:
-      index = new PureL2APIndex(theta, lambda);
+    case L2:
+      index = new L2Index(theta, lambda);
       break;
     default:
       throw new RuntimeException("Unsupported index type");

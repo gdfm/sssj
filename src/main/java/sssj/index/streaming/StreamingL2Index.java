@@ -23,7 +23,7 @@ import sssj.io.Vector;
 
 import com.google.common.primitives.Doubles;
 
-public class StreamingPureL2APIndex extends AbstractIndex {
+public class StreamingL2Index extends AbstractIndex {
   private final Int2ReferenceMap<StreamingL2APPostingList> idx = new Int2ReferenceOpenHashMap<>();
   private final StreamingResiduals residuals = new StreamingResiduals();
   private final Long2DoubleLinkedOpenHashMap ps = new Long2DoubleLinkedOpenHashMap();
@@ -33,7 +33,7 @@ public class StreamingPureL2APIndex extends AbstractIndex {
   private final double lambda;
   private final double tau;
 
-  public StreamingPureL2APIndex(double theta, double lambda) {
+  public StreamingL2Index(double theta, double lambda) {
     this.theta = theta;
     this.lambda = lambda;
     this.tau = tau(theta, lambda);
@@ -174,6 +174,6 @@ public class StreamingPureL2APIndex extends AbstractIndex {
 
   @Override
   public String toString() {
-    return "StreamingPureL2APIndex [idx=" + idx + ", residuals=" + residuals + ", ps=" + ps + "]";
+    return "StreamingL2Index [idx=" + idx + ", residuals=" + residuals + ", ps=" + ps + "]";
   }
 }
