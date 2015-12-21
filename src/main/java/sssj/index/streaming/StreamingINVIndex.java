@@ -29,14 +29,23 @@ public class StreamingINVIndex extends AbstractIndex {
     this.theta = theta;
     this.lambda = lambda;
     this.tau = tau(theta, lambda);
-    // this.maxVector = new Vector();
     System.out.println("Tau = " + tau);
     precomputeFFTable(lambda, (int) Math.ceil(tau));
   }
 
   @Override
-  public Map<Long, Double> queryWith(final Vector v, boolean addToIndex) {
+  public Map<Long, Double> queryWith(final Vector v, final boolean addToIndex) {
     accumulator.clear();
+    /* candidate generation */
+    generateCandidates(v, addToIndex);
+    /* candidate verification */
+    verifyCandidates(v);
+    /* index building */
+    // already done during CG phase
+    return accumulator;
+  }
+
+  private final void generateCandidates(final Vector v, final boolean addToIndex) {
     for (Int2DoubleMap.Entry e : v.int2DoubleEntrySet()) {
       final int dimension = e.getIntKey();
       final double queryWeight = e.getDoubleValue();
@@ -72,15 +81,15 @@ public class StreamingINVIndex extends AbstractIndex {
       }
     }
     numCandidates += accumulator.size();
-    numSimilarities = numCandidates;
+  }
 
+  private final void verifyCandidates(final Vector v) {
+    numSimilarities = numCandidates;
     // filter candidates < theta
     for (Iterator<Long2DoubleMap.Entry> it = accumulator.long2DoubleEntrySet().iterator(); it.hasNext();)
       if (Doubles.compare(it.next().getDoubleValue(), theta) < 0)
         it.remove();
-
     numMatches += accumulator.size();
-    return accumulator;
   }
 
   @Override

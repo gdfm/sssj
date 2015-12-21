@@ -28,8 +28,18 @@ public class INVIndex extends AbstractIndex {
   }
 
   @Override
-  public Map<Long, Double> queryWith(final Vector v, boolean addToIndex) {
-    Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap(size);
+  public Map<Long, Double> queryWith(final Vector v, final boolean addToIndex) {
+    /* candidate generation */
+    Long2DoubleOpenHashMap accumulator = generateCandidates(v, addToIndex);
+    /* candidate verification */
+    Long2DoubleOpenHashMap matches = verifyCandidates(v, accumulator);
+    /* index building */
+    // already done during CG phase
+    return matches;
+  }
+
+  private final Long2DoubleOpenHashMap generateCandidates(final Vector v, final boolean addToIndex) {
+    final Long2DoubleOpenHashMap accumulator = new Long2DoubleOpenHashMap(size);
     for (Entry e : v.int2DoubleEntrySet()) {
       final int dimension = e.getIntKey();
       final double queryWeight = e.getDoubleValue();
@@ -53,8 +63,11 @@ public class INVIndex extends AbstractIndex {
       }
     }
     numCandidates += accumulator.size();
-    numSimilarities = numCandidates;
+    return accumulator;
+  }
 
+  private final Long2DoubleOpenHashMap verifyCandidates(final Vector v, Long2DoubleOpenHashMap accumulator) {
+    numSimilarities = numCandidates;
     // add forgetting factor e^(-lambda*delta_T) and filter candidates < theta
     for (Iterator<Long2DoubleMap.Entry> it = accumulator.long2DoubleEntrySet().iterator(); it.hasNext();) {
       Long2DoubleMap.Entry e = it.next();
@@ -63,7 +76,6 @@ public class INVIndex extends AbstractIndex {
       if (Doubles.compare(e.getDoubleValue(), theta) < 0)
         it.remove();
     }
-    
     numMatches += accumulator.size();
     return accumulator;
   }
