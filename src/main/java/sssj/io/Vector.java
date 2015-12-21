@@ -9,6 +9,8 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import org.apache.commons.math3.util.FastMath;
+
 /**
  * A sparse vector in a multidimensional Euclidean space. The vector is identified by a unique timestamp.
  * Each vector has the following serialization format.
@@ -22,6 +24,7 @@ public class Vector { // entries are returned in the same order they are added
   protected Int2DoubleLinkedOpenHashMap data = new Int2DoubleLinkedOpenHashMap();
   protected long timestamp;
   protected double maxValue;
+  protected double sumValues;
 
   public Vector() {
     this(0);
@@ -30,6 +33,7 @@ public class Vector { // entries are returned in the same order they are added
   public Vector(long timestamp) {
     this.timestamp = timestamp;
     this.maxValue = 0;
+    this.sumValues = 0;
   }
 
   /**
@@ -40,11 +44,13 @@ public class Vector { // entries are returned in the same order they are added
   public Vector(Vector other) {
     this.timestamp = other.timestamp;
     this.maxValue = other.maxValue;
+    this.sumValues = other.sumValues;
     data.putAll(other.data);
   }
 
   public double put(int k, double v) {
-    this.maxValue = Math.max(maxValue, v);
+    this.maxValue = FastMath.max(maxValue, v);
+    this.sumValues += v;
     return data.put(k, v);
   }
 
@@ -62,6 +68,10 @@ public class Vector { // entries are returned in the same order they are added
 
   public double maxValue() {
     return maxValue;
+  }
+  
+  public double sumValues() {
+    return sumValues;
   }
 
   public long timestamp() {
