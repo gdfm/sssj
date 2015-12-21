@@ -27,5 +27,7 @@ public class MaxVector extends Vector {
 
   public void clear() {
     data.clear();
+    this.maxValue = 0;
+    this.sumValues = 0;
   }
 }

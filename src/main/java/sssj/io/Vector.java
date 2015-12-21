@@ -9,8 +9,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.apache.commons.math3.util.FastMath;
-
 /**
  * A sparse vector in a multidimensional Euclidean space. The vector is identified by a unique timestamp.
  * Each vector has the following serialization format.
@@ -49,7 +47,7 @@ public class Vector { // entries are returned in the same order they are added
   }
 
   public double put(int k, double v) {
-    this.maxValue = FastMath.max(maxValue, v);
+    this.maxValue = Math.max(maxValue, v);
     this.sumValues += v;
     return data.put(k, v);
   }

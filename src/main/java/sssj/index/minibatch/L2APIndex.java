@@ -95,10 +95,13 @@ public class L2APIndex extends AbstractIndex {
         continue; // l2 pruning
       final Vector residual = residuals.get(candidateID);
       assert (residual != null);
-      final double dpscore = e.getDoubleValue()
-          + Math.min(v.maxValue() * residual.size(), residual.maxValue() * v.size());
-      if (Double.compare(dpscore, theta) < 0)
+      final double ds1 = e.getDoubleValue()
+          + Math.min(v.maxValue() * residual.sumValues(), residual.maxValue() * v.sumValues());
+      if (Double.compare(ds1, theta) < 0)
         continue; // dpscore, eq. (5)
+      final double sz2 = e.getDoubleValue() + Math.min(v.maxValue() * residual.size(), residual.maxValue() * v.size());
+      if (Double.compare(sz2, theta) < 0)
+        continue; // dpscore, eq. (9)
 
       final long deltaT = v.timestamp() - candidateID;
       double score = e.getDoubleValue() + Vector.similarity(v, residual); // dot(x, y) = A[y] + dot(x, y')

@@ -16,8 +16,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.math3.util.FastMath;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import sssj.index.AbstractIndex;
 import sssj.index.L2APPostingEntry;
@@ -31,7 +29,7 @@ import sssj.io.Vector;
 import com.google.common.primitives.Doubles;
 
 public class StreamingL2APIndex extends AbstractIndex {
-  private static final Logger log = LoggerFactory.getLogger(StreamingL2APIndex.class);
+  // private static final Logger log = LoggerFactory.getLogger(StreamingL2APIndex.class);
   private final Int2ReferenceMap<StreamingL2APPostingList> idx = new Int2ReferenceOpenHashMap<>();
   private final StreamingResiduals residuals = new StreamingResiduals();
   private final Long2DoubleLinkedOpenHashMap ps = new Long2DoubleLinkedOpenHashMap();
@@ -155,10 +153,13 @@ public class StreamingL2APIndex extends AbstractIndex {
       final Vector residual = residuals.getAndPrune(candidateID, lowWatermark);
       prunePS(lowWatermark);
       assert (residual != null) : "Residual not found. ID=" + v.timestamp() + " candidateID=" + candidateID;
-      final double dpscore = e.getDoubleValue()
-          + Math.min(v.maxValue() * residual.size(), residual.maxValue() * v.size());
-      if (Double.compare(dpscore * ff, theta) < 0)
+      final double ds1 = e.getDoubleValue()
+          + Math.min(v.maxValue() * residual.sumValues(), residual.maxValue() * v.sumValues());
+      if (Double.compare(ds1 * ff, theta) < 0)
         continue; // dpscore, eq. (5)
+      final double sz2 = e.getDoubleValue() + Math.min(v.maxValue() * residual.size(), residual.maxValue() * v.size());
+      if (Double.compare(sz2 * ff, theta) < 0)
+        continue; // dpscore, eq. (9)
 
       double score = e.getDoubleValue() + Vector.similarity(v, residual); // dot(x, y) = A[y] + dot(x, y')
       score *= ff; // apply forgetting factor

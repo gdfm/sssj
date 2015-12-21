@@ -120,10 +120,13 @@ public class StreamingL2Index extends AbstractIndex {
       final Vector residual = residuals.getAndPrune(candidateID, lowWatermark);
       prunePS(lowWatermark);
       assert (residual != null) : "Residual not found. ID=" + v.timestamp() + " candidateID=" + candidateID;
-      final double dpscore = e.getDoubleValue()
-          + Math.min(v.maxValue() * residual.size(), residual.maxValue() * v.size());
-      if (Double.compare(dpscore * ff, theta) < 0)
+      final double ds1 = e.getDoubleValue()
+          + Math.min(v.maxValue() * residual.sumValues(), residual.maxValue() * v.sumValues());
+      if (Double.compare(ds1 * ff, theta) < 0)
         continue; // dpscore, eq. (5)
+      final double sz2 = e.getDoubleValue() + Math.min(v.maxValue() * residual.size(), residual.maxValue() * v.size());
+      if (Double.compare(sz2 * ff, theta) < 0)
+        continue; // dpscore, eq. (9)
 
       double score = e.getDoubleValue() + Vector.similarity(v, residual); // dot(x, y) = A[y] + dot(x, y')
       score *= ff; // apply forgetting factor
